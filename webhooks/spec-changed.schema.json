@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/PaloAltoNetworks/openapi/webhooks/spec-changed.schema.json",
+  "title": "spec.changed",
+  "description": "Emitted by this repository to the KB when the specification moves. The KB uses it to mark the cited claims as needing review. It is a notification, not an instruction: neither side silently overrides the other.",
+  "type": "object",
+  "required": ["event", "emitted_at", "spec", "operations"],
+  "additionalProperties": false,
+  "properties": {
+    "event": { "const": "spec.changed" },
+    "emitted_at": { "type": "string", "format": "date-time" },
+    "spec": {
+      "type": "object",
+      "required": ["repository", "ref", "commit"],
+      "additionalProperties": false,
+      "properties": {
+        "repository": { "type": "string" },
+        "ref": { "type": "string" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "previous_commit": { "type": ["string", "null"] }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["method", "path", "change"],
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": { "type": ["string", "null"] },
+          "method": { "enum": ["get", "put", "post", "delete", "options", "head", "patch", "trace"] },
+          "path": { "type": "string" },
+          "change": {
+            "description": "structure_changed is the case the KB most needs: the shape moved, so any claim describing its behaviour may now be stale.",
+            "enum": ["added", "removed", "structure_changed", "prose_changed", "provenance_changed"]
+          },
+          "claims": {
+            "description": "Claims cited by this operation. Empty means the operation is not yet grounded and the KB cannot tell that it drifted.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "revision": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "text_digest": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+# The structure/prose split only holds if the two halves have different
+# reviewers. That is the mechanism, not a formality: engineering reviews shape,
+# docs reviews claims, and neither approves the other's half by default.
+#
+# Every path currently resolves to one person. Split these as the engineering
+# and docs teams exist -- the path structure is already here so that becomes a
+# one-line change per row rather than a redesign.
+
+*                       @vrv-panw
+
+# Engineering. Machine-verifiable against the running API.
+/openapi.yaml           @vrv-panw
+/scripts/               @vrv-panw
+
+# Docs. Everything a reader reads. Subject to the grounding gate.
+/overlays/              @vrv-panw
+/tags-map.yaml          @vrv-panw
+/docs-navigation.json   @vrv-panw
+
+# Sync contract with the KB. Changing either side changes the other's
+# expectations, so these want both reviewers once both exist.
+/webhooks/              @vrv-panw
+/.github/workflows/     @vrv-panw

@@ -1,0 +1,104 @@
+name: KB drift
+
+# The inbound half of the three-node loop.
+#
+# The KB fires repository_dispatch (event_type: kb-claims-changed) when a claim
+# moves. That does not change this repository. It runs the drift check, and if
+# anything is found, opens an issue for a maintainer.
+#
+# Nothing here edits the specification. Drift is a defect on whichever side
+# moved, there is no authoritative side to fall back on, and a KB<->spec
+# contradiction is a maintainer decision with no diff to review.
+#
+# The schedule is the backstop, not the mechanism -- webhooks are the mechanism.
+
+on:
+  repository_dispatch:
+    types: [kb-claims-changed]
+  schedule:
+    - cron: '17 6 * * 1'     # Mondays, in case a webhook was missed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    env:
+      KB_MANIFEST_URL: ${{ github.event.client_payload.kb.manifest_url || secrets.KB_MANIFEST_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Validate the inbound payload
+        if: ${{ github.event_name == 'repository_dispatch' }}
+        run: |
+          cat <<'JSON' > /tmp/inbound.json
+          ${{ toJSON(github.event.client_payload) }}
+          JSON
+          python - <<'PY'
+          import json
+          from jsonschema import validate
+          payload = json.load(open('/tmp/inbound.json'))
+          schema = json.load(open('webhooks/kb-claims-changed.schema.json'))
+          validate(payload, schema)
+          print(f"inbound payload valid: {len(payload['claims'])} claim(s)")
+          PY
+
+      - name: Check for drift
+        id: drift
+        continue-on-error: true
+        run: |
+          if [ -n "$KB_MANIFEST_URL" ]; then
+            python scripts/drift.py --manifest-url "$KB_MANIFEST_URL" \
+              --json build/drift.json | tee /tmp/drift.txt
+          else
+            echo "KB_MANIFEST_URL is not set (Q2, KB access)." | tee /tmp/drift.txt
+            echo "Reporting grounding coverage only." | tee -a /tmp/drift.txt
+            python scripts/drift.py --dry-run --json build/drift.json | tee -a /tmp/drift.txt
+          fi
+
+      - name: Summarise
+        run: |
+          { echo '```'; cat /tmp/drift.txt; echo '```'; } >> $GITHUB_STEP_SUMMARY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: build/drift.json
+
+      - name: Open an issue for a maintainer
+        if: ${{ steps.drift.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Drift detected between the specification and the KB."
+            echo
+            echo "Drift is a defect regardless of which artifact moved. There is no"
+            echo "authoritative side to fall back on, so this needs a maintainer"
+            echo "decision rather than regenerating either artifact."
+            echo
+            echo '```'
+            cat /tmp/drift.txt
+            echo '```'
+            echo
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > /tmp/body.md
+
+          existing=$(gh issue list --label kb-drift --state open \
+            --json number --jq '.[0].number' || true)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file /tmp/body.md
+          else
+            gh issue create --title "KB drift detected" \
+              --label kb-drift --body-file /tmp/body.md
+          fi

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/PaloAltoNetworks/openapi/webhooks/kb-claims-changed.schema.json",
+  "title": "kb.claims.changed",
+  "description": "Sent by the KB to this repository as a GitHub repository_dispatch client_payload, event_type 'kb-claims-changed'. Arrival does not change the specification. It triggers a drift check, and a maintainer decides.",
+  "type": "object",
+  "required": ["event", "emitted_at", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "event": { "const": "kb.claims.changed" },
+    "emitted_at": { "type": "string", "format": "date-time" },
+    "kb": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "manifest_url": {
+          "description": "Where to fetch the full claim manifest. Overrides the KB_MANIFEST_URL secret for this run.",
+          "type": "string"
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "revision", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "revision": { "type": "string" },
+          "status": {
+            "description": "A claim that leaves 'accepted' invalidates any prose resting on it, whether or not the text changed.",
+            "enum": ["accepted", "retracted", "superseded", "draft"]
+          },
+          "supersedes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

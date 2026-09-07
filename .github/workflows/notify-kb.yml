@@ -1,0 +1,91 @@
+name: Notify KB of specification changes
+
+# The outbound half of the three-node loop: KB <-> spec <-> docs.
+#
+# Push triggers are the mechanism; polling is the backstop. This fires on every
+# push to main so the KB learns that the spec moved without waiting for a sweep.
+#
+# It is a notification, not an instruction. The KB decides what to do with it,
+# and a KB<->spec contradiction is a maintainer decision, not an automatic
+# resolution in either direction.
+#
+# Inert until KB_WEBHOOK_URL is set. The payload is still built and uploaded on
+# every run, so the contract is exercised before the endpoint exists.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'openapi.yaml'
+      - 'overlays/**'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Revision to diff from'
+        default: 'HEAD~1'
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    # Job-level so the delivery step's `if:` can see it. A step-level env is not
+    # in scope for its own condition.
+    env:
+      KB_WEBHOOK_URL: ${{ secrets.KB_WEBHOOK_URL }}
+      KB_WEBHOOK_TOKEN: ${{ secrets.KB_WEBHOOK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # emit_change_event.py diffs against the parent
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Build the spec.changed payload
+        run: |
+          python scripts/emit_change_event.py \
+            --base "${{ github.event.inputs.base || github.event.before }}" \
+            --head "${{ github.sha }}" \
+            --ref  "${{ github.ref }}" \
+            -o build/spec-changed.json
+
+      - name: Validate the payload against its published schema
+        run: |
+          python - <<'PY'
+          import json
+          from jsonschema import validate
+          payload = json.load(open('build/spec-changed.json'))
+          schema = json.load(open('webhooks/spec-changed.schema.json'))
+          validate(payload, schema)
+          print(f"payload valid: {len(payload['operations'])} operation(s)")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spec-changed-payload
+          path: build/spec-changed.json
+
+      - name: POST to the KB
+        if: ${{ env.KB_WEBHOOK_URL != '' }}
+        run: |
+          code=$(curl -sS -o /tmp/response -w '%{http_code}' \
+            --retry 3 --retry-connrefused --max-time 30 \
+            -X POST "$KB_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $KB_WEBHOOK_TOKEN" \
+            --data @build/spec-changed.json)
+          echo "KB responded $code"
+          cat /tmp/response
+          [ "$code" -lt 400 ]
+
+      - name: Report that delivery was skipped
+        if: ${{ env.KB_WEBHOOK_URL == '' }}
+        run: |
+          echo "KB_WEBHOOK_URL is not set (Q2, KB access)." >> $GITHUB_STEP_SUMMARY
+          echo "Payload was built and validated but not delivered." >> $GITHUB_STEP_SUMMARY
