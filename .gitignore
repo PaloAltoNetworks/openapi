@@ -1,0 +1,10 @@
+.venv/
+build/
+__pycache__/
+*.pyc
+
+# The inherited base specification, fetched on demand by scripts/fetch-base.sh.
+# Deliberately not committed: it carries ~222 KB of prose that this repository
+# exists in order to not inherit, and a copy in the tree is a copy that gets
+# pasted from.
+.source/

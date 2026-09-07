@@ -1,0 +1,214 @@
+# Tag information architecture for the Prisma AIRS AI Gateway API.
+#
+# Tag names are simultaneously navigation display text and reference keys that
+# operations point at. This file is the single place where that rename is
+# decided, so the mapping stays reviewable instead of being spread across 242
+# operations. `scripts/build.py` applies it; `scripts/check.py` enforces that
+# every tag an operation names is declared here.
+#
+# Naming conventions applied:
+#   - Title Case, spaces as the word separator (not hyphens, not camelCase)
+#   - Plural for tags that group operations over a collection of resources
+#   - "Parent > Child" retained for genuine sub-resources; Mintlify maps the
+#     nesting onto navigation groups
+#   - Initialisms uppercased (API, MCP, OCR)
+#
+# `group` assigns the tag to a top-level navigation group. `description` is
+# deliberately absent everywhere: tag prose is published documentation and is
+# authored in overlays/docs-prose.yaml under the grounding gate.
+
+groups:
+  - id: inference
+    title: Inference
+  - id: gateway-config
+    title: Gateway Configuration
+  - id: providers
+    title: Providers and Credentials
+  - id: mcp
+    title: MCP
+  - id: administration
+    title: Administration
+  - id: observability
+    title: Observability
+
+# from: tag name as it appears in the inherited Portkey specification
+# to:   tag name in this specification
+tags:
+  # --- Inference -------------------------------------------------------
+  - from: Chat
+    to: Chat
+    group: inference
+  - from: Completions
+    to: Completions
+    group: inference
+  - from: Embeddings
+    to: Embeddings
+    group: inference
+  - from: Images
+    to: Images
+    group: inference
+  - from: Audio
+    to: Audio
+    group: inference
+  - from: Moderations
+    to: Moderations
+    group: inference
+  - from: Rerank
+    to: Rerank
+    group: inference
+  - from: OCR
+    to: OCR
+    group: inference
+  - from: Responses
+    to: Responses
+    group: inference
+  - from: Realtime
+    to: Realtime
+    group: inference
+  - from: Batch
+    to: Batch
+    group: inference
+  - from: Files
+    to: Files
+    group: inference
+  # "Fine-tuning" and "Finetune" were two spellings of one concept in the
+  # inherited spec. Merged.
+  - from: Fine-tuning
+    to: Fine-Tuning
+    group: inference
+  - from: Finetune
+    to: Fine-Tuning
+    group: inference
+  - from: Models
+    to: Models
+    group: inference
+  - from: Model Pricing
+    to: Model Pricing
+    group: inference
+  - from: Assistants
+    to: Assistants
+    group: inference
+  - from: Vector Stores
+    to: Vector Stores
+    group: inference
+
+  # --- Gateway Configuration -------------------------------------------
+  - from: Configs
+    to: Configs
+    group: gateway-config
+  - from: Prompts
+    to: Prompts
+    group: gateway-config
+  - from: PromptPartials
+    to: Prompt Partials
+    group: gateway-config
+  - from: Prompt Collections
+    to: Prompt Collections
+    group: gateway-config
+  - from: Collections
+    to: Collections
+    group: gateway-config
+  - from: Guardrails
+    to: Guardrails
+    group: gateway-config
+  - from: Labels
+    to: Labels
+    group: gateway-config
+  - from: Deployments
+    to: Deployments
+    group: gateway-config
+
+  # --- Providers and Credentials ---------------------------------------
+  - from: Providers
+    to: Providers
+    group: providers
+  - from: Integrations
+    to: Integrations
+    group: providers
+  - from: Integrations > Models
+    to: Integrations > Models
+    group: providers
+  - from: Integrations > Workspaces
+    to: Integrations > Workspaces
+    group: providers
+  - from: Virtual-keys
+    to: Virtual Keys
+    group: providers
+  - from: Secret-References
+    to: Secret References
+    group: providers
+
+  # --- MCP ---------------------------------------------------------------
+  - from: MCP Servers
+    to: MCP Servers
+    group: mcp
+  - from: MCP Servers > Capabilities
+    to: MCP Servers > Capabilities
+    group: mcp
+  - from: MCP Servers > Connections
+    to: MCP Servers > Connections
+    group: mcp
+  - from: MCP Servers > User Access
+    to: MCP Servers > User Access
+    group: mcp
+  - from: MCP Integrations
+    to: MCP Integrations
+    group: mcp
+  - from: MCP Integrations > Capabilities
+    to: MCP Integrations > Capabilities
+    group: mcp
+  - from: MCP Integrations > Metadata
+    to: MCP Integrations > Metadata
+    group: mcp
+  - from: MCP Integrations > Workspaces
+    to: MCP Integrations > Workspaces
+    group: mcp
+
+  # --- Administration ----------------------------------------------------
+  - from: Users
+    to: Users
+    group: administration
+  - from: User-invites
+    to: User Invites
+    group: administration
+  - from: Workspaces
+    to: Workspaces
+    group: administration
+  - from: Workspaces > Members
+    to: Workspaces > Members
+    group: administration
+  - from: Api-Keys
+    to: API Keys
+    group: administration
+  - from: Rate Limits Policies
+    to: Rate Limit Policies
+    group: administration
+  - from: Usage Limits Policies
+    to: Usage Limit Policies
+    group: administration
+
+  # --- Observability -----------------------------------------------------
+  - from: Analytics
+    to: Analytics
+    group: observability
+  - from: Analytics > Graphs
+    to: Analytics > Graphs
+    group: observability
+  - from: Analytics > Groups
+    to: Analytics > Groups
+    group: observability
+  - from: Analytics > Summary
+    to: Analytics > Summary
+    group: observability
+  - from: Logs
+    to: Logs
+    group: observability
+  - from: Logs Export
+    to: Log Exports
+    group: observability
+  - from: Audit Logs
+    to: Audit Logs
+    group: observability
+  - from: Feedback
+    to: Feedback
+    group: observability

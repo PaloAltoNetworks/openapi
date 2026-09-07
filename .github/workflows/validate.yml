@@ -1,0 +1,39 @@
+name: Validate
+
+# The predecessor repository had a validation workflow that pointed at a file
+# which did not exist, in a repository that was not the one being published,
+# and it had no run history at all. This one runs on its own file, on every
+# push and pull request, and its run history is the evidence that it works.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Specification and grounding checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Check specification, overlays and grounding gate
+        run: python scripts/check.py
+
+      - name: Resolve overlays and upload the published document
+        run: |
+          python scripts/apply_overlay.py openapi.yaml overlays/*.yaml \
+            -o build/openapi.resolved.yaml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resolved-specification
+          path: build/openapi.resolved.yaml
