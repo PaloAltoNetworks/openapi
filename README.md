@@ -25,6 +25,7 @@ plausible, wrong description is invisible and survives review.
 | `overlays/docs-prose.yaml` | Docs | `summary`, `description`, examples, tag prose | **Grounding gate** |
 | `tags-map.yaml` | Docs | Tag information architecture and rename mapping | IA review |
 | `docs-navigation.json` | Docs | Generated `docs.json` navigation fragment | — |
+| `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
 | `PROSE-INVENTORY.csv` | — | Every stripped prose field: location, size, digest | Worklist |
 | `build-report.txt` | — | Generation counts and inherited defects | — |
 
@@ -130,6 +131,48 @@ It costs nothing while authoring and is prohibitively expensive to retrofit,
 because reconstructing which claim supported a description after the fact is
 indistinguishable from inventing it.
 
+### Sync
+
+Bidirectional and webhook-driven. Polling is the backstop, not the mechanism.
+
+| Direction | Trigger | Workflow | Effect |
+|---|---|---|---|
+| spec → KB | push to `main` touching `openapi.yaml` or `overlays/` | `notify-kb.yml` | POSTs `spec.changed`; the KB marks cited claims for review |
+| KB → spec | `repository_dispatch`, type `kb-claims-changed` | `kb-drift.yml` | Runs the drift check, opens an issue |
+| backstop | weekly cron | `kb-drift.yml` | Catches a missed webhook |
+
+`scripts/emit_change_event.py` classifies what moved. The distinction that
+matters to the KB is `structure_changed` versus `prose_changed`: the shape
+moving may invalidate a claim, docs moving usually does not.
+
+```bash
+scripts/emit_change_event.py --base HEAD~1 --head HEAD -o build/event.json
+scripts/drift.py --manifest kb-manifest.json      # or --manifest-url
+scripts/drift.py --dry-run                        # no KB: coverage only
+```
+
+`scripts/drift.py` reports six kinds of finding, each confirmed to fire against
+a synthetic manifest:
+
+| Finding | Meaning |
+|---|---|
+| `unknown-claim` | The spec cites a claim the KB does not have |
+| `revision-drift` | The KB moved and the spec did not, or the reverse |
+| `unaccepted-claim` | Cited claim is retracted, superseded or draft |
+| `orphan-claim` | KB holds an API-domain claim nothing cites |
+| `ungrounded` | Prose written with no claim behind it |
+| `stale-digest` | Prose edited after grounding, digest left behind |
+
+**It never fixes anything.** Drift is a defect regardless of which artifact
+moved, and there is no authoritative side to fall back on — so it reports,
+exits non-zero, and a maintainer decides. Never automatically, never
+last-write-wins.
+
+Both workflows are inert until their secrets (`KB_WEBHOOK_URL`,
+`KB_WEBHOOK_TOKEN`, `KB_MANIFEST_URL`) exist, but not dormant: `notify-kb`
+builds and schema-validates the payload on every run, so the contract is
+exercised before the endpoint it talks to does.
+
 ## Naming
 
 Rule of thumb: *if a reader would type it or a machine would parse it, it does
@@ -180,7 +223,7 @@ archive to restore from.
   inherited gap. Inventing identifiers is not the same as recovering them, so
   they are reported for engineering rather than filled in.
 - **`info.contact`, `license` and `termsOfService` were dropped.** The base
-  pointed all three at Portkey resources. They need real values.
+  pointed all three at Portkey resources.
 - **JSON Schema constraints were retained.** `default`, `maximum`, `minLength`
   and similar are inherited unverified. They are machine-verifiable against a
   running API, which is the same justification that keeps types and `required`,
