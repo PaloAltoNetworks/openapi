@@ -6,30 +6,44 @@ checklist. Strike through as they land.
 Every task ends green — `check.py`, `check_shape.py` and `lint.py` passing — so
 work can stop at any line.
 
-All four questions answered, 2026-09-15. **One thing still needed before task 2
-can finish: the control-plane base URL.** Everything else is unblocked.
+All four questions answered, 2026-09-15. Control-plane base URL confirmed the
+same day. **Nothing is blocked.**
 
 ---
 
 ## Phase 1 — the sweeping changes
 
-### 1. Drop the marked control-plane operations
-- [ ] Delete the 11 tag groups marked `[DROPPED]`: Audit Logs, Collections, Deployments, Labels, Log Exports, Prompt Partials, Prompts, User Invites, Users, Virtual Keys, Workspaces > Members
-- [ ] Also drop the two gateway `Prompts` paths — `/prompts/{promptId}/completions` and `/prompts/{promptId}/render` — so the whole Prompts surface goes together (Q-A)
-- [ ] → **33 paths, 61 operations.** Leaves **118 paths, 181 operations**
-- [ ] Prune components orphaned by the deletion, by reachability → **578 to 474**
-- [ ] Sweep the 58 components already unreachable before any deletion
-- [ ] Regenerate `tags-map.yaml` and `docs-navigation.json` — **52 tags to 41**, 11 emptied
-- [ ] Re-baseline Spectral and record the new counts
-- [ ] Record every removal in `_project/base-delta.yaml` with a reason
-- [ ] Let `breaking-changes.yml` fire and keep the comment as the audit trail
+### 1. ~~Drop the marked control-plane operations~~ — done 2026-09-15
+- [x] ~~Delete the 11 tag groups marked `[DROPPED]`: Audit Logs, Collections, Deployments, Labels, Log Exports, Prompt Partials, Prompts, User Invites, Users, Virtual Keys, Workspaces > Members~~
+- [x] ~~Also drop the two gateway `Prompts` paths — `/prompts/{promptId}/completions` and `/prompts/{promptId}/render` — so the whole Prompts surface goes together (Q-A)~~
+- [x] ~~→ **33 paths, 61 operations.** Leaves **118 paths, 181 operations**~~ — exactly as forecast
+- [x] ~~Prune components orphaned by the deletion, by reachability~~ — 46 orphaned
+- [x] ~~Sweep the components already unreachable before any deletion~~ — 52, not 58
+- [x] ~~Regenerate `docs-navigation.json` — **52 tags to 41**, 11 emptied~~
+- [x] ~~Re-baseline Spectral and record the new counts~~ — 193 to 123 findings; `oas3-unused-component` 26 to 0
+- [x] ~~Record every removal in `_project/base-delta.yaml` with a reason~~ — 61 operations, 98 components
+- [ ] Let `breaking-changes.yml` fire and keep the comment as the audit trail — fires on push
+
+Notes worth carrying:
+- Drops are declarative in **`_project/drops.yaml`**, applied by `build.py`, so
+  `openapi.yaml` stays reproducible from the base. Selection is by tag, not by
+  path: that is how the decision was made, and it survives a path rename.
+- `tags-map.yaml` keeps all 52 entries. The 11 dropped tags must still resolve,
+  because the drop runs *after* the rename so `drops.yaml` can name tags the way
+  a reader of `drop-list.md` saw them. They go when the cord is cut (task 7).
+- **Components landed at 480, not the forecast 474.** The forecast followed
+  `$ref`s only and so pruned the 6 `securitySchemes`, which are referenced *by
+  name* from `security` blocks. Five of the six go in task 3 → 475.
+- `drop-list.md` is regenerated and now shows only what still ships (66 control
+  plane, 52 gateway). It carries a header saying decisions do not live there.
 
 ### 2. One base URL that drives everything
 - [ ] Delete all 130 path-level and 2 operation-level `servers` overrides
 - [ ] Single root `servers` block using an OpenAPI server variable with a `default` and an `enum` — one line to edit, and it is how the self-hosted option gets offered
 - [ ] Data plane → `https://aigw.portkey.ai/v1`, prefix unchanged
 - [ ] Offer `SELF_HOSTED_GATEWAY_URL` as the alternate, as today
-- [ ] Second root entry for the control plane — **URL still needed (Q-B)**. 66 control-plane paths survive and sit on a different host
+- [ ] Second root entry for the control plane — `https://mp.us.prod.airs-gw.portkey.ai/api/v1`, confirmed 2026-09-15. 66 control-plane paths survive and sit on a different host
+- [ ] Note the planes do **not** share a prefix: gateway `/v1`, control plane `/api/v1`. Our control-plane paths are declared bare (`/api-keys`), so the prefix lives entirely in the server URL and no path rewriting is needed
 - [ ] Remove the three placeholder strings that are not URLs
 - [ ] Extend `check.py` to fail if any host appears outside the root block
 - [ ] Add `servers` to `normalise:` in `base-delta.yaml`
@@ -85,20 +99,16 @@ can finish: the control-plane base URL.** Everything else is unblocked.
 | | Question | Answer |
 |---|---|---|
 | Q-A | `Prompts` spans both planes; only the control-plane side was marked | **Drop the two gateway paths too.** The whole Prompts surface goes together |
-| Q-B | Control-plane base URL, since 66 control-plane paths survive | **A different host.** URL to follow — the only outstanding blocker |
+| Q-B | Control-plane base URL, since 66 control-plane paths survive | **A different host:** `https://mp.us.prod.airs-gw.portkey.ai/api/v1`. Confirmed 2026-09-15 |
 | Q-C | When to retire the base linkage | **End of Phase 1**, so the guardrail covers the drops |
 | Q-D | Is 31 paths the intended drop, not 97? | **Yes.** 66 control-plane paths stay by design |
 
-## Still needed
-
-- **The control-plane base URL (Q-B).** Task 2 can be done except for that one
-  value. Everything else in Phase 1 is unblocked.
-
 ## The shape of Phase 1
 
-| | Now | After task 1 |
-|---|---|---|
-| Paths | 151 | **118** |
-| Operations | 242 | **181** |
-| Components | 578 | **474** |
-| Tags | 52 | **41** |
+| | Base | After task 1 | Forecast was |
+|---|---|---|---|
+| Paths | 151 | **118** | 118 ✓ |
+| Operations | 242 | **181** | 181 ✓ |
+| Components | 578 | **480** | 474 — see note above |
+| Tags | 52 | **41** | 41 ✓ |
+| Spectral findings | 193 | **123** | — |

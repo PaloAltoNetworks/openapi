@@ -196,17 +196,6 @@
       "group": "Gateway Configuration",
       "pages": [
         {
-          "group": "Collections",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Collections"
-        },
-        {
           "group": "Configs",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
@@ -218,17 +207,6 @@
           "tag": "Configs"
         },
         {
-          "group": "Deployments",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Deployments"
-        },
-        {
           "group": "Guardrails",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
@@ -238,39 +216,6 @@
             ]
           },
           "tag": "Guardrails"
-        },
-        {
-          "group": "Labels",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Labels"
-        },
-        {
-          "group": "Prompt Partials",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Prompt Partials"
-        },
-        {
-          "group": "Prompts",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Prompts"
         }
       ]
     },
@@ -331,17 +276,6 @@
             ]
           },
           "tag": "Secret References"
-        },
-        {
-          "group": "Virtual Keys",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Virtual Keys"
         }
       ]
     },
@@ -475,28 +409,6 @@
           "tag": "Usage Limit Policies"
         },
         {
-          "group": "User Invites",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "User Invites"
-        },
-        {
-          "group": "Users",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Users"
-        },
-        {
           "group": "Workspaces",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
@@ -506,17 +418,6 @@
             ]
           },
           "tag": "Workspaces"
-        },
-        {
-          "group": "Workspaces > Members",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Workspaces > Members"
         }
       ]
     },
@@ -557,17 +458,6 @@
           "tag": "Analytics > Summary"
         },
         {
-          "group": "Audit Logs",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Audit Logs"
-        },
-        {
           "group": "Feedback",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
@@ -577,17 +467,6 @@
             ]
           },
           "tag": "Feedback"
-        },
-        {
-          "group": "Log Exports",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Log Exports"
         },
         {
           "group": "Logs",

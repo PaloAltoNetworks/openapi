@@ -153,6 +153,130 @@ def load_tag_map(path: Path):
     return doc, rename, group_of
 
 
+def load_drops(path: Path):
+    """Tags and operations deliberately not shipped. See _project/drops.yaml."""
+    if not path.exists():
+        return set(), set()
+    doc = yaml.safe_load(path.read_text()) or {}
+    tags = set(doc.get("tags") or [])
+    ops = {str(entry).strip().lower() for entry in (doc.get("operations") or [])}
+    return tags, ops
+
+
+def apply_drops(spec, drop_tags: set[str], drop_ops: set[str], known_tags: set[str]):
+    """Remove dropped operations, and any path left with none.
+
+    Runs after the tag rename, so the names here are this specification's, not
+    the base's -- which is what a reader of drop-list.md decided on.
+
+    A tag or an operation id that matches nothing is an error. The usual cause
+    is a rename upstream, and a drop rule that has quietly stopped applying
+    puts an endpoint back in public documentation without anyone deciding to.
+    """
+    unknown = sorted(drop_tags - known_tags)
+    if unknown:
+        raise SystemExit(f"drops.yaml names tags absent from tags-map.yaml: {unknown}")
+
+    dropped_ops: list[str] = []
+    dropped_paths: list[str] = []
+    matched_tags: set[str] = set()
+    matched_ops: set[str] = set()
+
+    for path, item in list(spec.get("paths", {}).items()):
+        if not isinstance(item, dict):
+            continue
+        for method in [m for m in item if m in HTTP_METHODS]:
+            op = item[method]
+            if not isinstance(op, dict):
+                continue
+            hit = drop_tags.intersection(op.get("tags") or [])
+            key = f"{method} {path}"
+            if not hit and key not in drop_ops:
+                continue
+            matched_tags |= hit
+            if key in drop_ops:
+                matched_ops.add(key)
+            del item[method]
+            dropped_ops.append(f"{method.upper()} {path}")
+        if not any(m in HTTP_METHODS for m in item):
+            # Nothing callable left. A path item holding only `parameters` is
+            # not a resource, it is a leftover.
+            del spec["paths"][path]
+            dropped_paths.append(path)
+
+    stale = sorted((drop_tags - matched_tags) | (drop_ops - matched_ops))
+    if stale:
+        raise SystemExit(f"drops.yaml entries match no operation: {stale}")
+
+    return sorted(dropped_paths), sorted(dropped_ops)
+
+
+def refs_in(node, out: set) -> set:
+    """Every `#/components/...` pointer in a subtree, as `section/name`."""
+    if isinstance(node, dict):
+        target = node.get("$ref")
+        if isinstance(target, str) and target.startswith("#/components/"):
+            out.add(target[len("#/components/"):])
+        for value in node.values():
+            refs_in(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            refs_in(value, out)
+    return out
+
+
+def security_names(node, out: set) -> set:
+    """Scheme names used by any `security` block. These are named, not $ref'd,
+    so reachability alone would prune every security scheme in the document."""
+    if isinstance(node, dict):
+        for requirement in node.get("security") or []:
+            if isinstance(requirement, dict):
+                out.update(f"securitySchemes/{name}" for name in requirement)
+        for value in node.values():
+            security_names(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            security_names(value, out)
+    return out
+
+
+def prune_components(spec) -> list[str]:
+    """Drop components nothing reaches, and report what went.
+
+    Roots are the whole document apart from `components` itself, so a schema
+    survives only if something outside the component pool asks for it, directly
+    or through a chain of $refs. This removes both what the drops orphaned and
+    what the base was already carrying unreferenced -- the two are the same
+    thing and there is no reason to tell them apart.
+    """
+    components = spec.get("components") or {}
+    outside = {k: v for k, v in spec.items() if k != "components"}
+
+    seen: set[str] = set()
+    queue = list(refs_in(outside, set()) | security_names(spec, set()))
+    while queue:
+        key = queue.pop()
+        if key in seen:
+            continue
+        seen.add(key)
+        section, _, name = key.partition("/")
+        node = (components.get(section) or {}).get(name)
+        if node is not None:
+            queue.extend(refs_in(node, set()) - seen)
+
+    removed = []
+    for section, entries in list(components.items()):
+        if not isinstance(entries, dict):
+            continue
+        for name in list(entries):
+            if f"{section}/{name}" not in seen:
+                del entries[name]
+                removed.append(f"{section}/{name}")
+        if not entries:
+            del components[section]
+    return sorted(removed)
+
+
 def operations(spec):
     for path, item in spec.get("paths", {}).items():
         if not isinstance(item, dict):
@@ -191,7 +315,6 @@ def build(base_path: Path) -> int:
     }
 
     # --- tags -------------------------------------------------------------
-    used = set()
     unmapped = set()
     for _, _, op in operations(spec):
         renamed = []
@@ -205,12 +328,23 @@ def build(base_path: Path) -> int:
             # Merged tags (Fine-tuning + Finetune) can collide; keep order,
             # drop duplicates.
             op["tags"] = list(dict.fromkeys(renamed))
-            used.update(op["tags"])
 
     if unmapped:
         print(f"error: tags used by operations but absent from tags-map.yaml: "
               f"{sorted(unmapped)}", file=sys.stderr)
         return 1
+
+    # --- drops --------------------------------------------------------------
+    # After the rename so drops.yaml can name tags as this specification does,
+    # and before `used` is computed so an emptied tag leaves no navigation
+    # entry pointing at nothing.
+    drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
+    dropped_paths, dropped_ops = apply_drops(spec, drop_tags, drop_ops, set(rename.values()))
+    orphaned = prune_components(spec)
+
+    used = set()
+    for _, _, op in operations(spec):
+        used.update(op.get("tags") or [])
 
     spec["tags"] = [
         {"name": name, "description": ""}
@@ -254,9 +388,10 @@ def build(base_path: Path) -> int:
 
     ops = list(operations(spec))
     missing_ids = [f"{m.upper()} {p}" for p, m, o in ops if not o.get("operationId")]
-    print(f"operations         {len(ops)}")
-    print(f"paths              {len(spec.get('paths', {}))}")
+    print(f"operations         {len(ops)}  (dropped {len(dropped_ops)})")
+    print(f"paths              {len(spec.get('paths', {}))}  (dropped {len(dropped_paths)})")
     print(f"schemas            {len(spec.get('components', {}).get('schemas', {}))}")
+    print(f"components pruned  {len(orphaned)}")
     print(f"tags               {len(spec['tags'])}")
     print(f"prose fields removed {len(stripper.removed)}")
     print(f"null defaults dropped {len(null_defaults)}")
@@ -268,7 +403,17 @@ def build(base_path: Path) -> int:
         f"paths                            {len(spec.get('paths', {}))}\n"
         f"schemas                          {len(spec.get('components', {}).get('schemas', {}))}\n"
         f"tags                             {len(spec['tags'])}\n"
-        f"prose fields removed             {len(stripper.removed)}\n"
+        f"\noperations dropped               {len(dropped_ops)}\n"
+        "  Declared in _project/drops.yaml and recorded in _project/base-delta.yaml.\n"
+        + "".join(f"    {m}\n" for m in dropped_ops)
+        + f"\npaths emptied by those drops     {len(dropped_paths)}\n"
+        + "".join(f"    {p}\n" for p in dropped_paths)
+        + f"\ncomponents pruned                {len(orphaned)}\n"
+        "  Reachability sweep. Covers both what the drops orphaned and what the\n"
+        "  base already carried unreferenced; the two are indistinguishable and\n"
+        "  there is no reason to keep either.\n"
+        + "".join(f"    {c}\n" for c in orphaned)
+        + f"\nprose fields removed             {len(stripper.removed)}\n"
         f"null defaults dropped            {len(null_defaults)}\n"
         + "".join(f"    {p}\n" for p in null_defaults)
         + f"\noperations lacking operationId   {len(missing_ids)}\n"

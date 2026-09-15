@@ -1,0 +1,38 @@
+# Operations deliberately not shipped in the Prisma AIRS specification.
+#
+# Read by scripts/build.py, which removes them before anything else runs, so
+# openapi.yaml stays reproducible from the base for as long as the base is
+# still around. Editing openapi.yaml directly would be undone by the next
+# build; this file is the durable record.
+#
+# Every removal here must also appear in base-delta.yaml with a reason, or
+# check_shape.py fails. Two files on purpose: this one decides, that one is
+# the audit trail the fidelity check reads.
+#
+# Selection is by tag, not by path. That is how the decision was actually
+# made -- whole capabilities go, not individual URLs -- and it survives a
+# path rename, which a path list would not.
+
+# Vrushank, 2026-09-15, marked [DROPPED] in drop-list.md.
+#
+# Control-plane capabilities that Prisma AIRS does not expose. Ten of the
+# eleven are control plane throughout. `Prompts` is the exception: it spans
+# both planes, and dropping only the control-plane side would ship an API
+# where a prompt can be executed but never created, listed or versioned, so
+# the two gateway paths under it go as well.
+tags:
+  - Audit Logs
+  - Collections
+  - Deployments
+  - Labels
+  - Log Exports
+  - Prompt Partials
+  - Prompts                 # spans both planes; the gateway paths go too
+  - User Invites
+  - Users
+  - Virtual Keys
+  - Workspaces > Members
+
+# Individual operations to drop where the whole tag stays. Empty today: every
+# current removal is a clean tag boundary. Entries are "METHOD /path".
+operations: []
