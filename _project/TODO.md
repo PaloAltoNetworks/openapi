@@ -37,16 +37,40 @@ Notes worth carrying:
 - `drop-list.md` is regenerated and now shows only what still ships (66 control
   plane, 52 gateway). It carries a header saying decisions do not live there.
 
-### 2. One base URL that drives everything
-- [ ] Delete all 130 path-level and 2 operation-level `servers` overrides
-- [ ] Single root `servers` block using an OpenAPI server variable with a `default` and an `enum` — one line to edit, and it is how the self-hosted option gets offered
-- [ ] Data plane → `https://aigw.portkey.ai/v1`, prefix unchanged
-- [ ] Offer `SELF_HOSTED_GATEWAY_URL` as the alternate, as today
-- [ ] Second root entry for the control plane — `https://mp.us.prod.airs-gw.portkey.ai/api/v1`, confirmed 2026-09-15. 66 control-plane paths survive and sit on a different host
-- [ ] Note the planes do **not** share a prefix: gateway `/v1`, control plane `/api/v1`. Our control-plane paths are declared bare (`/api-keys`), so the prefix lives entirely in the server URL and no path rewriting is needed
-- [ ] Remove the three placeholder strings that are not URLs
-- [ ] Extend `check.py` to fail if any host appears outside the root block
-- [ ] Add `servers` to `normalise:` in `base-delta.yaml`
+### 2. ~~One base URL that drives everything~~ — done 2026-09-15
+- [x] ~~Delete all path-level and operation-level `servers` overrides~~ — 97 and 2, not the 130 estimated
+- [x] ~~Data plane → `https://aigw.portkey.ai/v1`, prefix unchanged~~ — now the root server
+- [x] ~~Control plane → `https://mp.us.prod.airs-gw.portkey.ai/api/v1`~~ — confirmed 2026-09-15
+- [x] ~~The planes do **not** share a prefix: gateway `/v1`, control plane `/api/v1`.~~ Paths are declared bare (`/api-keys`), so the prefix lives entirely in the server URL — no path rewriting needed
+- [x] ~~Remove the three placeholder strings that are not URLs~~
+- [x] ~~Extend `check.py`~~ — four guards, each confirmed to fire
+- [x] ~~Add `servers` to `normalise:` in `base-delta.yaml`~~
+
+**The one place to change a base URL is now `_project/servers.yaml`.** Edit a
+host, rebuild, and all 67 blocks follow.
+
+Two deliberate departures from what this list originally said:
+
+- **Not a single root block.** Two root entries, one per plane, would have
+  offered both hosts on every operation — a reader could pick the control-plane
+  URL for a chat completion and it would look right. Instead the gateway is the
+  root server (so 52 gateway paths carry no override at all) and the 66
+  control-plane paths get a generated override. 67 blocks in the artifact rather
+  than 1, but each operation shows exactly one correct host, and all 67 come
+  from one source. The duplication is OpenAPI's — a path cannot refer back to a
+  server declared at the root.
+- **No `enum`, so no `SELF_HOSTED_GATEWAY_URL` in a dropdown.** Under OpenAPI an
+  `enum` means the value *must* be one of the listed options, so a self-hosted
+  reader could not enter their actual host — the dropdown would show the
+  placeholder and still not work. A variable with a `default` and no `enum`
+  renders as an editable field, which is the thing the placeholder was gesturing
+  at. Worth a second look if you specifically wanted the dropdown; it is a
+  three-line change in `servers.yaml`.
+
+New file: **`_project/planes.yaml`**, which plane each of the 118 paths is on.
+This had to be written down *before* the overrides were deleted — they were the
+only record for 95 of them, and `classification.yaml` names just 23. A path
+absent from it fails the build rather than defaulting to the gateway.
 
 ### 3. Authorization header only
 - [ ] Drop the five alternative `security` combinations (Virtual-Key, Provider-Auth, Provider-Name, Config, Custom-Host)

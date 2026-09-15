@@ -6,7 +6,10 @@ info:
   version: 2.0.0
   description: ''
 servers:
-- url: https://api.portkey.ai/v1
+- url: '{host}/v1'
+  variables:
+    host:
+      default: https://aigw.portkey.ai
 x-server-groups:
   ControlPlaneServers:
   - url: https://api.portkey.ai/v1
@@ -108,9 +111,6 @@ tags:
   description: ''
 paths:
   /chat/completions:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createChatCompletion
       tags:
@@ -200,9 +200,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /realtime:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: connectRealtime
       tags:
@@ -282,9 +279,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /completions:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createCompletion
       tags:
@@ -454,6 +448,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /guardrails/{guardrailId}:
     get:
       operationId: getGuardrail
@@ -562,6 +561,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /guardrails/{guardrailId}/mcp-servers:
     parameters:
     - name: guardrailId
@@ -653,6 +657,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /guardrails/{guardrailId}/mcp-servers/{mcpServerId}:
     parameters:
     - name: guardrailId
@@ -713,10 +722,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /images/generations:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /images/generations:
     post:
       operationId: createImage
       tags:
@@ -789,9 +800,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /images/edits:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createImageEdit
       tags:
@@ -869,9 +877,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /images/variations:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createImageVariation
       tags:
@@ -943,9 +948,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /embeddings:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createEmbedding
       tags:
@@ -1020,9 +1022,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /rerank:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createRerank
       tags:
@@ -1112,9 +1111,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /ocr:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createOcr
       tags:
@@ -1204,9 +1200,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /audio/speech:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createSpeech
       tags:
@@ -1293,9 +1286,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /audio/transcriptions:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createTranscription
       tags:
@@ -1372,9 +1362,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /audio/translations:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createTranslation
       tags:
@@ -1452,9 +1439,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /files:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listFiles
       tags:
@@ -1552,9 +1536,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /files/{file_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     delete:
       operationId: deleteFile
       tags:
@@ -1648,9 +1629,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /files/{file_id}/content:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: downloadFile
       tags:
@@ -1704,9 +1682,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /fine_tuning/jobs:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createFineTuningJob
       parameters: []
@@ -1854,9 +1829,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /fine_tuning/jobs/{fine_tuning_job_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: retrieveFineTuningJob
       tags:
@@ -1925,9 +1897,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /fine_tuning/jobs/{fine_tuning_job_id}/events:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listFineTuningEvents
       tags:
@@ -2007,9 +1976,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /fine_tuning/jobs/{fine_tuning_job_id}/cancel:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: cancelFineTuningJob
       tags:
@@ -2078,9 +2044,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /fine_tuning/jobs/{fine_tuning_job_id}/checkpoints:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listFineTuningJobCheckpoints
       tags:
@@ -2161,9 +2124,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /models:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listModels
       tags:
@@ -2351,10 +2311,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /moderations:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /moderations:
     post:
       operationId: createModeration
       tags:
@@ -2424,9 +2386,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /assistants:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listAssistants
       tags:
@@ -2573,9 +2532,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /assistants/{assistant_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getAssistant
       tags:
@@ -2752,9 +2708,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /responses:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createResponse
       tags:
@@ -2782,9 +2735,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /responses/{response_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getResponse
       tags:
@@ -2840,9 +2790,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /responses/{response_id}/input_items:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listInputItems
       tags:
@@ -2888,9 +2835,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createThread
       tags:
@@ -2948,9 +2892,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getThread
       tags:
@@ -3114,9 +3055,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/messages:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listMessages
       tags:
@@ -3270,9 +3208,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/messages/{message_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getMessage
       tags:
@@ -3461,9 +3396,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/runs:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createThreadAndRun
       tags:
@@ -3529,9 +3461,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listRuns
       tags:
@@ -3700,9 +3629,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs/{run_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getRun
       tags:
@@ -3843,9 +3769,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs/{run_id}/submit_tool_outputs:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: submitToolOuputsToRun
       tags:
@@ -3928,9 +3851,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs/{run_id}/cancel:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: cancelRun
       tags:
@@ -3994,9 +3914,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs/{run_id}/steps:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: listRunSteps
       tags:
@@ -4084,9 +4001,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /threads/{thread_id}/runs/{run_id}/steps/{step_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getRunStep
       tags:
@@ -4983,9 +4897,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /batches:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: createBatch
       tags:
@@ -5136,9 +5047,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /batches/{batch_id}/output:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: getBatchOutput
       tags:
@@ -5207,9 +5115,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /batches/{batch_id}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       operationId: retrieveBatch
       tags:
@@ -5277,9 +5182,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /batches/{batch_id}/cancel:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     post:
       operationId: cancelBatch
       tags:
@@ -5347,9 +5249,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /configs:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
     get:
       tags:
       - Configs
@@ -5497,10 +5396,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /configs/{slug}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /configs/{slug}:
     delete:
       tags:
       - Configs
@@ -5544,9 +5445,6 @@ paths:
         origin_kind: human
         text_digest: ''
     get:
-      servers:
-      - url: https://api.portkey.ai/v1
-      - url: SELF_HOSTED_CONTROL_PLANE_URL
       tags:
       - Configs
       operationId: getConfig
@@ -5630,9 +5528,6 @@ paths:
         origin_kind: human
         text_digest: ''
     put:
-      servers:
-      - url: https://api.portkey.ai/v1
-      - url: SELF_HOSTED_CONTROL_PLANE_URL
       tags:
       - Configs
       operationId: updateConfig
@@ -5709,10 +5604,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /configs/{slug}/versions:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /configs/{slug}/versions:
     get:
       tags:
       - Configs
@@ -5792,10 +5689,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /feedback:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /feedback:
     post:
       operationId: createFeedback
       tags:
@@ -5862,10 +5761,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /feedback/{id}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /feedback/{id}:
     put:
       operationId: updateFeedback
       parameters:
@@ -5939,10 +5840,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /integrations:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /integrations:
     get:
       tags:
       - Integrations
@@ -6088,10 +5991,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /integrations/{slug}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /integrations/{slug}:
     get:
       tags:
       - Integrations
@@ -6265,6 +6170,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /integrations/{slug}/models:
     get:
       tags:
@@ -6343,6 +6253,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /integrations/{slug}/workspaces:
     get:
       tags:
@@ -6394,10 +6309,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /providers:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /providers:
     get:
       tags:
       - Providers
@@ -6557,10 +6474,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /providers/{slug}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /providers/{slug}:
     get:
       tags:
       - Providers
@@ -6772,10 +6691,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /admin/workspaces:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /admin/workspaces:
     post:
       tags:
       - Workspaces
@@ -6943,10 +6864,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /admin/workspaces/{workspaceId}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /admin/workspaces/{workspaceId}:
     put:
       tags:
       - Workspaces
@@ -7174,10 +7097,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /scim/workspaces:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /scim/workspaces:
     get:
       tags:
       - Workspaces
@@ -7327,10 +7252,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /scim/workspaces/{scimWorkspaceGroupId}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /scim/workspaces/{scimWorkspaceGroupId}:
     delete:
       tags:
       - Workspaces
@@ -7375,10 +7302,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-integrations:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-integrations:
     post:
       operationId: McpIntegrations_create
       tags:
@@ -7454,10 +7383,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-integrations/{mcpIntegrationId}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-integrations/{mcpIntegrationId}:
     parameters:
     - name: mcpIntegrationId
       in: path
@@ -7520,10 +7451,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-integrations/{mcpIntegrationId}/workspaces:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-integrations/{mcpIntegrationId}/workspaces:
     parameters:
     - name: mcpIntegrationId
       in: path
@@ -7577,10 +7510,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-integrations/{mcpIntegrationId}/capabilities:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-integrations/{mcpIntegrationId}/capabilities:
     parameters:
     - name: mcpIntegrationId
       in: path
@@ -7650,10 +7585,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-integrations/{mcpIntegrationId}/metadata:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-integrations/{mcpIntegrationId}/metadata:
     parameters:
     - name: mcpIntegrationId
       in: path
@@ -7677,10 +7614,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers:
     post:
       operationId: McpServers_create
       tags:
@@ -7748,10 +7687,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers/{mcpServerId}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers/{mcpServerId}:
     parameters:
     - name: mcpServerId
       in: path
@@ -7814,10 +7755,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers/{mcpServerId}/test:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers/{mcpServerId}/test:
     parameters:
     - name: mcpServerId
       in: path
@@ -7841,10 +7784,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers/{mcpServerId}/capabilities:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers/{mcpServerId}/capabilities:
     parameters:
     - name: mcpServerId
       in: path
@@ -7914,10 +7859,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers/{mcpServerId}/user-access:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers/{mcpServerId}/user-access:
     parameters:
     - name: mcpServerId
       in: path
@@ -7981,10 +7928,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /mcp-servers/{mcpServerId}/connections:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /mcp-servers/{mcpServerId}/connections:
     parameters:
     - name: mcpServerId
       in: path
@@ -8057,10 +8006,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /logs:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /logs:
     post:
       tags:
       - Logs
@@ -8145,9 +8096,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /logs/{logId}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_GATEWAY_URL
     get:
       tags:
       - Logs
@@ -8193,9 +8141,6 @@ paths:
         origin_kind: human
         text_digest: ''
   /api-keys/{type}/{sub-type}:
-    servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
     post:
       tags:
       - API Keys
@@ -8331,10 +8276,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /api-keys:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: https://SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /api-keys:
     get:
       tags:
       - API Keys
@@ -8396,10 +8343,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /api-keys/{id}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /api-keys/{id}:
     put:
       tags:
       - API Keys
@@ -8703,10 +8652,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /api-keys/{id}/rotate:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /api-keys/{id}/rotate:
     post:
       tags:
       - API Keys
@@ -8774,6 +8725,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/usage-limits:
     post:
       tags:
@@ -8860,6 +8816,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/usage-limits/{policyUsageLimitsId}:
     get:
       tags:
@@ -8983,6 +8944,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/usage-limits/{policyUsageLimitsId}/entities:
     get:
       tags:
@@ -9036,6 +9002,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset:
     put:
       tags:
@@ -9069,6 +9040,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/rate-limits:
     post:
       tags:
@@ -9171,6 +9147,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
   /policies/rate-limits/{rateLimitsPolicyId}:
     get:
       tags:
@@ -9288,10 +9269,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/requests:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/requests:
     get:
       tags:
       - Analytics > Graphs
@@ -9364,10 +9347,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/cost:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/cost:
     get:
       tags:
       - Analytics > Graphs
@@ -9446,10 +9431,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/latency:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/latency:
     get:
       tags:
       - Analytics > Graphs
@@ -9540,10 +9527,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/tokens:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/tokens:
     get:
       tags:
       - Analytics > Graphs
@@ -9622,10 +9611,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/users:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/users:
     get:
       tags:
       - Analytics > Graphs
@@ -9698,10 +9689,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/users/requests:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/users/requests:
     get:
       tags:
       - Analytics > Graphs
@@ -9780,10 +9773,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/errors:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/errors:
     get:
       tags:
       - Analytics > Graphs
@@ -9856,10 +9851,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/errors/rate:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/errors/rate:
     get:
       tags:
       - Analytics > Graphs
@@ -9932,10 +9929,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/errors/stacks:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/errors/stacks:
     get:
       tags:
       - Analytics > Graphs
@@ -10015,10 +10014,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/errors/status-codes:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/errors/status-codes:
     get:
       tags:
       - Analytics > Graphs
@@ -10093,10 +10094,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/requests/rescued:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/requests/rescued:
     get:
       tags:
       - Analytics > Graphs
@@ -10182,10 +10185,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/cache/hit-rate:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/cache/hit-rate:
     get:
       tags:
       - Analytics > Graphs
@@ -10273,10 +10278,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/cache/latency:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/cache/latency:
     get:
       tags:
       - Analytics > Graphs
@@ -10344,10 +10351,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/feedbacks:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/feedbacks:
     get:
       tags:
       - Analytics > Graphs
@@ -10420,10 +10429,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/feedbacks/scores:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/feedbacks/scores:
     get:
       tags:
       - Analytics > Graphs
@@ -10495,10 +10506,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/feedbacks/weighted:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/feedbacks/weighted:
     get:
       tags:
       - Analytics > Graphs
@@ -10571,10 +10584,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/graphs/feedbacks/ai-models:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/graphs/feedbacks/ai-models:
     get:
       tags:
       - Analytics > Graphs
@@ -10644,10 +10659,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/summary/cache:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/summary/cache:
     get:
       tags:
       - Analytics > Summary
@@ -10710,10 +10727,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/groups/users:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/groups/users:
     get:
       tags:
       - Analytics > Groups
@@ -10785,10 +10804,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/groups/ai-models:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/groups/ai-models:
     get:
       tags:
       - Analytics > Groups
@@ -10858,10 +10879,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/groups/provider:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/groups/provider:
     get:
       tags:
       - Analytics > Groups
@@ -10937,10 +10960,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /analytics/groups/metadata/{metadataKey}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /analytics/groups/metadata/{metadataKey}:
     get:
       tags:
       - Analytics > Groups
@@ -11026,9 +11051,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /model-configs/pricing/{provider}/{model}:
     servers:
-    - url: https://api.portkey.ai
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /model-configs/pricing/{provider}/{model}:
     get:
       security: []
       operationId: getModelPricing
@@ -11067,10 +11095,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /secret-references:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /secret-references:
     get:
       operationId: listSecretReferences
       tags:
@@ -11206,10 +11236,12 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
-  /secret-references/{secretReferenceId}:
     servers:
-    - url: https://api.portkey.ai/v1
-    - url: SELF_HOSTED_CONTROL_PLANE_URL
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
+  /secret-references/{secretReferenceId}:
     get:
       operationId: getSecretReference
       tags:
@@ -11342,6 +11374,11 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+    servers:
+    - url: '{host}/api/v1'
+      variables:
+        host:
+          default: https://mp.us.prod.airs-gw.portkey.ai
 components:
   securitySchemes:
     Portkey-Key:

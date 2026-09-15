@@ -199,40 +199,70 @@ def check_grounding_gate(overlays) -> None:
 
 
 def check_servers(spec) -> None:
-    """Server URLs are typed by readers and parsed by machines. They do not get
-    rebranded. This guards against a well-meaning search and replace.
+    """Every base URL comes from _project/servers.yaml and nowhere else.
 
-    It counts every `servers` block, not just the root one. The base leaves 130
-    path-level and 2 operation-level overrides, so reporting only the root would
-    describe 1 of 264 entries -- and a search and replace that missed the other
-    263 would pass a check whose entire purpose is to catch exactly that.
+    Server URLs are typed by readers and parsed by machines, so this guards a
+    well-meaning search and replace. It walks every `servers` block, not just
+    the root: the base left 97 path-level and 2 operation-level overrides, and
+    reporting only the root would describe 1 of 264 entries -- a replace that
+    missed the other 263 would sail through the check meant to catch it.
+
+    Three things fail here. An operation-level override, because the build
+    writes none and one appearing means something else is editing the document.
+    A path-level block that is not exactly the control-plane definition, which
+    is how a stale copy of an old host survives a base URL change. And any URL
+    that does not resolve to a real one once its variable defaults are
+    substituted -- the base published three bare placeholders as if they were
+    addresses.
     """
-    counts: dict[str, int] = {}
+    defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
+    expected = [defs["control-plane"]]
 
-    def collect(node):
-        if isinstance(node, dict):
-            for entry in node.get("servers") or []:
-                url = str(entry.get("url", ""))
-                counts[url] = counts.get(url, 0) + 1
-            for value in node.values():
-                collect(value)
-        elif isinstance(node, list):
-            for value in node:
-                collect(value)
+    def resolve(entry) -> str:
+        url = str(entry.get("url", ""))
+        for name, spec_ in (entry.get("variables") or {}).items():
+            url = url.replace("{" + name + "}", str(spec_.get("default", "")))
+        return url
 
-    collect(spec)
-    if not counts:
-        fail("servers", "no servers declared")
+    problems: list[str] = []
+    blocks: list[tuple[str, list]] = [("root", spec.get("servers") or [])]
+
+    for path, item in (spec.get("paths") or {}).items():
+        if not isinstance(item, dict):
+            continue
+        if "servers" in item:
+            blocks.append((path, item["servers"]))
+            if item["servers"] != expected:
+                problems.append(f"{path}: servers block is not the control-plane "
+                                f"definition from _project/servers.yaml")
+        for method, op in item.items():
+            if method in HTTP_METHODS and isinstance(op, dict) and "servers" in op:
+                problems.append(f"{method.upper()} {path}: operation-level servers "
+                                f"override; the build writes none")
+
+    if not blocks[0][1]:
+        fail("servers", "no root server declared")
         return
 
-    total = sum(counts.values())
-    report("servers", f"{total} entries, {len(counts)} distinct")
-    for url, count in sorted(counts.items(), key=lambda kv: -kv[1]):
-        shown = url or "(empty)"
-        # A bare token or a scheme-less string is not a URL. The base ships
-        # three of these, unsubstituted; they render and they are clickable.
-        suspect = "" if re.match(r"^https?://[^/\s]+", url) else "   <- not a URL"
-        print(f"          {count:4}  {shown}{suspect}")
+    urls: dict[str, int] = {}
+    for _, block in blocks:
+        for entry in block:
+            url = resolve(entry)
+            urls[url] = urls.get(url, 0) + 1
+            if not re.match(r"^https?://[^/\s{}]+", url):
+                problems.append(f"{url or '(empty)'}: not a URL once variable "
+                                f"defaults are substituted")
+
+    if problems:
+        fail("servers", f"{len(problems)} problem(s)")
+        for problem in sorted(set(problems)):
+            print(f"          {problem}")
+        return
+
+    report("servers", f"{len(blocks)} block(s), {len(urls)} distinct host(s), "
+                      f"all from _project/servers.yaml")
+    for url, count in sorted(urls.items(), key=lambda kv: -kv[1]):
+        print(f"          {count:4}  {url}")
 
 
 def main() -> int:

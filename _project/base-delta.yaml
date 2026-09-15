@@ -23,13 +23,19 @@ base:
 #   tags           -- tag IA was redesigned; tags-map.yaml renames apply
 #   null-defaults  -- nine `default: null` entries that made the base invalid
 #
-# Add `servers` here when the base URL work lands (TODO.md phase 1 task 2); until then
-# leaving it out means the check still guards the 264 inherited server entries.
+#   servers        -- every base URL is now ours and comes from servers.yaml
+#
+# `servers` is normalised away rather than allow-listed per operation because
+# the change is to the host, not to the shape: the 97 path-level and 2
+# operation-level overrides the base carried were replaced wholesale. Listing
+# 99 entries would bury the one thing this file is for. `check.py` guards the
+# server blocks directly and in more detail than a shape comparison could.
 normalise:
   - prose
   - provenance
   - tags
   - null-defaults
+  - servers
 
 removed_operations:
   # Audit Logs -- 1 operation(s). Control-plane capability Prisma AIRS

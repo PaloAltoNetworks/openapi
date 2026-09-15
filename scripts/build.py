@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
 import csv
 import hashlib
 import sys
@@ -211,6 +212,47 @@ def apply_drops(spec, drop_tags: set[str], drop_ops: set[str], known_tags: set[s
     return sorted(dropped_paths), sorted(dropped_ops)
 
 
+def apply_servers(spec) -> tuple[int, int]:
+    """Replace every inherited `servers` block with the two in servers.yaml.
+
+    The base carried 97 path-level and 2 operation-level overrides, three of
+    which published a bare placeholder string as if it were a URL. Changing the
+    base URL meant editing a hundred places and noticing all of them, which is
+    not a thing anyone does twice.
+
+    The gateway becomes the root server, so gateway paths need no override at
+    all. Control-plane paths get one, because OpenAPI gives a path no way to
+    refer back to a server declared once at the root -- the duplication is the
+    format's, not ours, and it is generated rather than maintained.
+    """
+    defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
+    planes = yaml.safe_load((ROOT / "_project" / "planes.yaml").read_text())
+    control = set(planes.get("control-plane") or {})
+    gateway = set(planes.get("gateway") or {})
+
+    missing = sorted(set(spec.get("paths") or {}) - control - gateway)
+    if missing:
+        # Defaulting would put a control-plane endpoint on the gateway host and
+        # look entirely normal while doing it.
+        raise SystemExit(
+            f"planes.yaml does not classify {len(missing)} path(s): {missing}")
+
+    removed_paths = removed_ops = 0
+    for path, item in (spec.get("paths") or {}).items():
+        if not isinstance(item, dict):
+            continue
+        if item.pop("servers", None) is not None:
+            removed_paths += 1
+        for method in [m for m in item if m in HTTP_METHODS]:
+            if isinstance(item[method], dict) and item[method].pop("servers", None) is not None:
+                removed_ops += 1
+        if path in control:
+            item["servers"] = [copy.deepcopy(defs["control-plane"])]
+
+    spec["servers"] = [copy.deepcopy(defs["gateway"])]
+    return removed_paths, removed_ops
+
+
 def refs_in(node, out: set) -> set:
     """Every `#/components/...` pointer in a subtree, as `section/name`."""
     if isinstance(node, dict):
@@ -340,6 +382,7 @@ def build(base_path: Path) -> int:
     # entry pointing at nothing.
     drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
     dropped_paths, dropped_ops = apply_drops(spec, drop_tags, drop_ops, set(rename.values()))
+    server_paths, server_ops = apply_servers(spec)
     orphaned = prune_components(spec)
 
     used = set()
@@ -392,6 +435,8 @@ def build(base_path: Path) -> int:
     print(f"paths              {len(spec.get('paths', {}))}  (dropped {len(dropped_paths)})")
     print(f"schemas            {len(spec.get('components', {}).get('schemas', {}))}")
     print(f"components pruned  {len(orphaned)}")
+    print(f"servers            1 root + {len(spec['paths']) and sum('servers' in i for i in spec['paths'].values())} control-plane "
+          f"(replaced {server_paths} path-level, {server_ops} operation-level)")
     print(f"tags               {len(spec['tags'])}")
     print(f"prose fields removed {len(stripper.removed)}")
     print(f"null defaults dropped {len(null_defaults)}")

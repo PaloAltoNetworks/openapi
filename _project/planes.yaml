@@ -1,0 +1,138 @@
+# Which plane every path belongs to. Generated once, then maintained by hand.
+#
+# Until now this lived implicitly in the base's per-path `servers` overrides.
+# Task 2 deletes those, so the signal had to be written down before it was
+# destroyed -- otherwise the split would have become unreproducible the moment
+# the overrides went.
+#
+# `scripts/build.py` reads this to decide which paths need a control-plane
+# server override. Every path in openapi.yaml must appear here or the build
+# fails: a path added without a plane would silently inherit the gateway URL.
+#
+# `how` records where the call came from:
+#   classification.yaml  -- a human decided, see that file for the reasoning
+#   inherited            -- read off the base's server override, unverified
+#
+# The gateway is the root server, so gateway paths carry no override.
+
+control-plane:
+  "/admin/workspaces": inherited
+  "/admin/workspaces/{workspaceId}": inherited
+  "/analytics/graphs/cache/hit-rate": inherited
+  "/analytics/graphs/cache/latency": inherited
+  "/analytics/graphs/cost": inherited
+  "/analytics/graphs/errors": inherited
+  "/analytics/graphs/errors/rate": inherited
+  "/analytics/graphs/errors/stacks": inherited
+  "/analytics/graphs/errors/status-codes": inherited
+  "/analytics/graphs/feedbacks": inherited
+  "/analytics/graphs/feedbacks/ai-models": inherited
+  "/analytics/graphs/feedbacks/scores": inherited
+  "/analytics/graphs/feedbacks/weighted": inherited
+  "/analytics/graphs/latency": inherited
+  "/analytics/graphs/requests": inherited
+  "/analytics/graphs/requests/rescued": inherited
+  "/analytics/graphs/tokens": inherited
+  "/analytics/graphs/users": inherited
+  "/analytics/graphs/users/requests": inherited
+  "/analytics/groups/ai-models": inherited
+  "/analytics/groups/metadata/{metadataKey}": inherited
+  "/analytics/groups/provider": inherited
+  "/analytics/groups/users": inherited
+  "/analytics/summary/cache": inherited
+  "/api-keys": inherited
+  "/api-keys/{id}": inherited
+  "/api-keys/{id}/rotate": inherited
+  "/api-keys/{type}/{sub-type}": inherited
+  "/configs": inherited
+  "/configs/{slug}": inherited
+  "/configs/{slug}/versions": inherited
+  "/feedback": inherited
+  "/feedback/{id}": inherited
+  "/guardrails": classification.yaml
+  "/guardrails/{guardrailId}": classification.yaml
+  "/guardrails/{guardrailId}/mcp-servers": classification.yaml
+  "/guardrails/{guardrailId}/mcp-servers/{mcpServerId}": classification.yaml
+  "/integrations": inherited
+  "/integrations/{slug}": inherited
+  "/integrations/{slug}/models": classification.yaml
+  "/integrations/{slug}/workspaces": classification.yaml
+  "/mcp-integrations": inherited
+  "/mcp-integrations/{mcpIntegrationId}": inherited
+  "/mcp-integrations/{mcpIntegrationId}/capabilities": inherited
+  "/mcp-integrations/{mcpIntegrationId}/metadata": inherited
+  "/mcp-integrations/{mcpIntegrationId}/workspaces": inherited
+  "/mcp-servers": inherited
+  "/mcp-servers/{mcpServerId}": inherited
+  "/mcp-servers/{mcpServerId}/capabilities": inherited
+  "/mcp-servers/{mcpServerId}/connections": inherited
+  "/mcp-servers/{mcpServerId}/test": inherited
+  "/mcp-servers/{mcpServerId}/user-access": inherited
+  "/model-configs/pricing/{provider}/{model}": classification.yaml
+  "/models/{model}": classification.yaml
+  "/policies/rate-limits": classification.yaml
+  "/policies/rate-limits/{rateLimitsPolicyId}": classification.yaml
+  "/policies/usage-limits": classification.yaml
+  "/policies/usage-limits/{policyUsageLimitsId}": classification.yaml
+  "/policies/usage-limits/{policyUsageLimitsId}/entities": classification.yaml
+  "/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset": classification.yaml
+  "/providers": inherited
+  "/providers/{slug}": inherited
+  "/scim/workspaces": inherited
+  "/scim/workspaces/{scimWorkspaceGroupId}": inherited
+  "/secret-references": inherited
+  "/secret-references/{secretReferenceId}": inherited
+
+gateway:
+  "/assistants": inherited
+  "/assistants/{assistant_id}": inherited
+  "/audio/speech": inherited
+  "/audio/transcriptions": inherited
+  "/audio/translations": inherited
+  "/batches": inherited
+  "/batches/{batch_id}": inherited
+  "/batches/{batch_id}/cancel": inherited
+  "/batches/{batch_id}/output": inherited
+  "/chat/completions": inherited
+  "/completions": inherited
+  "/embeddings": inherited
+  "/files": inherited
+  "/files/{file_id}": inherited
+  "/files/{file_id}/content": inherited
+  "/fine_tuning/jobs": inherited
+  "/fine_tuning/jobs/{fine_tuning_job_id}": inherited
+  "/fine_tuning/jobs/{fine_tuning_job_id}/cancel": inherited
+  "/fine_tuning/jobs/{fine_tuning_job_id}/checkpoints": inherited
+  "/fine_tuning/jobs/{fine_tuning_job_id}/events": inherited
+  "/images/edits": inherited
+  "/images/generations": inherited
+  "/images/variations": inherited
+  "/logs": inherited
+  "/logs/{logId}": inherited
+  "/models": classification.yaml
+  "/moderations": inherited
+  "/ocr": inherited
+  "/realtime": inherited
+  "/rerank": inherited
+  "/responses": inherited
+  "/responses/{response_id}": inherited
+  "/responses/{response_id}/input_items": inherited
+  "/threads": inherited
+  "/threads/runs": inherited
+  "/threads/{thread_id}": inherited
+  "/threads/{thread_id}/messages": inherited
+  "/threads/{thread_id}/messages/{message_id}": inherited
+  "/threads/{thread_id}/runs": inherited
+  "/threads/{thread_id}/runs/{run_id}": inherited
+  "/threads/{thread_id}/runs/{run_id}/cancel": inherited
+  "/threads/{thread_id}/runs/{run_id}/steps": inherited
+  "/threads/{thread_id}/runs/{run_id}/steps/{step_id}": inherited
+  "/threads/{thread_id}/runs/{run_id}/submit_tool_outputs": inherited
+  "/vector_stores": classification.yaml
+  "/vector_stores/{vector_store_id}": classification.yaml
+  "/vector_stores/{vector_store_id}/file_batches": classification.yaml
+  "/vector_stores/{vector_store_id}/file_batches/{batch_id}": classification.yaml
+  "/vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel": classification.yaml
+  "/vector_stores/{vector_store_id}/file_batches/{batch_id}/files": classification.yaml
+  "/vector_stores/{vector_store_id}/files": classification.yaml
+  "/vector_stores/{vector_store_id}/files/{file_id}": classification.yaml

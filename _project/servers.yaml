@@ -1,0 +1,36 @@
+# The base URLs. This is the one place to change them.
+#
+# `scripts/build.py` deletes every inherited `servers` block in the base -- 97
+# path-level and 2 operation-level -- and writes these instead. Edit a host
+# here and every operation in openapi.yaml follows on the next build. Nothing
+# below needs touching, and there is no second copy to forget.
+#
+# Why a variable rather than a literal URL: with a `default` the value is
+# already filled in, so a reader sees a working URL and the playground sends
+# real requests. A self-hosted deployment overrides `host` with its own, which
+# is what the base's `SELF_HOSTED_GATEWAY_URL` placeholder was gesturing at
+# without ever being a usable value. Three such placeholders were being
+# published as if they were URLs; they are gone.
+#
+# The path prefix sits outside the variable because it is structural, not
+# deployment-specific: self-hosting changes the host, never the prefix.
+#
+# The two planes do not share a prefix -- gateway is /v1, control plane is
+# /api/v1. Paths in this specification are declared bare (`/api-keys`, not
+# `/api/v1/api-keys`), so the prefix lives entirely here.
+
+# Data plane. The root server, so the 52 gateway paths need no override.
+gateway:
+  url: "{host}/v1"
+  variables:
+    host:
+      default: https://aigw.portkey.ai
+
+# Management plane. Stamped onto the 66 paths that _project/planes.yaml marks
+# control-plane, because OpenAPI has no way for a path to point back at a
+# server declared once at the root.
+control-plane:
+  url: "{host}/api/v1"
+  variables:
+    host:
+      default: https://mp.us.prod.airs-gw.portkey.ai
