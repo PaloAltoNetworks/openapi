@@ -33,6 +33,7 @@ import copy
 import json
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 import yaml
 
@@ -124,23 +125,36 @@ def load_tag_map(path: Path):
     return doc, names, group_of
 
 
-def load_drops(path: Path):
-    """Tags and operations deliberately not shipped. See _project/drops.yaml."""
+class Drops(NamedTuple):
+    """What _project/drops.yaml declares is not shipped."""
+    tags: set[str]
+    operations: set[str]
+    parameters: set[str]
+
+
+def load_drops(path: Path) -> Drops:
     if not path.exists():
-        return set(), set()
+        return Drops(set(), set(), set())
     doc = yaml.safe_load(path.read_text()) or {}
-    tags = set(doc.get("tags") or [])
-    ops = {str(entry).strip().lower() for entry in (doc.get("operations") or [])}
-    return tags, ops
+    return Drops(
+        tags=set(doc.get("tags") or []),
+        operations={str(e).strip().lower() for e in (doc.get("operations") or [])},
+        parameters=set(doc.get("parameters") or []),
+    )
 
 
-def matches_drop(path: str, method: str, op, drop_tags: set[str],
-                 drop_ops: set[str]) -> bool:
-    return bool(drop_tags.intersection(op.get("tags") or [])) \
-        or f"{method} {path}" in drop_ops
+def matches_drop(path: str, method: str, op, drops: Drops) -> bool:
+    return bool(drops.tags.intersection(op.get("tags") or [])) \
+        or f"{method} {path}" in drops.operations
 
 
-def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
+def dropped_params(op, drops: Drops) -> list[dict]:
+    """The entries in an operation's `parameters` that drops.yaml names."""
+    return [p for p in (op.get("parameters") or [])
+            if isinstance(p, dict) and p.get("name") in drops.parameters]
+
+
+def check_drops(spec, drops: Drops) -> None:
     """Nothing declared dropped has come back.
 
     While the base was still being rebuilt from, this was an applier: it deleted
@@ -151,9 +165,12 @@ def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
     Declining to drop something is a decision; it just has to be made in
     drops.yaml rather than by an edit nobody reviewed.
     """
-    back = [f"{method.upper()} {path}"
-            for path, method, op in operations(spec)
-            if matches_drop(path, method, op, drop_tags, drop_ops)]
+    back: list[str] = []
+    for path, method, op in operations(spec):
+        if matches_drop(path, method, op, drops):
+            back.append(f"{method.upper()} {path}")
+        for param in dropped_params(op, drops):
+            back.append(f"{method.upper()} {path} ?{param['name']}")
     if back:
         raise SystemExit(
             f"_project/drops.yaml declares these not shipped, but they are in "
@@ -161,7 +178,7 @@ def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
             f"--apply-drops` to remove them.")
 
 
-def apply_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> list[str]:
+def apply_drops(spec, drops: Drops) -> list[str]:
     """Delete what drops.yaml newly declares. Only under --apply-drops.
 
     Removing operations from the published artifact is not something a routine
@@ -176,10 +193,17 @@ def apply_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> list[str]:
             continue
         for method in [m for m in list(item) if m in HTTP_METHODS]:
             op = item[method]
-            if isinstance(op, dict) and matches_drop(path, method, op,
-                                                     drop_tags, drop_ops):
+            if not isinstance(op, dict):
+                continue
+            if matches_drop(path, method, op, drops):
                 del item[method]
                 gone.append(f"{method.upper()} {path}")
+                continue
+            for param in dropped_params(op, drops):
+                op["parameters"].remove(param)
+                gone.append(f"{method.upper()} {path} ?{param['name']}")
+            if not op.get("parameters"):
+                op.pop("parameters", None)
         # A path item with no methods left describes nothing; its parameters
         # and summary would linger as an empty entry in the navigation.
         if not any(m in item for m in HTTP_METHODS):
@@ -390,14 +414,14 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
     # --- drops --------------------------------------------------------------
     # Before the tag check, because a tag that has just been dropped is also
     # about to leave tags-map.yaml, and the two edits land in the same commit.
-    drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
+    drops = load_drops(ROOT / "_project" / "drops.yaml")
     if do_drops:
-        dropped = apply_drops(spec, drop_tags, drop_ops)
-        print(f"dropped {len(dropped)} operation(s):")
+        dropped = apply_drops(spec, drops)
+        print(f"dropped {len(dropped)} item(s):")
         for entry in dropped:
             print(f"    {entry}")
     else:
-        check_drops(spec, drop_tags, drop_ops)
+        check_drops(spec, drops)
 
     # --- info -------------------------------------------------------------
     # 3.0.0 is pinned, not inherited. This specification does not describe the
@@ -534,10 +558,13 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
         "  renamed, and inventing them is not the same as recovering them, so\n"
         "  they are reported for engineering rather than filled in. Phase 2.\n"
         + "".join(f"    {m}\n" for m in sorted(missing_ids))
-        + "\noperations not shipped\n"
-        "  Declared by tag in _project/drops.yaml and enforced by this script:\n"
-        "  if one reappears in openapi.yaml the build fails.\n"
-        + "".join(f"    {t}\n" for t in sorted(drop_tags))
+        + "\nnot shipped\n"
+        "  Declared in _project/drops.yaml and enforced by this script: if one\n"
+        "  reappears in openapi.yaml the build fails.\n"
+        "  tags:\n"
+        + "".join(f"    {t}\n" for t in sorted(drops.tags))
+        + "  parameters, on any operation:\n"
+        + "".join(f"    {p}\n" for p in sorted(drops.parameters))
     )
     return 0
 

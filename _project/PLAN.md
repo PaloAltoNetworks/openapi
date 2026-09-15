@@ -635,6 +635,35 @@ paths that no longer existed — harmless to the build, but `gen_drop_list.py`
 counts them, so a drop would quietly inflate the plane inventory. It is now an
 error in both directions.
 
+### A third kind of drop
+
+`organisation_id` came next: engineering does not need it as a parameter
+anywhere. It was a query parameter on two operations, and the obvious fix is to
+delete two blocks from `openapi.yaml`.
+
+That would have been wrong in the same way hand-deleting the Workspaces paths
+would have been. The decision is "this parameter is not part of the API", and a
+decision that lives only as an absence cannot be enforced — the next import,
+paste or upstream sync brings it back silently. So `drops.yaml` grew a third
+key alongside `tags` and `operations`:
+
+```yaml
+parameters:
+  - organisation_id
+```
+
+Matched on `name`, anywhere in the document, rather than as a list of the two
+sites that happen to carry it today. A site list would be a record of where the
+parameter *was*; a name is a statement about the parameter, and it still fails
+if somebody adds `organisation_id` to a new operation next month.
+
+The scope was taken literally. Engineering said "as a param", and
+`organisation_id` remains a property on 15 component schemas, three of which
+require it. Widening from parameters to response fields is not a smaller version
+of the same decision — a removed request parameter is ignored by clients that
+still send it, a removed response field breaks clients that read it. That is a
+question for engineering, recorded as a known gap rather than answered here.
+
 Also settled: **there is no self-hosted control plane.** Confirmed with
 engineering, so the commented-out placeholder came out of `servers.yaml` and the
 README's open question became a statement.

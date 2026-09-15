@@ -1,4 +1,5 @@
-# Operations deliberately not shipped in the Prisma AIRS specification.
+# What is deliberately not shipped in the Prisma AIRS specification --
+# whole capabilities, individual operations, and individual parameters.
 #
 # Read by scripts/build.py. A routine build only checks this file: if
 # anything named here is still in openapi.yaml the build fails, which is the
@@ -7,9 +8,9 @@
 # once, then commit this file and openapi.yaml together -- the deletion is
 # meant to be visible in the diff, not to happen quietly on every build.
 #
-# Selection is by tag, not by path. That is how the decision was actually
-# made -- whole capabilities go, not individual URLs -- and it survives a
-# path rename, which a path list would not.
+# Capabilities are selected by tag, not by path. That is how the decision is
+# actually made -- whole capabilities go, not individual URLs -- and it
+# survives a path rename, which a path list would not.
 
 # Vrushank, 2026-09-15, marked [DROPPED] in drop-list.md.
 #
@@ -42,3 +43,15 @@ tags:
 # Individual operations to drop where the whole tag stays. Empty today: every
 # current removal is a clean tag boundary. Entries are "METHOD /path".
 operations: []
+
+# Parameter names that must not appear on any operation, matched on `name`
+# regardless of which operation or which `in` location carries it. A name
+# rather than a list of sites, because the objection is to the parameter
+# itself: listing sites would let it reappear on a new operation.
+#
+# Engineering, 2026-09-15: organisation_id is not needed as a parameter
+# anywhere. It was a query parameter on GET /guardrails and
+# GET /mcp-integrations. Scoped to *parameters* -- `organisation_id` remains a
+# property on response schemas, which is a separate question nobody has asked.
+parameters:
+  - organisation_id

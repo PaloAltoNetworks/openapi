@@ -80,9 +80,10 @@ operations lacking operationId   45
     PUT /integrations/{slug}/workspaces
     PUT /providers/{slug}
 
-operations not shipped
-  Declared by tag in _project/drops.yaml and enforced by this script:
-  if one reappears in openapi.yaml the build fails.
+not shipped
+  Declared in _project/drops.yaml and enforced by this script: if one
+  reappears in openapi.yaml the build fails.
+  tags:
     Audit Logs
     Collections
     Deployments
@@ -95,3 +96,5 @@ operations not shipped
     Virtual Keys
     Workspaces
     Workspaces > Members
+  parameters, on any operation:
+    organisation_id

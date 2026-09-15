@@ -199,7 +199,8 @@ should not be treated as closed.
 
 Eight operations, five paths, five components, nine overlay actions. 181 → 173.
 
-Two things this leaves open, both flagged to Vrushank rather than assumed:
+Two things this left open, both flagged rather than assumed, and **both
+answered on 2026-09-15**:
 
 - **Seven capabilities we drop that engineering did not name** — Collections,
   Deployments, Labels, Log Exports, Prompt Partials, Virtual Keys and
@@ -213,9 +214,35 @@ Two things this leaves open, both flagged to Vrushank rather than assumed:
   rather than manage them. If workspaces do not exist as a concept, these
   reference something that is gone; if workspaces exist and only their
   management API is withdrawn, they stay. Not guessed either way.
+  → **They stay.** Confirmed. Engineering also named `Agent Integrations >
+  Workspaces` as staying; there is no such tag in this specification, and
+  nothing tagged "Agent" at all. Either it is a capability their API has that
+  the base did not, or it is `MCP Integrations > Workspaces` under another
+  name. Nothing to do either way, but worth resolving before the next batch.
 
 `build.py` grew `--apply-drops` for this, because it will happen again. See the
 README section on `_project/drops.yaml`.
+
+### `organisation_id` as a parameter — dropped 2026-09-15
+
+Engineering: not needed as a parameter anywhere. It was a query parameter in
+exactly two places, `GET /guardrails` and `GET /mcp-integrations`, both inline
+rather than a shared `components/parameters` entry.
+
+`drops.yaml` grew a third key, `parameters:`, for this. It matches on parameter
+`name` anywhere in the document rather than listing the two sites, because the
+objection is to the parameter itself — a site list would let it reappear on a
+new operation and pass. Same two-invocation shape as the rest of the file: the
+build checks, `--apply-drops` removes.
+
+**Scoped to parameters, as asked.** `organisation_id` is still a property on 15
+component schemas, 3 of which have it in `required`. That is a different
+question — dropping a response field breaks readers, dropping a request
+parameter does not — and it has not been asked. Recorded as a known gap.
+
+One unrelated tidy-up rode along: `POST /fine_tuning/jobs` carried
+`parameters: []`, which says nothing, and the same code path that empties a
+parameter list now removes it.
 
 ---
 

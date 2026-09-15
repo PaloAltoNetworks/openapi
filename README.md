@@ -27,7 +27,7 @@ plausible, wrong description is invisible and survives review.
 | `docs-navigation.json` | Docs | Generated `docs.json` navigation fragment | — |
 | `_project/servers.yaml` | Engineering | **The base URLs.** One place, both planes | API review |
 | `_project/planes.yaml` | Engineering | Which plane each path is on | API review |
-| `_project/drops.yaml` | Product | What is deliberately not shipped, by tag | Product |
+| `_project/drops.yaml` | Product | What is deliberately not shipped: tags, operations, parameters | Product |
 | `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
 | `.spectral.yaml` | Both | Lint rules, including the grounding gate | — |
 | `.spectral-baseline.json` | — | Inherited defect counts. May shrink, never grow | — |
@@ -63,11 +63,18 @@ Collections, Deployments, Labels, Log Exports, Prompts, Prompt Partials, User
 Invites, Users, Virtual Keys, Workspaces and Workspaces > Members. That is 69
 operations and 37 paths, declared by tag in `_project/drops.yaml`.
 
+`drops.yaml` also names **parameters** that must not appear on any operation,
+matched on `name` wherever they occur. Today that is `organisation_id`, which
+engineering confirmed is not needed as a parameter anywhere; it was a query
+parameter on `GET /guardrails` and `GET /mcp-integrations`. A name rather than a
+list of sites, because the objection is to the parameter itself — listing sites
+would let it reappear on a new operation.
+
 The declaration is enforced in both directions. A normal build only *checks* it:
 if something named there is in `openapi.yaml`, the build fails rather than
-quietly republishing it. Removing a capability is a separate, deliberate act —
-add the tag and run `scripts/build.py --apply-drops` once, which deletes the
-operations, prunes the components nothing reaches any more, and removes the
+quietly republishing it. Removing something is a separate, deliberate act — add
+it and run `scripts/build.py --apply-drops` once, which deletes the operations
+and parameters, prunes the components nothing reaches any more, and removes the
 now-stale overlay actions. The deletion then shows up in the diff of
 `openapi.yaml` where a reviewer sees it, instead of happening on every build.
 
@@ -395,6 +402,13 @@ regenerate.
   `security: []`. Preserved rather than quietly reversed: making it require auth
   is as much an unverified claim as leaving it public. `scripts/check.py` prints
   it on every run. Wants engineering.
+- **`organisation_id` is gone as a parameter but survives as a response
+  field.** Engineering's instruction was scoped to parameters, and it was
+  followed to that scope. Fifteen component schemas still carry an
+  `organisation_id` property, three of them with it in `required`. Whether
+  those go too is a different question — removing a response field is a
+  breaking change for anyone reading it, where removing a request parameter is
+  not — and nobody has asked it. Wants engineering.
 - **The plane split is 23 decided and 91 inherited.** `_project/planes.yaml`
   decides which of the two base URLs each path gets, and for 91 paths that call
   was read off the base's own per-path server overrides and never independently
