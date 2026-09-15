@@ -249,8 +249,9 @@ Blocking:
 - **Q1 — Base URL(s).** What is the AIRS base URL? Is there one host or two
   (gateway vs control plane)? Does the path prefix stay `/v1`? This decides
   between options 2 and 3 above, and it is the only thing blocking item 4.
-- **Q2 — The drop list.** Which control-plane operations go. I will generate the
-  83-path inventory as a checklist so you can strike through rather than type.
+- **Q2 — The drop list.** Resolved down to one question: all 151 paths are now
+  classified (97 control plane, 54 gateway), so what is left is *how much of the
+  control plane goes* — all 97, or a subset. Tick `_project/drop-list.md`.
 
 Blocking item 3 specifically:
 
@@ -382,19 +383,27 @@ by tag, each showing its methods and `operationId`s. Two findings:
 | Group | Paths | Components reached | Reached **only** by this group |
 |---|---|---|---|
 | control plane | 97 | 245 | **243** |
-| gateway | 46 | 259 | 257 |
-| unclassified | 8 | 18 | 18 |
+| gateway | 54 | 277 | 275 |
+| unclassified | 0 | — | — |
 
 Dropping all 97 control-plane paths orphans **243 components** — 42% of the 578
-in the file. But only 2 of 520 components are shared between the planes at all,
-so the separation is near-total and pruning is low-risk: the deletions will not
-reach into anything the gateway needs. That is better news than I expected, and
-it means step 2 can prune aggressively rather than conservatively.
+in the file.
 
-Rough shape of what survives, if every control-plane path goes and nothing else
-changes: **54 paths, ~277 components**, down from 151 and 578. Worth sanity
-checking against your expectation before we cut — if that feels too small, the
-drop list is wrong somewhere.
+**Exactly two components are shared between the planes: `schemas/Error` and
+`schemas/Model`.** That is the entire risk surface for the prune. Everything
+else belongs to one side or the other, so step 2 can delete by reachability and
+be confident it is not cutting into the gateway.
+
+What survives if every control-plane path goes and nothing else changes:
+
+| | Now | After |
+|---|---|---|
+| Paths | 151 | **54** |
+| Components | 578 | **277** |
+
+Worth sanity checking against your expectation before we cut. If 54 paths feels
+too small for the AIRS surface, the drop list is wrong somewhere and now is the
+time to find out.
 
 Separately: **58 components are already unreachable from any path**, before we
 drop anything. Spectral's `oas3-unused-component` baseline is 26 because it
@@ -408,7 +417,10 @@ guess and a call should not look identical once both are on the page. A pattern
 that matches nothing is a hard error, because the usual cause is a renamed path
 and a rule that silently stops applying is worse than no rule. Confirmed to fire.
 
-**Decided — 14 paths, all Vrushank, 2026-09-15:**
+**All 151 paths are now classified — nothing is left to the inherited guess.**
+23 decided by hand, 22 of which the inherited data had wrong or missing.
+
+**Decided — Vrushank, 2026-09-15:**
 
 | Pattern | Paths | Plane |
 |---|---|---|
@@ -418,6 +430,7 @@ and a rule that silently stops applying is worse than no rule. Confirmed to fire
 | `/model-configs/*` | 1 | control plane |
 | `/models/{model}` | 1 | control plane |
 | `/models` | 1 | gateway (confirming the inherited value) |
+| `/vector_stores*` | 8 | gateway |
 
 Two of my readings were wrong and are corrected above: I had guessed
 `/model-configs/pricing/...` and `/models/{model}` were data plane. They are not.
@@ -433,9 +446,9 @@ resolving it by order. Confirmed to fire:
 classification.yaml: 1 path(s) claimed by both planes: /models (via /models* and /models)
 ```
 
-**Still undecided — 8 paths**, all `/vector_stores*`. They reach 18 components
-and nothing else touches them, so they can be settled last without blocking
-anything.
+Nothing is undecided. **Q2 is now down to one question: does every
+control-plane path go, or only some of them?** The list is classified; what
+remains is the product call about how much of it to cut.
 
 ---
 

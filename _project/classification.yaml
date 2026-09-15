@@ -35,3 +35,6 @@ gateway:
   # recorded anyway so the boundary with /models/{model} is explicit and a
   # later /models* rule fails loudly instead of quietly moving it.
   - /models
+
+  # Vrushank, 2026-09-15.
+  - /vector_stores*

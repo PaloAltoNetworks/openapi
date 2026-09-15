@@ -124,8 +124,10 @@ def main() -> int:
 
     decided = load_decisions(ROOT / "_project" / "classification.yaml", list(paths))
 
-    groups: dict[str, list[str]] = collections.defaultdict(list)
-    reach: dict[str, set] = collections.defaultdict(set)
+    # Seeded for all three so an empty group -- which is the goal for
+    # `unclassified` -- is a normal state and not a KeyError.
+    groups: dict[str, list[str]] = {k: [] for k in (CONTROL, GATEWAY, UNKNOWN)}
+    reach: dict[str, set] = {k: set() for k in (CONTROL, GATEWAY, UNKNOWN)}
     overridden: list[str] = []
     for path, item in paths.items():
         if not isinstance(item, dict):
@@ -148,9 +150,12 @@ def main() -> int:
         "**Tick a box to drop that path.** Every operation on a ticked path goes.",
         "To keep only some methods on a path, tick it and note which to keep.",
         "",
-        "Classification defaults to the base author's per-path `servers` overrides",
-        "and is **unverified** -- a first draft, especially the",
-        f"{len(groups[UNKNOWN])} still-unclassified paths, which need a call regardless.",
+        "Classification defaults to the base author's per-path `servers` overrides,",
+        "which are **unverified**. Treat anything unmarked as a first draft.",
+        "",
+        (f"**{len(groups[UNKNOWN])} paths are still unclassified** and need a call."
+         if groups[UNKNOWN] else
+         "**Every path is classified.** Nothing is left to the inherited guess."),
         "",
         f"**✓** marks a path classified by a human in `classification.yaml`",
         f"({len(decided)} so far, {len(overridden)} of which the inherited data got wrong).",
@@ -185,7 +190,11 @@ def main() -> int:
                      "**Needs a call** -- add it to `classification.yaml`.",
             GATEWAY: "Data plane. Listed for completeness; expected to stay.",
         }[kind]
-        lines += [f"## {kind.title()} — {len(groups[kind])} paths", "", note, ""]
+        lines += [f"## {kind.title()} — {len(groups[kind])} paths", ""]
+        if not groups[kind]:
+            lines += ["None. Every path in the specification has been classified.", ""]
+            continue
+        lines += [note, ""]
 
         by_tag: dict[str, list[str]] = collections.defaultdict(list)
         for path in groups[kind]:
