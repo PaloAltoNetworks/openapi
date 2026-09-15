@@ -47,19 +47,34 @@ def load_decisions(path: Path, known: list[str]) -> dict[str, str]:
     if not path.exists():
         return {}
     doc = yaml.safe_load(path.read_text()) or {}
-    decided, unused = {}, []
+    decided: dict[str, str] = {}
+    source: dict[str, str] = {}
+    unused: list[str] = []
+    clashes: list[str] = []
+
     for plane in (CONTROL_KEY, GATEWAY_KEY):
+        kind = CONTROL if plane == CONTROL_KEY else GATEWAY
         for pattern in doc.get(plane) or []:
             matched = fnmatch.filter(known, pattern)
             if not matched:
                 unused.append(pattern)
             for p in matched:
-                decided[p] = CONTROL if plane == CONTROL_KEY else GATEWAY
+                # fnmatch's * crosses slashes, so /models* silently swallows
+                # /models/{model} and every other path beneath it. Claiming a
+                # path for both planes is always a mistake, and resolving it
+                # by order would hide the one case worth seeing.
+                if p in decided and decided[p] != kind:
+                    clashes.append(f"{p} (via {source[p]} and {pattern})")
+                decided[p] = kind
+                source[p] = pattern
+
+    problems = []
     if unused:
-        raise SystemExit(
-            f"{path.name}: {len(unused)} pattern(s) match no path in the spec: "
-            + ", ".join(unused)
-        )
+        problems.append(f"{len(unused)} pattern(s) match no path: " + ", ".join(unused))
+    if clashes:
+        problems.append(f"{len(clashes)} path(s) claimed by both planes: " + "; ".join(clashes))
+    if problems:
+        raise SystemExit(f"{path.name}: " + "\n  ".join(problems))
     return decided
 
 

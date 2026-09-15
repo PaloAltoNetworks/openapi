@@ -2,12 +2,16 @@
 #
 # The default classification in drop-list.md is read off the base author's
 # per-path `servers` overrides -- Portkey's opinion, inherited and unverified.
-# Anything decided here overrides it and is marked as decided rather than
-# guessed, so it is always visible which calls were made by a person.
+# Anything decided here overrides it and is marked with a tick, so it is always
+# visible which calls were made by a person.
 #
-# Patterns are fnmatch-style: /guardrails* matches /guardrails and everything
-# under it. Every pattern must match at least one path, so a rename in the spec
-# turns a silently-dead rule into a failure.
+# Patterns are fnmatch-style. Note that `*` crosses slashes: /models* matches
+# /models/{model} as well as /models, which is exactly the trap below. Two rules
+# guard this file, both confirmed to fire:
+#
+#   - a pattern matching no path is an error, so a rename cannot silently
+#     deactivate a rule
+#   - a path claimed by both planes is an error, rather than resolved by order
 
 control-plane:
   # Vrushank, 2026-09-15. CRUD over a configuration resource. The base never
@@ -15,4 +19,19 @@ control-plane:
   # thought they were data plane.
   - /guardrails*
 
-gateway: []
+  # Vrushank, 2026-09-15.
+  - /policies/*                      # rate-limit and usage-limit policies
+  - /integrations/{slug}/models
+  - /integrations/{slug}/workspaces
+  - /model-configs/*                 # model pricing
+
+  # Deliberately not /models*, which would also claim /models below. The two
+  # paths sit on opposite sides of the split: listing the models available to
+  # a caller is a gateway concern, administering one is not.
+  - /models/{model}
+
+gateway:
+  # Vrushank, 2026-09-15. Already classified as gateway by the inherited data;
+  # recorded anyway so the boundary with /models/{model} is explicit and a
+  # later /models* rule fails loudly instead of quietly moving it.
+  - /models

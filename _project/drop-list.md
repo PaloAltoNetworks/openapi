@@ -7,10 +7,10 @@ To keep only some methods on a path, tick it and note which to keep.
 
 Classification defaults to the base author's per-path `servers` overrides
 and is **unverified** -- a first draft, especially the
-18 still-unclassified paths, which need a call regardless.
+8 still-unclassified paths, which need a call regardless.
 
 **✓** marks a path classified by a human in `classification.yaml`
-(4 so far, 4 of which the inherited data got wrong).
+(15 so far, 14 of which the inherited data got wrong).
 Everything unmarked is still Portkey's guess.
 
 ## Blast radius
@@ -20,14 +20,14 @@ Components each group reaches, and how many *only* that group reaches
 
 | Group | Paths | Components reached | Reached only by this group |
 |---|---|---|---|
-| control plane | 87 | 203 | **197** |
+| control plane | 97 | 245 | **243** |
 | gateway | 46 | 259 | **257** |
-| unclassified | 18 | 65 | **59** |
+| unclassified | 8 | 18 | **18** |
 | *total* | 151 | 520 | |
 
-Dropping every control-plane path would orphan **197 components**, which must be pruned in the same change rather than left to accumulate.
+Dropping every control-plane path would orphan **243 components**, which must be pruned in the same change rather than left to accumulate.
 
-## Control Plane — 87 paths
+## Control Plane — 97 paths
 
 The candidates. Tick what goes.
 
@@ -107,6 +107,14 @@ The candidates. Tick what goes.
 - [ ] `/integrations` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/integrations/{slug}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
 
+### Integrations > Models
+
+- [ ] `/integrations/{slug}/models` ✓ — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
+
+### Integrations > Workspaces
+
+- [ ] `/integrations/{slug}/workspaces` ✓ — `GET` *(no operationId)*, `PUT` *(no operationId)*
+
 ### Labels
 
 - [ ] `/labels` — `GET` listLabels, `POST` createLabel
@@ -155,6 +163,14 @@ The candidates. Tick what goes.
 
 - [ ] `/mcp-servers/{mcpServerId}/user-access` — `GET` McpServerUserAccess_list, `PUT` McpServerUserAccess_bulkUpdate
 
+### Model Pricing
+
+- [ ] `/model-configs/pricing/{provider}/{model}` ✓ — `GET` getModelPricing
+
+### Models
+
+- [ ] `/models/{model}` ✓ — `DELETE` deleteModel, `GET` retrieveModel
+
 ### Prompt Partials
 
 - [ ] `/prompts/partials` — `GET` listPromptPartials, `POST` createPromptPartial
@@ -175,10 +191,22 @@ The candidates. Tick what goes.
 - [ ] `/providers` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/providers/{slug}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
 
+### Rate Limit Policies
+
+- [ ] `/policies/rate-limits` ✓ — `GET` listRateLimitsPolicies, `POST` createRateLimitsPolicy
+- [ ] `/policies/rate-limits/{rateLimitsPolicyId}` ✓ — `DELETE` deleteRateLimitsPolicy, `GET` getRateLimitsPolicy, `PUT` updateRateLimitsPolicy
+
 ### Secret References
 
 - [ ] `/secret-references` — `GET` listSecretReferences, `POST` createSecretReference
 - [ ] `/secret-references/{secretReferenceId}` — `DELETE` deleteSecretReference, `GET` getSecretReference, `PUT` updateSecretReference
+
+### Usage Limit Policies
+
+- [ ] `/policies/usage-limits` ✓ — `GET` listUsageLimitsPolicies, `POST` createUsageLimitsPolicy
+- [ ] `/policies/usage-limits/{policyUsageLimitsId}` ✓ — `DELETE` deleteUsageLimitsPolicy, `GET` getUsageLimitsPolicy, `PUT` updateUsageLimitsPolicy
+- [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities` ✓ — `GET` listUsageLimitsPolicyEntities
+- [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset` ✓ — `PUT` resetUsageLimitsPolicyEntity
 
 ### User Invites
 
@@ -208,37 +236,9 @@ The candidates. Tick what goes.
 - [ ] `/admin/workspaces/{workspaceId}/users` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/admin/workspaces/{workspaceId}/users/{userId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
 
-## Unclassified — 18 paths
+## Unclassified — 8 paths
 
 No server override and no decision recorded yet. **Needs a call** -- add it to `classification.yaml`.
-
-### Integrations > Models
-
-- [ ] `/integrations/{slug}/models` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
-
-### Integrations > Workspaces
-
-- [ ] `/integrations/{slug}/workspaces` — `GET` *(no operationId)*, `PUT` *(no operationId)*
-
-### Model Pricing
-
-- [ ] `/model-configs/pricing/{provider}/{model}` — `GET` getModelPricing
-
-### Models
-
-- [ ] `/models/{model}` — `DELETE` deleteModel, `GET` retrieveModel
-
-### Rate Limit Policies
-
-- [ ] `/policies/rate-limits` — `GET` listRateLimitsPolicies, `POST` createRateLimitsPolicy
-- [ ] `/policies/rate-limits/{rateLimitsPolicyId}` — `DELETE` deleteRateLimitsPolicy, `GET` getRateLimitsPolicy, `PUT` updateRateLimitsPolicy
-
-### Usage Limit Policies
-
-- [ ] `/policies/usage-limits` — `GET` listUsageLimitsPolicies, `POST` createUsageLimitsPolicy
-- [ ] `/policies/usage-limits/{policyUsageLimitsId}` — `DELETE` deleteUsageLimitsPolicy, `GET` getUsageLimitsPolicy, `PUT` updateUsageLimitsPolicy
-- [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities` — `GET` listUsageLimitsPolicyEntities
-- [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset` — `PUT` resetUsageLimitsPolicyEntity
 
 ### Vector Stores
 
@@ -323,7 +323,7 @@ Data plane. Listed for completeness; expected to stay.
 
 ### Models
 
-- [ ] `/models` — `GET` listModels
+- [ ] `/models` ✓ — `GET` listModels
 
 ### Moderations
 

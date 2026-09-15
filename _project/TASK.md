@@ -381,15 +381,20 @@ by tag, each showing its methods and `operationId`s. Two findings:
 
 | Group | Paths | Components reached | Reached **only** by this group |
 |---|---|---|---|
-| control plane | 87 | 203 | **197** |
+| control plane | 97 | 245 | **243** |
 | gateway | 46 | 259 | 257 |
-| unclassified | 18 | 65 | 59 |
+| unclassified | 8 | 18 | 18 |
 
-Dropping all 87 control-plane paths orphans **197 components** — over a third of
-the 578 in the file. But only 7 of 520 components are shared across groups at
-all, so the separation is clean and pruning is low-risk: the deletions will not
+Dropping all 97 control-plane paths orphans **243 components** — 42% of the 578
+in the file. But only 2 of 520 components are shared between the planes at all,
+so the separation is near-total and pruning is low-risk: the deletions will not
 reach into anything the gateway needs. That is better news than I expected, and
 it means step 2 can prune aggressively rather than conservatively.
+
+Rough shape of what survives, if every control-plane path goes and nothing else
+changes: **54 paths, ~277 components**, down from 151 and 578. Worth sanity
+checking against your expectation before we cut — if that feels too small, the
+drop list is wrong somewhere.
 
 Separately: **58 components are already unreachable from any path**, before we
 drop anything. Spectral's `oas3-unused-component` baseline is 26 because it
@@ -403,26 +408,34 @@ guess and a call should not look identical once both are on the page. A pattern
 that matches nothing is a hard error, because the usual cause is a renamed path
 and a rule that silently stops applying is worse than no rule. Confirmed to fire.
 
-**Decided so far:**
+**Decided — 14 paths, all Vrushank, 2026-09-15:**
 
-| Paths | Plane | Who, when |
+| Pattern | Paths | Plane |
 |---|---|---|
-| `/guardrails*` (4) | control plane | Vrushank, 2026-09-15 |
+| `/guardrails*` | 4 | control plane |
+| `/policies/*` | 6 | control plane |
+| `/integrations/{slug}/models`, `/integrations/{slug}/workspaces` | 2 | control plane |
+| `/model-configs/*` | 1 | control plane |
+| `/models/{model}` | 1 | control plane |
+| `/models` | 1 | gateway (confirming the inherited value) |
 
-That moved 4 paths and **+47 exclusively-reached components** into the
-control-plane bucket. Guardrails is schema-heavy for its size — worth knowing
-before the prune, since it is a big share of what step 2 deletes.
+Two of my readings were wrong and are corrected above: I had guessed
+`/model-configs/pricing/...` and `/models/{model}` were data plane. They are not.
 
-**Still undecided — 18 paths.** My reading, for you to confirm or overrule:
+**`/models` and `/models/{model}` sit on opposite sides of the split**, which is
+a live trap: fnmatch's `*` crosses slashes, so a `/models*` rule under
+control-plane silently swallows the gateway path too. `/models` is therefore
+pinned explicitly even though the inherited data already had it right, and
+`classification.yaml` now rejects any path claimed by both planes rather than
+resolving it by order. Confirmed to fire:
 
-| Looks like control plane | Looks like data plane |
-|---|---|
-| `/policies/rate-limits*` (2) | `/vector_stores*` (8) |
-| `/policies/usage-limits*` (4) | `/models/{model}` |
-| `/integrations/{slug}/models` | `/model-configs/pricing/{provider}/{model}` |
-| `/integrations/{slug}/workspaces` | |
+```
+classification.yaml: 1 path(s) claimed by both planes: /models (via /models* and /models)
+```
 
-That is a reading of the path shapes, not a product decision. Rolled into Q2.
+**Still undecided — 8 paths**, all `/vector_stores*`. They reach 18 components
+and nothing else touches them, so they can be settled last without blocking
+anything.
 
 ---
 
