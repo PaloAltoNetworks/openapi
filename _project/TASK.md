@@ -3,7 +3,8 @@
 Working notes. Not published, not part of the build. Delete or gitignore when
 the work lands.
 
-Status: **drafted, awaiting input.** Nothing below has been implemented.
+Status: **steps 0 and 1 done** (commit `aea10de`). Steps 2–7 blocked on Q1–Q4.
+See the progress log at the bottom.
 
 ---
 
@@ -286,8 +287,8 @@ Each step ends green — checks passing, spec valid — so we can stop anywhere.
 
 | # | Step | Needs | Note |
 |---|---|---|---|
-| 0 | Shape-equivalence check + removal allow-list | — | The guardrail for everything after. I can do this now. |
-| 1 | Generate the drop-list checklist (83 + 22 unclassified) | — | I can do this now; you strike through. |
+| ~~0~~ | ~~Shape-equivalence check + removal allow-list~~ | — | **Done** |
+| ~~1~~ | ~~Generate the drop-list checklist~~ | — | **Done** — `drop-list.md` |
 | 2 | Drop the operations, prune orphaned components, regenerate tags and navigation, re-baseline Spectral | Q2 | Shrinks everything downstream |
 | 3 | Base URL: delete per-path overrides, single config-driven root, add the check | Q1 | The `PLEASE` item |
 | 4 | Auth rename, if any | Q4 | Before samples, not after |
@@ -295,5 +296,125 @@ Each step ends green — checks passing, spec valid — so we can stop anywhere.
 | 6 | Code samples per the outcome; grounded in the overlay; cURL only | Q3, step 5 | |
 | 7 | README and `build-report.txt` catch up | all | |
 
-**Steps 0 and 1 need nothing from you. Say the word and I will start there while
-you answer Q1–Q4.**
+---
+
+## Progress log
+
+### Steps 0 and 1 — done, commit `aea10de`
+
+**What landed**
+
+| File | What it does |
+|---|---|
+| `scripts/check_shape.py` | Per-operation and per-component comparison against the base |
+| `_project/base-delta.yaml` | The allow-list. Every accepted difference, with a reason |
+| `_project/drop-list.md` | 151 paths as a checklist, with blast radius |
+| `_project/gen_drop_list.py` | Regenerates the above |
+| `scripts/fetch-base.sh` | Now pins to the recorded commit |
+| `scripts/check.py` | Servers check now sees all 264 entries, not 1 |
+| `.github/workflows/validate.yml` | New "Fidelity to the base" job |
+
+Current state, all green:
+
+```
+operations  base  242   ours  242   identical  242   removed 0  added 0  reshaped 0
+components  base  578   ours  578   identical  578   removed 0  added 0  reshaped 0
+```
+
+**Step 0 — the guardrail**
+
+`scripts/check_shape.py` asserts: *every operation and component that still
+exists is structurally identical to the base, and everything that differs is
+listed in `base-delta.yaml` with a reason.* Removals are fine — they just have
+to be written down. A removal nobody wrote down is indistinguishable from an
+accident, which is what stops step 2 from quietly taking a schema somebody
+still needed.
+
+Three things worth knowing about it:
+
+- **It compares components separately from operations, and that turns out to
+  matter.** An operation that `$ref`s a schema looks untouched when the schema
+  underneath it changes. Confirmed by test: editing
+  `CreateChatCompletionRequest.required` is invisible at operation level and
+  caught at component level. Operation-only comparison would have shipped it.
+- **It catches stale allow-list entries.** An entry left behind after the thing
+  came back keeps excusing a difference nobody re-checked. That is how this kind
+  of guardrail rots, so it fails instead.
+- **`normalise:` in `base-delta.yaml` is where intentional systematic deltas
+  go** — currently prose, provenance, tags, null-defaults. Add `servers` when
+  step 3 lands. Each entry is a commitment, not a convenience: it switches off
+  detection for a whole class of change.
+
+Confirmed to fire before being relied on, same standard as every other gate
+here: unexplained removal (exit 1), unexplained addition, reshaped component,
+stale allow-list entry, and absent base under `--require-base`.
+
+**Two fixes found along the way**
+
+*`fetch-base.sh` was cloning the base's HEAD, not our pinned commit.* The base
+is Portkey's repository and moves on its own; the shape check would have
+reported their changes as our drift and gone to noise within a week. Now pinned
+to `3fa53f2` from `base-delta.yaml`, with `BASE_COMMIT=HEAD` to override.
+Verified a refetch reproduces the byte-identical file.
+
+*`check.py`'s servers check reported the root block only* — 1 of 264 entries. A
+search and replace that missed the other 263 would have passed the check whose
+only purpose is to catch exactly that. It now walks every block and flags values
+that are not URLs:
+
+```
+  ok    servers -- 264 entries, 5 distinct
+           132  https://api.portkey.ai/v1
+            81  SELF_HOSTED_CONTROL_PLANE_URL   <- not a URL
+            46  SELF_HOSTED_GATEWAY_URL   <- not a URL
+             4  https://SELF_HOSTED_CONTROL_PLANE_URL
+             1  https://api.portkey.ai
+```
+
+**Step 1 — the drop list**
+
+`_project/drop-list.md`, 151 paths as tick-boxes grouped by classification then
+by tag, each showing its methods and `operationId`s. Two findings:
+
+*Blast radius is large but clean.*
+
+| Group | Paths | Components reached | Reached **only** by this group |
+|---|---|---|---|
+| control plane | 83 | 157 | **150** |
+| gateway | 46 | 259 | 257 |
+| unclassified | 22 | 113 | 105 |
+
+Dropping all 83 control-plane paths orphans **150 components**. But only 8 of
+520 components are shared across groups at all, so the separation is clean and
+pruning is low-risk — the deletions will not reach into anything the gateway
+needs. That is better news than I expected, and it means step 2 can prune
+aggressively rather than conservatively.
+
+Separately: **58 components are already unreachable from any path**, before we
+drop anything. Spectral's `oas3-unused-component` baseline is 26 because it
+counts differently (a schema referenced only by another dead schema still looks
+used). Worth sweeping in step 2 while we are in there.
+
+*The 22 unclassified paths split cleanly, and I would not leave them to the
+inherited classification.* Reading them, they are two obvious piles:
+
+| Looks like control plane | Looks like data plane |
+|---|---|
+| `/policies/rate-limits*` (2 paths) | `/vector_stores*` (8 paths) |
+| `/policies/usage-limits*` (4 paths) | `/models/{model}` |
+| `/integrations/{slug}/models` | `/model-configs/pricing/...` |
+| `/integrations/{slug}/workspaces` | |
+| `/guardrails*` (4 paths) | |
+
+`/guardrails*` is the one I would flag hardest. It is control-plane in shape —
+CRUD over a configuration resource — but for an AI security product it may well
+be the most important surface in the API, and dropping it because Portkey never
+gave it a server override would be a bad way to lose it. **Explicit call needed,
+not a default.**
+
+That is a reading of the paths, not a product decision. Rolled into Q2.
+
+---
+
+**Next:** step 2 needs the ticked drop list (Q2); step 3 needs the base URL and
+host count (Q1). Nothing further can start without one of those.
