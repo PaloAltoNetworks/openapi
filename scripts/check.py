@@ -77,6 +77,13 @@ def check_no_prose_in_spec(spec) -> None:
         for k, v in node.items():
             if k in ("description", "summary") and isinstance(v, str) and v.strip():
                 offenders.append(f"{pointer}/{k}")
+            # A code sample is prose: it asserts a base URL, an auth header and
+            # a set of fields worth sending, none of which a validator checks.
+            # It also *wins* -- Mintlify renders a supplied sample instead of
+            # the generated one, so one left here quietly overrides the real
+            # servers and security blocks. The base shipped 106 of them.
+            if k in ("x-code-samples", "x-codeSamples"):
+                offenders.append(f"{pointer}/{k}")
             if k in ("default", "enum", "const", "mapping", "scopes"):
                 continue
             walk(v, f"{pointer}/{k}", k not in NAME_MAPS)
@@ -87,7 +94,8 @@ def check_no_prose_in_spec(spec) -> None:
     if offenders:
         fail(
             "prose in openapi.yaml",
-            f"{len(offenders)} non-empty description/summary; move to overlays/. "
+            f"{len(offenders)} non-empty description/summary/code sample; "
+            f"move to overlays/. "
             f"First: {offenders[0]}",
         )
     else:

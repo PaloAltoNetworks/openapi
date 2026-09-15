@@ -216,7 +216,7 @@ operations requiring no authentication  1
   each is a claim that the endpoint is public and wants confirming.
     GET /model-configs/pricing/{provider}/{model}
 
-prose fields removed             4075
+prose fields removed             4221
 null defaults dropped            9
     /components/schemas/CreateCompletionRequest/properties/logit_bias/default
     /components/schemas/CreateCompletionRequest/properties/logprobs/default

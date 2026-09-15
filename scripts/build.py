@@ -26,11 +26,20 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 
 # Natural-language fields. Removed from openapi.yaml at every level.
-PROSE_KEYS = {"description", "summary", "example", "examples", "externalDocs"}
-
-# Root-level extensions from the base specification that carry inherited
-# navigation and prose rather than structure.
-DROP_ROOT_KEYS = {"x-code-samples"}
+#
+# Code samples are in here because a code sample is prose. It asserts a base
+# URL, an auth header, a content type and a set of fields worth sending -- all
+# claims, none of them checkable by a schema validator. The base carries 106 of
+# them on operations, hardcoding api.portkey.ai and the x-portkey-api-key and
+# x-portkey-virtual-key headers. Mintlify renders a supplied sample *instead of*
+# the one it would generate, so leaving these in place silently overrode both
+# the base URL change and the auth change: the reader would have been told to
+# call the old host with headers this API does not read.
+#
+# Both spellings. The base uses x-code-samples; Mintlify reads x-codeSamples.
+# Stripping only the one that is present today is how the other comes back.
+PROSE_KEYS = {"description", "summary", "example", "examples", "externalDocs",
+              "x-code-samples", "x-codeSamples"}
 
 # Dicts whose keys are author-chosen names, not OpenAPI keywords. Inside these,
 # a key called "description" is a property named "description" and must survive.
@@ -387,9 +396,6 @@ def build(base_path: Path) -> int:
 
     stripper = Stripper()
     spec = stripper.walk(base)
-
-    for key in DROP_ROOT_KEYS:
-        spec.pop(key, None)
 
     null_defaults = drop_null_defaults(spec)
 

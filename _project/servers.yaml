@@ -5,32 +5,29 @@
 # here and every operation in openapi.yaml follows on the next build. Nothing
 # below needs touching, and there is no second copy to forget.
 #
-# Why a variable rather than a literal URL: with a `default` the value is
-# already filled in, so a reader sees a working URL and the playground sends
-# real requests. A self-hosted deployment overrides `host` with its own, which
-# is what the base's `SELF_HOSTED_GATEWAY_URL` placeholder was gesturing at
-# without ever being a usable value. Three such placeholders were being
-# published as if they were URLs; they are gone.
+# Literal URLs, not server variables. Variables were tried first, because a
+# `{host}` variable with a `default` is the mechanism OpenAPI provides for
+# exactly this and it would have let a self-hosted reader substitute their own
+# address. Mintlify cannot resolve them: with a templated `url` it renders
+# "A valid request URL is required to generate request examples" and emits no
+# cURL sample at all, on every operation. Verified locally against
+# mint 4.2.893 -- swap these for `{host}` and the samples disappear.
 #
-# The path prefix sits outside the variable because it is structural, not
-# deployment-specific: self-hosting changes the host, never the prefix.
-#
-# The two planes do not share a prefix -- gateway is /v1, control plane is
-# /api/v1. Paths in this specification are declared bare (`/api-keys`, not
-# `/api/v1/api-keys`), so the prefix lives entirely here.
+# The cost is that self-hosting is no longer offered as a substitutable value.
+# That was already true in practice: the base "offered" it as the literal
+# string SELF_HOSTED_GATEWAY_URL, which was never a working address. Where to
+# point a self-hosted deployment is documentation, and belongs in prose.
 
 # Data plane. The root server, so the 52 gateway paths need no override.
 gateway:
-  url: "{host}/v1"
-  variables:
-    host:
-      default: https://aigw.portkey.ai
+  url: https://aigw.portkey.ai/v1
 
 # Management plane. Stamped onto the 66 paths that _project/planes.yaml marks
 # control-plane, because OpenAPI has no way for a path to point back at a
 # server declared once at the root.
+#
+# The two planes do not share a prefix -- gateway is /v1, control plane is
+# /api/v1. Paths are declared bare (`/api-keys`, not `/api/v1/api-keys`), so
+# the prefix lives entirely here.
 control-plane:
-  url: "{host}/api/v1"
-  variables:
-    host:
-      default: https://mp.us.prod.airs-gw.portkey.ai
+  url: https://mp.us.prod.airs-gw.portkey.ai/api/v1

@@ -59,13 +59,15 @@ Two deliberate departures from what this list originally said:
   than 1, but each operation shows exactly one correct host, and all 67 come
   from one source. The duplication is OpenAPI's — a path cannot refer back to a
   server declared at the root.
-- **No `enum`, so no `SELF_HOSTED_GATEWAY_URL` in a dropdown.** Under OpenAPI an
-  `enum` means the value *must* be one of the listed options, so a self-hosted
-  reader could not enter their actual host — the dropdown would show the
-  placeholder and still not work. A variable with a `default` and no `enum`
-  renders as an editable field, which is the thing the placeholder was gesturing
-  at. Worth a second look if you specifically wanted the dropdown; it is a
-  three-line change in `servers.yaml`.
+- **Literal URLs, not server variables.** Variables were built first — they are
+  the mechanism OpenAPI provides, and they would have let a self-hosted reader
+  substitute their own host. **Mintlify cannot resolve them.** With a templated
+  `url` it renders *"A valid request URL is required to generate request
+  examples"* and emits no cURL sample at all, on every operation. Found in the
+  task 5 experiment and reverted. The lost affordance was never real: the base
+  "offered" self-hosting as the literal string `SELF_HOSTED_GATEWAY_URL`, which
+  was not a working address. Where to point a self-hosted deployment is
+  documentation, and belongs in prose.
 
 New file: **`_project/planes.yaml`**, which plane each of the 118 paths is on.
 This had to be written down *before* the overrides were deleted — they were the
@@ -121,13 +123,42 @@ be two fields to confirm, not five bodies to fill in.
 **Needs one of:** engineering confirming the five, or a decision to ship them as
 they are and let the code samples for those five show an empty body.
 
-### 5. cURL code samples
-- [ ] Run the Mintlify experiment: does its generated sample honour `required`, or dump all 24 properties?
-- [ ] Pick the approach from the result — schema-only, `example` on chosen fields, or hand-written `x-codeSamples`
+### 5. cURL code samples — **experiment done, approach needs a decision**
+- [x] ~~Run the Mintlify experiment~~ — local `mint 4.2.893`, real spec, 2026-09-15
+- [x] **Found and fixed a live bug** — see below
+- [x] Answer: **it dumps all 24 properties and ignores `required`**
+- [ ] Pick the approach — needs a decision
 - [ ] cURL only; single entry suppresses the other language tabs
-- [ ] Samples live in `overlays/docs-prose.yaml` with `x-airs-provenance`, not in `openapi.yaml`
-- [ ] Use the key `x-codeSamples` — not the base's `x-code-samples`
+- [ ] Samples live in `overlays/docs-prose.yaml` with `x-airs-provenance`
 - [ ] State the cURL-only decision in the README so it does not read as an omission
+
+**The bug.** 106 operations still carried the base's `x-code-samples`.
+`DROP_ROOT_KEYS` only popped the root key, so the per-operation ones survived
+every build. They hardcode `api.portkey.ai`, `x-portkey-api-key` and
+`x-portkey-virtual-key` — and Mintlify renders a supplied sample *instead of*
+the generated one, so they silently overrode both the new base URL and the new
+auth. A reader would have been told to call the old host with headers this API
+does not read. Code samples are now in `PROSE_KEYS` (both spellings), stripped
+at every level, and `check.py` fails if one reappears.
+
+**Answer to the experiment.** `CreateChatCompletionRequest` declares
+`required: [model, messages]`. Mintlify emitted all 24 properties —
+`temperature`, `top_p`, `logit_bias`, `seed`, `functions`, everything. It does
+not use `required` to trim the request example. So there is no way to get the
+minimal sample by annotating the schema, and **task 4 would not have helped
+here either**.
+
+Confirmed working: auth renders as `Authorization: Bearer <token>`.
+
+**The options:**
+
+| | What it means | Cost |
+|---|---|---|
+| A | Hand-write `x-codeSamples` for all 181 operations | Exactly the ask; 181 samples to author and ground |
+| B | Ship Mintlify's generated sample | Free; it is the 24-property dump you did not want |
+| C | Hand-write a curated set, generated elsewhere | The endpoints that matter read well; the long tail is verbose but correct |
+
+C looks right, but which operations are in the curated set is your call.
 
 ### 6. ~~Version and provenance~~ — done 2026-09-15
 - [x] ~~`info.version` → `3.0.0`~~ — pinned in `build.py`, no longer inherited from the base
