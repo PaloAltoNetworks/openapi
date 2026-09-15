@@ -478,8 +478,8 @@ def apply_servers(spec) -> dict[str, int]:
             f"planes.yaml does not classify {len(missing)} path(s): {missing}")
 
     # The other direction. A classification for a path that no longer exists is
-    # harmless to the build and misleading to everything else -- gen_drop_list.py
-    # counts these, so leftovers from a drop quietly inflate the inventory.
+    # harmless to the build and misleading to every reader of the file -- it
+    # says a decision is load-bearing when nothing bears on it any more.
     stale = sorted(set(plane_of) - set(spec.get("paths") or {}))
     if stale:
         raise SystemExit(
