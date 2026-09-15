@@ -93,9 +93,33 @@ Two things to know:
   unverified claim as leaving it public. `check.py` prints it on every run.
   **Worth confirming with engineering.**
 
-### 4. Request bodies that can generate a minimal sample
-- [ ] Fill in `required` on the 13 inline request bodies that declare none
-- [ ] Without this, a required-only sample renders an empty body for those 13
+### 4. Request bodies that can generate a minimal sample — **needs a decision**
+- [x] ~~Re-count after the drops~~ — **5, not 13.** The other 8 were inside dropped groups
+- [ ] Fill in `required` — **not done, deliberately. See below.**
+
+`required` is a claim about the API contract, and there is nothing in this
+repository that establishes it. Getting it wrong is not a cosmetic error: a
+reader omits a field the API rejects, or sends one it does not want. This is the
+same standard the grounding gate applies to prose — `required` is structural so
+the gate does not formally cover it, but "inventing them is not the same as
+recovering them" applies just as well.
+
+The five, with what a guess would look like:
+
+| | Properties | A guess would say |
+|---|---|---|
+| `POST /configs` | name, config, workspace_id | `name`, `config` |
+| `POST /admin/workspaces` | name, description, defaults, users, usage_limits, rate_limits | `name` |
+| `PUT /configs/{slug}` | name, config, status | possibly none — partial update |
+| `PUT /providers/{slug}` | name, note, usage_limits, rate_limits, expires_at, reset_usage | possibly none — partial update |
+| `PUT /admin/workspaces/{workspaceId}` | name, description, defaults, usage_limits, rate_limits | possibly none — partial update |
+
+For the three `PUT`s, declaring nothing required may well be correct already:
+a partial update where every field is optional is a normal design. So this may
+be two fields to confirm, not five bodies to fill in.
+
+**Needs one of:** engineering confirming the five, or a decision to ship them as
+they are and let the code samples for those five show an empty body.
 
 ### 5. cURL code samples
 - [ ] Run the Mintlify experiment: does its generated sample honour `required`, or dump all 24 properties?
