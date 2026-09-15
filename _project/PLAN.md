@@ -559,5 +559,44 @@ possible, and the Mintlify experiment showed `required` does not affect the
 generated sample at all — so it follows the first rather than standing alone. It
 is still worth doing for its own sake, as a contract question for engineering.
 
+### Addendum — the self-hosted gateway URL, 2026-09-15
+
+Task 2 concluded that self-hosting could not be offered, because Mintlify cannot
+resolve server variables. That conclusion was drawn too wide. Variables do not
+work; **a second literal entry in `servers[]` does**, and the experiment that
+established the first finding had simply not tested the second.
+
+Re-run against `mint 4.2.893` with the real specification: a gateway operation
+renders a `<select aria-label="Select base URL">` carrying both hosts, the
+sample rebuilds from whichever is picked, and the managed host is the default
+because Mintlify takes the first entry.
+
+The finding that matters beyond this change: **a path-level `servers` block
+replaces the root list rather than extending it.** Control-plane operations
+showed only their own host, with no trace of the root's two entries. That is
+what makes a second root entry safe, and it directly retires the objection
+recorded under task 2 — that two root entries would offer both hosts on every
+operation. They would not; only paths without an override see the root list.
+
+`_project/servers.yaml` now holds an ordered list per plane rather than a single
+entry, which is the natural shape since it *is* an OpenAPI `servers` array, and
+adding a host is appending to it.
+
+Two decisions inside the change:
+
+- **The placeholder host is under `example.com`.** The proposed spelling,
+  `self-hosted-gateway-url.com`, is an ordinary registrable domain and was
+  unregistered when checked on 2026-09-15. A specification that says
+  `Authorization: Bearer <token>` a few lines away from a buyable hostname is a
+  credential-leak path for every reader who copies the sample and forgets to
+  change the host. RFC 2606 reserves `example.com` and IANA will never delegate
+  it, so the placeholder fails closed instead of failing to an attacker.
+- **`servers[].description` is exempt from the no-prose rule.** It is prose by
+  the letter of it. The exemption is safe because `check_servers` now compares
+  every block in the document — root included — against `servers.yaml` as a
+  whole list, so a description cannot enter the document without going through
+  review of that one file. Confirmed by negative test: hand-editing a server
+  description fails the build.
+
 **Next:** Phase 2. `operationId` on the 53 operations lacking one comes first,
 since SDK generation depends on it and nothing else does.

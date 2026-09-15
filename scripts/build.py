@@ -203,6 +203,19 @@ def apply_security(spec) -> tuple[int, list[str]]:
     return removed, sorted(public)
 
 
+def load_servers() -> dict[str, list[dict]]:
+    """The base URLs, as one `servers` array per plane. Order is significant:
+    Mintlify generates its code sample from the first entry and offers the rest
+    in a "Select base URL" dropdown."""
+    defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
+    for plane, entries in defs.items():
+        if not isinstance(entries, list) or not entries:
+            raise SystemExit(
+                f"servers.yaml: {plane!r} must be a non-empty list of server "
+                f"objects, got {type(entries).__name__}")
+    return defs
+
+
 def apply_servers(spec) -> int:
     """Rewrite every `servers` block from _project/servers.yaml.
 
@@ -216,8 +229,11 @@ def apply_servers(spec) -> int:
     Control-plane paths get one, because OpenAPI gives a path no way to refer
     back to a server declared once at the root -- the duplication is the
     format's, not ours, and it is generated rather than maintained.
+
+    A path-level block replaces the root list rather than extending it, so the
+    gateway's self-hosted entry does not appear on control-plane operations.
     """
-    defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
+    defs = load_servers()
     planes = yaml.safe_load((ROOT / "_project" / "planes.yaml").read_text())
     control = set(planes.get("control-plane") or {})
     gateway = set(planes.get("gateway") or {})
@@ -238,10 +254,10 @@ def apply_servers(spec) -> int:
             if isinstance(item[method], dict):
                 item[method].pop("servers", None)
         if path in control:
-            item["servers"] = [copy.deepcopy(defs["control-plane"])]
+            item["servers"] = copy.deepcopy(defs["control-plane"])
             stamped += 1
 
-    spec["servers"] = [copy.deepcopy(defs["gateway"])]
+    spec["servers"] = copy.deepcopy(defs["gateway"])
     return stamped
 
 
@@ -440,10 +456,13 @@ def build(dry_run: bool = False) -> int:
         f"schemas                          {len(spec.get('components', {}).get('schemas', {}))}\n"
         f"tags                             {len(spec['tags'])}\n"
         f"\nservers                          1 root + {control_paths} control-plane\n"
-        "  Both URLs come from _project/servers.yaml; which plane a path is on\n"
-        "  comes from _project/planes.yaml. Edit a host there and rebuild.\n"
-        + "".join(f"    {plane:<14} {defn['url']}\n" for plane, defn in
-                 yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text()).items())
+        "  Every URL comes from _project/servers.yaml; which plane a path is on\n"
+        "  comes from _project/planes.yaml. Edit a host there and rebuild. The\n"
+        "  first entry in a plane is the one Mintlify builds its sample from;\n"
+        "  the rest appear in its base-URL dropdown.\n"
+        + "".join(f"    {plane:<14} {e['url']}"
+                  f"{'  -- ' + e['description'] if e.get('description') else ''}\n"
+                  for plane, entries in load_servers().items() for e in entries)
         + f"\nsecurity                         1 scheme\n"
         "  One Authorization bearer token, declared once at the root. Six schemes\n"
         "  in five combinations were collapsed into it.\n"

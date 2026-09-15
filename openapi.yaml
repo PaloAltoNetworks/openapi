@@ -8,6 +8,9 @@ info:
   description: ''
 servers:
 - url: https://aigw.portkey.ai/v1
+  description: Managed
+- url: https://self-hosted-gateway-url.example.com/v1
+  description: Self-hosted -- replace with your own gateway host
 x-server-groups:
   ControlPlaneServers:
   - url: https://api.portkey.ai/v1
@@ -290,6 +293,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /guardrails/{guardrailId}:
     get:
       operationId: getGuardrail
@@ -400,6 +404,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /guardrails/{guardrailId}/mcp-servers:
     parameters:
     - name: guardrailId
@@ -493,6 +498,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /guardrails/{guardrailId}/mcp-servers/{mcpServerId}:
     parameters:
     - name: guardrailId
@@ -555,6 +561,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /images/generations:
     post:
       operationId: createImage
@@ -1192,6 +1199,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /moderations:
     post:
       operationId: createModeration
@@ -2720,6 +2728,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /configs/{slug}:
     delete:
       tags:
@@ -2856,6 +2865,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /configs/{slug}/versions:
     get:
       tags:
@@ -2930,6 +2940,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /feedback:
     post:
       operationId: createFeedback
@@ -2956,6 +2967,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /feedback/{id}:
     put:
       operationId: updateFeedback
@@ -2989,6 +3001,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /integrations:
     get:
       tags:
@@ -3069,6 +3082,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /integrations/{slug}:
     get:
       tags:
@@ -3144,6 +3158,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /integrations/{slug}/models:
     get:
       tags:
@@ -3224,6 +3239,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /integrations/{slug}/workspaces:
     get:
       tags:
@@ -3277,6 +3293,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /providers:
     get:
       tags:
@@ -3370,6 +3387,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /providers/{slug}:
     get:
       tags:
@@ -3479,6 +3497,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /admin/workspaces:
     post:
       tags:
@@ -3575,6 +3594,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /admin/workspaces/{workspaceId}:
     put:
       tags:
@@ -3684,6 +3704,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /scim/workspaces:
     get:
       tags:
@@ -3796,6 +3817,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /scim/workspaces/{scimWorkspaceGroupId}:
     delete:
       tags:
@@ -3828,6 +3850,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-integrations:
     post:
       operationId: McpIntegrations_create
@@ -3906,6 +3929,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-integrations/{mcpIntegrationId}:
     parameters:
     - name: mcpIntegrationId
@@ -3971,6 +3995,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-integrations/{mcpIntegrationId}/workspaces:
     parameters:
     - name: mcpIntegrationId
@@ -4027,6 +4052,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-integrations/{mcpIntegrationId}/capabilities:
     parameters:
     - name: mcpIntegrationId
@@ -4099,6 +4125,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-integrations/{mcpIntegrationId}/metadata:
     parameters:
     - name: mcpIntegrationId
@@ -4125,6 +4152,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers:
     post:
       operationId: McpServers_create
@@ -4195,6 +4223,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers/{mcpServerId}:
     parameters:
     - name: mcpServerId
@@ -4260,6 +4289,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers/{mcpServerId}/test:
     parameters:
     - name: mcpServerId
@@ -4286,6 +4316,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers/{mcpServerId}/capabilities:
     parameters:
     - name: mcpServerId
@@ -4358,6 +4389,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers/{mcpServerId}/user-access:
     parameters:
     - name: mcpServerId
@@ -4424,6 +4456,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /mcp-servers/{mcpServerId}/connections:
     parameters:
     - name: mcpServerId
@@ -4499,6 +4532,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /logs:
     post:
       tags:
@@ -4622,6 +4656,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /api-keys:
     get:
       tags:
@@ -4658,6 +4693,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /api-keys/{id}:
     put:
       tags:
@@ -4747,6 +4783,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /api-keys/{id}/rotate:
     post:
       tags:
@@ -4782,6 +4819,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/usage-limits:
     post:
       tags:
@@ -4866,6 +4904,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/usage-limits/{policyUsageLimitsId}:
     get:
       tags:
@@ -4985,6 +5024,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/usage-limits/{policyUsageLimitsId}/entities:
     get:
       tags:
@@ -5038,6 +5078,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset:
     put:
       tags:
@@ -5071,6 +5112,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/rate-limits:
     post:
       tags:
@@ -5171,6 +5213,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /policies/rate-limits/{rateLimitsPolicyId}:
     get:
       tags:
@@ -5284,6 +5327,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/requests:
     get:
       tags:
@@ -5359,6 +5403,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/cost:
     get:
       tags:
@@ -5440,6 +5485,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/latency:
     get:
       tags:
@@ -5533,6 +5579,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/tokens:
     get:
       tags:
@@ -5614,6 +5661,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/users:
     get:
       tags:
@@ -5689,6 +5737,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/users/requests:
     get:
       tags:
@@ -5770,6 +5819,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/errors:
     get:
       tags:
@@ -5845,6 +5895,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/errors/rate:
     get:
       tags:
@@ -5920,6 +5971,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/errors/stacks:
     get:
       tags:
@@ -6002,6 +6054,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/errors/status-codes:
     get:
       tags:
@@ -6079,6 +6132,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/requests/rescued:
     get:
       tags:
@@ -6167,6 +6221,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/cache/hit-rate:
     get:
       tags:
@@ -6257,6 +6312,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/cache/latency:
     get:
       tags:
@@ -6327,6 +6383,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/feedbacks:
     get:
       tags:
@@ -6402,6 +6459,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/feedbacks/scores:
     get:
       tags:
@@ -6476,6 +6534,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/feedbacks/weighted:
     get:
       tags:
@@ -6551,6 +6610,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/graphs/feedbacks/ai-models:
     get:
       tags:
@@ -6623,6 +6683,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/summary/cache:
     get:
       tags:
@@ -6688,6 +6749,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/groups/users:
     get:
       tags:
@@ -6762,6 +6824,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/groups/ai-models:
     get:
       tags:
@@ -6834,6 +6897,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/groups/provider:
     get:
       tags:
@@ -6912,6 +6976,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /analytics/groups/metadata/{metadataKey}:
     get:
       tags:
@@ -7000,6 +7065,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /model-configs/pricing/{provider}/{model}:
     get:
       security: []
@@ -7041,6 +7107,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /secret-references:
     get:
       operationId: listSecretReferences
@@ -7141,6 +7208,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
   /secret-references/{secretReferenceId}:
     get:
       operationId: getSecretReference
@@ -7229,6 +7297,7 @@ paths:
         text_digest: ''
     servers:
     - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+      description: Managed
 components:
   securitySchemes:
     Authorization:

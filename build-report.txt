@@ -6,10 +6,13 @@ schemas                          437
 tags                             41
 
 servers                          1 root + 66 control-plane
-  Both URLs come from _project/servers.yaml; which plane a path is on
-  comes from _project/planes.yaml. Edit a host there and rebuild.
-    gateway        https://aigw.portkey.ai/v1
-    control-plane  https://mp.us.prod.airs-gw.portkey.ai/api/v1
+  Every URL comes from _project/servers.yaml; which plane a path is on
+  comes from _project/planes.yaml. Edit a host there and rebuild. The
+  first entry in a plane is the one Mintlify builds its sample from;
+  the rest appear in its base-URL dropdown.
+    gateway        https://aigw.portkey.ai/v1  -- Managed
+    gateway        https://self-hosted-gateway-url.example.com/v1  -- Self-hosted -- replace with your own gateway host
+    control-plane  https://mp.us.prod.airs-gw.portkey.ai/api/v1  -- Managed
 
 security                         1 scheme
   One Authorization bearer token, declared once at the root. Six schemes

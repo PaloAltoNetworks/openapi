@@ -53,7 +53,7 @@ reviewed and changed in one place. `scripts/build.py` applies them back onto
 | Paths / operations | 118 / 181 |
 | Components | 475, of which 437 schemas |
 | Tags | 41, across 6 navigation groups |
-| Servers | 2 hosts — gateway and control plane |
+| Servers | 3 hosts — managed gateway, self-hosted gateway, control plane |
 | Security | 1 scheme: `Authorization: Bearer` |
 | Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
@@ -273,9 +273,13 @@ reader types or a machine parses, and renaming one breaks a caller.
 
 **Two deliberate exemptions**, both decided 2026-09-15:
 
-- **`servers[].url`.** The base URLs are Prisma AIRS's, not the base's. They
-  now come from `_project/servers.yaml` and nowhere else — one place to edit,
-  and `scripts/check.py` fails if a host appears anywhere it was not written.
+- **The whole `servers` subtree.** The base URLs are Prisma AIRS's, not the
+  base's. They come from `_project/servers.yaml` and nowhere else — one place
+  to edit, and `scripts/check.py` compares every block in the document against
+  it whole, so a host or a label that was not written there fails. That is also
+  why `servers[].description` is exempt from the no-prose rule: it is prose by
+  the letter of it, but it cannot enter the document without passing review of
+  that one file, which is the property the grounding gate protects.
 - **Security scheme keys.** Six schemes in five combinations became a single
   `Authorization` bearer token. A scheme key is a label on a requirement rather
   than an identifier a caller sends, and leaving `Portkey-Key` pointing at
@@ -300,6 +304,25 @@ spellings of one concept and are merged.
 Launch covers managed and hybrid, and product behaviour is deployment-invariant.
 Multiple entries in `servers[]` are fine; divergent content is not. Do not
 produce environment-variant specs or fork descriptions per deployment.
+
+The self-hosted gateway entry is what that looks like in practice: one document,
+one set of operations and schemas, two addresses to reach the same API. Mintlify
+renders it as a "Select base URL" dropdown on gateway operations and rebuilds
+the code sample from whichever the reader picks (verified against `mint
+4.2.893`). The managed host is first and so is the default.
+
+Two constraints on that entry, both learned the hard way:
+
+- **Literal URLs, not server variables.** A `{host}` variable with a default is
+  the mechanism OpenAPI provides for exactly this, and Mintlify cannot resolve
+  it: a templated `url` renders *"A valid request URL is required to generate
+  request examples"* and emits **no code sample at all**, on every operation.
+- **The placeholder host is under `example.com`.** RFC 2606 reserves it and IANA
+  will never delegate it. The obvious spelling, `self-hosted-gateway-url.com`,
+  is an ordinary registrable domain — unregistered as of 2026-09-15 — and
+  publishing it beside `Authorization: Bearer <token>` would hand whoever buys
+  it a stream of live credentials from readers who copy the sample and forget to
+  change the host. A reserved domain fails closed.
 
 ## Provenance of this repository
 
@@ -382,12 +405,9 @@ regenerate.
   agent-callable, including control-plane mutations such as
   `DELETE /guardrails/{guardrailId}`. This was a deliberate product choice;
   narrowing it means per-operation `x-mint.mcp` blocks.
-- **Self-hosting is not offered as a substitutable base URL.** Server variables
-  were built first — a `{host}` variable with a default is exactly the mechanism
-  OpenAPI provides — and reverted, because Mintlify cannot resolve them: with a
-  templated `url` it renders *"A valid request URL is required to generate
-  request examples"* and emits no sample at all, on any operation. Verified
-  locally against `mint 4.2.893`. Little was lost; the base "offered"
-  self-hosting as the literal string `SELF_HOSTED_GATEWAY_URL`, which was never
-  a working address. Where to point a self-hosted deployment is documentation
-  and belongs in prose.
+- **No self-hosted control plane is offered.** The gateway has a self-hosted
+  entry; the control plane does not. That asymmetry is deliberate — a hybrid
+  deployment, self-hosted data plane against a managed control plane, is a
+  normal arrangement, and nothing here establishes that a self-hosted control
+  plane exists or where it would sit. Offering one would be asserting it. If it
+  does exist, it is two lines in `_project/servers.yaml`.

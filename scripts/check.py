@@ -75,6 +75,15 @@ def check_no_prose_in_spec(spec) -> None:
                 walk(v, f"{pointer}/{k}", True)
             return
         for k, v in node.items():
+            # `servers` is exempt, and check_servers is why. A server entry's
+            # `description` ("Managed", "Self-hosted") is prose by the letter of
+            # the rule, but the whole subtree has to be byte-identical to
+            # _project/servers.yaml or check_servers fails -- so it cannot carry
+            # anything that did not go through review of that file, which is the
+            # property the grounding gate is actually protecting. Recursing here
+            # would only force a second exemption list to be kept in step.
+            if k == "servers":
+                continue
             if k in ("description", "summary") and isinstance(v, str) and v.strip():
                 offenders.append(f"{pointer}/{k}")
             # A code sample is prose: it asserts a base URL, an auth header and
@@ -270,16 +279,21 @@ def check_servers(spec) -> None:
     reporting only the root would describe 1 of 264 entries -- a replace that
     missed the other 263 would sail through the check meant to catch it.
 
-    Three things fail here. An operation-level override, because the build
+    Four things fail here. An operation-level override, because the build
     writes none and one appearing means something else is editing the document.
-    A path-level block that is not exactly the control-plane definition, which
-    is how a stale copy of an old host survives a base URL change. And any URL
-    that does not resolve to a real one once its variable defaults are
-    substituted -- the base published three bare placeholders as if they were
-    addresses.
+    A root block that is not exactly the gateway list, or a path-level block
+    that is not exactly the control-plane list -- either is how a stale copy of
+    an old host survives a base URL change. And any URL that does not resolve to
+    a real one once its variable defaults are substituted; the base published
+    three bare placeholders as if they were addresses.
+
+    Comparing whole lists rather than just URLs is what lets the prose check
+    leave this subtree alone: `description` on a server entry is prose by the
+    letter of the rule, but it cannot be hand-edited into the document without
+    failing here, because it has to match _project/servers.yaml exactly.
     """
     defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
-    expected = [defs["control-plane"]]
+    expected = defs["control-plane"]
 
     def resolve(entry) -> str:
         url = str(entry.get("url", ""))
@@ -306,6 +320,9 @@ def check_servers(spec) -> None:
     if not blocks[0][1]:
         fail("servers", "no root server declared")
         return
+    if blocks[0][1] != defs["gateway"]:
+        problems.append("root servers block is not the gateway list from "
+                        "_project/servers.yaml")
 
     urls: dict[str, int] = {}
     for _, block in blocks:

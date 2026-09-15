@@ -68,15 +68,49 @@ Two deliberate departures from what this list originally said:
   substitute their own host. **Mintlify cannot resolve them.** With a templated
   `url` it renders *"A valid request URL is required to generate request
   examples"* and emits no cURL sample at all, on every operation. Found in the
-  task 5 experiment and reverted. The lost affordance was never real: the base
-  "offered" self-hosting as the literal string `SELF_HOSTED_GATEWAY_URL`, which
-  was not a working address. Where to point a self-hosted deployment is
-  documentation, and belongs in prose.
+  task 5 experiment and reverted.
 
 New file: **`_project/planes.yaml`**, which plane each of the 118 paths is on.
 This had to be written down *before* the overrides were deleted — they were the
 only record for 95 of them, and `classification.yaml` names just 23. A path
 absent from it fails the build rather than defaulting to the gateway.
+
+#### 2a. Self-hosted gateway URL — added 2026-09-15
+
+The variables decision above was read as "self-hosting cannot be offered". It
+was narrower than that: *variables* do not work, but **a second literal entry in
+`servers[]` does**, and it is the better answer anyway.
+
+- [x] Second root entry, `https://self-hosted-gateway-url.example.com/v1`
+- [x] `servers.yaml` restructured: each plane is now an ordered list, not one entry
+- [x] `check.py` compares whole lists, root included; four negative tests fire
+- [x] `servers` exempted from the no-prose walk, because `check_servers` now owns it
+
+Verified against `mint 4.2.893` with the real specification, not a mock:
+
+| | |
+|---|---|
+| Gateway operation | `<select aria-label="Select base URL">` with both hosts |
+| Default | Managed — Mintlify builds the sample from the **first** entry |
+| Control-plane operation | No dropdown; the self-hosted entry does **not** leak |
+| Samples | Generate normally. No *"A valid request URL"* error |
+
+The path-level override *replaces* the root list rather than extending it, which
+is the finding that makes this safe — it is why a second root entry no longer
+risks offering a chat completion against the control-plane host, which is the
+exact objection that produced the "not a single root block" decision above.
+
+**The placeholder is under `example.com` on purpose.** The proposed spelling,
+`self-hosted-gateway-url.com`, is an ordinary registrable domain and was
+unregistered when checked. Publishing it in a document that also says
+`Authorization: Bearer <token>` would hand whoever registers it live credentials
+from every reader who copies the sample and forgets to change the host. RFC 2606
+reserves `example.com` and IANA will never delegate it, so it fails closed.
+
+No self-hosted **control plane** entry. A hybrid deployment — self-hosted data
+plane, managed control plane — is normal, and nothing here establishes that a
+self-hosted control plane exists or where it sits. Two lines in `servers.yaml`
+if it does. **Worth confirming with engineering.**
 
 ### 3. ~~Authorization header only~~ — done 2026-09-15
 - [x] ~~Drop the five alternative `security` combinations~~ — 85 operation-level overrides removed
@@ -99,7 +133,68 @@ Two things to know:
   unverified claim as leaving it public. `check.py` prints it on every run.
   **Worth confirming with engineering.**
 
-### 4. Request bodies that can generate a minimal sample — **moved to Phase 2**
+### 4 and 5 — moved to Phase 2
+
+Request-body `required` and the cURL code samples. Both are now in the Phase 2
+section below, with their findings intact. The numbering gap is left as-is
+because these numbers are referred to from `PLAN.md` and from commit messages.
+
+### 6. ~~Version and provenance~~ — done 2026-09-15
+- [x] ~~`info.version` → `3.0.0`~~ — pinned in `build.py`, no longer inherited from the base
+
+### 7. ~~Cut the cord from the base~~ — done 2026-09-15 (Q-C)
+- [x] ~~Keep `check_shape.py` working through tasks 1–6~~ — final run: 181/181 operations and 474/474 components identical, 0 reshaped
+- [x] ~~Delete `.source/`, `scripts/check_shape.py`, `scripts/fetch-base.sh`, `_project/base-delta.yaml`~~
+- [x] ~~Drop the "Fidelity to the base" CI job~~ — replaced by `build.py --check`
+- [x] ~~README: Portkey becomes a historical note~~
+
+**`build.py` was inverted, not deleted.** It generated `openapi.yaml` *from* the
+base; with the base gone it would have been a script that cannot run, which four
+others import from. It now reads `openapi.yaml`, reapplies what lives in
+`_project/` and `tags-map.yaml`, and writes it back. Idempotent: the rebuild
+produced a byte-identical document, so the whole rewrite diffs as three lines of
+header comment.
+
+Five one-shot steps became checks, each negative-tested and confirmed to fire:
+the prose strip (`check.py`), the tag rename and the 61 drops (`build.py`), the
+prose inventory (frozen), and the overlay (add-only, so a rebuild cannot delete
+grounded prose). Full reasoning in `PLAN.md`, "Phase 1 close-out".
+
+Two things found while doing it:
+- **`gen_drop_list.py` had quietly broken.** It classified paths from the
+  `SELF_HOSTED_*_URL` placeholders task 2 deleted, so it had gone from 23
+  unclassified paths to 95 without failing. Repointed at `planes.yaml`, which is
+  what the build reads, so the inventory cannot drift from the document.
+- **`tags-map.yaml` lost 13 entries** — the 11 dropped groups, plus `Analytics`
+  and `Prompt Collections`, which no operation ever used.
+
+### 8. ~~Catch-up~~ — done 2026-09-15
+- [x] ~~README: layout, counts, naming, known gaps~~ — counts were stale throughout (151/242, 535 schemas, 52 tags, 4,075 prose fields, 193 findings)
+- [x] ~~`build-report.txt` regenerates~~ — now derived from `openapi.yaml`, reporting what wants engineering rather than what the build removed
+- [x] ~~`PROSE-INVENTORY.csv`~~ — **frozen, not regenerated.** It could only ever be derived by diffing the base. Recorded as such in the README
+- [x] ~~Final full run of all checks~~ — `build --check`, `check.py`, `lint.py` all green
+
+Five known gaps added to the README that were not written down anywhere a reader
+would find them: no code samples, the five unfilled `required` bodies, the
+unauthenticated pricing endpoint, the 95 inherited plane classifications, and
+the absent self-hosted control plane.
+
+---
+
+## Phase 2 — deferred, agreed
+
+- [ ] `operationId` on the **53** operations that lack one — first, because SDK generation depends on it and nothing else does
+- [ ] cURL `x-codeSamples` for all 181 operations (task 5)
+- [ ] `required` on the five request bodies (task 4) — a contract question for engineering
+- [ ] Descriptions, once KB access lands — the grounding gate is already built and empty by design
+- [ ] Code samples in languages beyond cURL
+- [ ] Decide the JSON Schema constraint question: `default`, `maximum`, `minLength` are inherited unverified
+- [ ] Schemathesis against a credentialled non-prod endpoint, once one exists
+- [ ] SDK generation (Stainless / Speakeasy), which needs `operationId` first
+
+### Request bodies that can generate a minimal sample
+
+*Was Phase 1 task 4.*
 - [x] ~~Re-count after the drops~~ — **5, not 13.** The other 8 were inside dropped groups
 - [ ] Fill in `required` — **not done, deliberately. See below.**
 
@@ -131,7 +226,9 @@ follows the code samples rather than standing ahead of them. It is still worth
 doing on its own merits, as a contract question: **engineering confirming the
 five**, or a decision to ship them as they are.
 
-### 5. cURL code samples — **experiment done, authoring moved to Phase 2**
+### cURL code samples
+
+*Was Phase 1 task 5. The experiment is done; the authoring is not.*
 - [x] ~~Run the Mintlify experiment~~ — local `mint 4.2.893`, real spec, 2026-09-15
 - [x] **Found and fixed a live bug** — see below
 - [x] Answer: **it dumps all 24 properties and ignores `required`**
@@ -172,59 +269,6 @@ Confirmed working: auth renders as `Authorization: Bearer <token>`.
 
 C looks right, but which operations are in the curated set is your call.
 
-### 6. ~~Version and provenance~~ — done 2026-09-15
-- [x] ~~`info.version` → `3.0.0`~~ — pinned in `build.py`, no longer inherited from the base
-
-### 7. ~~Cut the cord from the base~~ — done 2026-09-15 (Q-C)
-- [x] ~~Keep `check_shape.py` working through tasks 1–6~~ — final run: 181/181 operations and 474/474 components identical, 0 reshaped
-- [x] ~~Delete `.source/`, `scripts/check_shape.py`, `scripts/fetch-base.sh`, `_project/base-delta.yaml`~~
-- [x] ~~Drop the "Fidelity to the base" CI job~~ — replaced by `build.py --check`
-- [x] ~~README: Portkey becomes a historical note~~
-
-**`build.py` was inverted, not deleted.** It generated `openapi.yaml` *from* the
-base; with the base gone it would have been a script that cannot run, which four
-others import from. It now reads `openapi.yaml`, reapplies what lives in
-`_project/` and `tags-map.yaml`, and writes it back. Idempotent: the rebuild
-produced a byte-identical document, so the whole rewrite diffs as three lines of
-header comment.
-
-Five one-shot steps became checks, each negative-tested and confirmed to fire:
-the prose strip (`check.py`), the tag rename and the 61 drops (`build.py`), the
-prose inventory (frozen), and the overlay (add-only, so a rebuild cannot delete
-grounded prose). Full reasoning in `PLAN.md`, "Phase 1 close-out".
-
-Two things found while doing it:
-- **`gen_drop_list.py` had quietly broken.** It classified paths from the
-  `SELF_HOSTED_*_URL` placeholders task 2 deleted, so it had gone from 23
-  unclassified paths to 95 without failing. Repointed at `planes.yaml`, which is
-  what the build reads, so the inventory cannot drift from the document.
-- **`tags-map.yaml` lost 13 entries** — the 11 dropped groups, plus `Analytics`
-  and `Prompt Collections`, which no operation ever used.
-
-### 8. ~~Catch-up~~ — done 2026-09-15
-- [x] ~~README: layout, counts, naming, known gaps~~ — counts were stale throughout (151/242, 535 schemas, 52 tags, 4,075 prose fields, 193 findings)
-- [x] ~~`build-report.txt` regenerates~~ — now derived from `openapi.yaml`, reporting what wants engineering rather than what the build removed
-- [x] ~~`PROSE-INVENTORY.csv`~~ — **frozen, not regenerated.** It could only ever be derived by diffing the base. Recorded as such in the README
-- [x] ~~Final full run of all checks~~ — `build --check`, `check.py`, `lint.py` all green
-
-Five known gaps added to the README that were not written down anywhere a reader
-would find them: no code samples, the five unfilled `required` bodies, the
-unauthenticated pricing endpoint, the 95 inherited plane classifications, and
-why self-hosting is not a substitutable base URL.
-
----
-
-## Phase 2 — deferred, agreed
-
-- [ ] `operationId` on the **53** operations that lack one — first, because SDK generation depends on it and nothing else does
-- [ ] cURL `x-codeSamples` for all 181 operations (task 5)
-- [ ] `required` on the five request bodies (task 4) — a contract question for engineering
-- [ ] Descriptions, once KB access lands — the grounding gate is already built and empty by design
-- [ ] Code samples in languages beyond cURL
-- [ ] Decide the JSON Schema constraint question: `default`, `maximum`, `minLength` are inherited unverified
-- [ ] Schemathesis against a credentialled non-prod endpoint, once one exists
-- [ ] SDK generation (Stainless / Speakeasy), which needs `operationId` first
-
 ---
 
 ## Answered — 2026-09-15
@@ -242,6 +286,13 @@ why self-hosting is not a substitutable base URL.
 |---|---|---|---|
 | Paths | 151 | **118** | 118 ✓ |
 | Operations | 242 | **181** | 181 ✓ |
-| Components | 578 | **480** | 474 — see note above |
+| Components | 578 | **475** | 474 — see note above |
 | Tags | 52 | **41** | 41 ✓ |
 | Spectral findings | 193 | **123** | — |
+
+Components read 480 immediately after task 1 and 475 after task 3 dropped five
+of the six security schemes. The forecast of 474 was one out for the reason
+noted under task 1: schemes are referenced by name, not by `$ref`.
+
+Servers ended at **3 hosts across 67 blocks** — managed gateway, self-hosted
+gateway, control plane — all generated from `_project/servers.yaml`.
