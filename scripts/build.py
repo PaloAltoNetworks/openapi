@@ -212,6 +212,54 @@ def apply_drops(spec, drop_tags: set[str], drop_ops: set[str], known_tags: set[s
     return sorted(dropped_paths), sorted(dropped_ops)
 
 
+# The only way to authenticate. The base offered six schemes in five
+# combinations -- an API key plus, depending on the operation, a virtual key, a
+# provider bearer token, a provider name, a config id or a custom host. Prisma
+# AIRS uses none of that: one bearer token in the Authorization header.
+#
+# This is the one place the "names are never renamed" rule is deliberately
+# broken. A security scheme name is not an API identifier the way an
+# operationId is; it is a label on a requirement, and keeping `Portkey-Key`
+# pointing at `x-portkey-api-key` would document a header this API does not read.
+SECURITY_SCHEME_NAME = "Authorization"
+SECURITY_SCHEME = {"type": "http", "scheme": "bearer"}
+
+
+def apply_security(spec) -> tuple[int, int, list[str]]:
+    """Collapse six security schemes in five combinations down to one.
+
+    Operation-level `security` is removed so the root requirement applies
+    everywhere -- with a single scheme there is nothing left for an override to
+    say. The exception is `security: []`, which is not a variation on the
+    requirement but its absence: it marks an operation as needing no
+    authentication at all. That is a claim about the API, inherited and not
+    ours to quietly reverse, so it is preserved and reported.
+    """
+    before = set((spec.get("components") or {}).get("securitySchemes") or {})
+    spec.setdefault("components", {})["securitySchemes"] = {
+        SECURITY_SCHEME_NAME: dict(SECURITY_SCHEME)
+    }
+    spec["security"] = [{SECURITY_SCHEME_NAME: []}]
+
+    removed = 0
+    public: list[str] = []
+    for path, item in (spec.get("paths") or {}).items():
+        if not isinstance(item, dict):
+            continue
+        for method, op in item.items():
+            if method not in HTTP_METHODS or not isinstance(op, dict):
+                continue
+            if "security" not in op:
+                continue
+            if op["security"] == []:
+                public.append(f"{method.upper()} {path}")
+                continue
+            del op["security"]
+            removed += 1
+
+    return len(before - {SECURITY_SCHEME_NAME}), removed, sorted(public)
+
+
 def apply_servers(spec) -> tuple[int, int]:
     """Replace every inherited `servers` block with the two in servers.yaml.
 
@@ -349,10 +397,13 @@ def build(base_path: Path) -> int:
     # Contact, license and terms in the base point at Portkey resources. They
     # are assertions about this API's governance that nothing here supports,
     # so they are dropped rather than rewritten to a guessed URL.
-    version = base.get("info", {}).get("version", "2.0.0")
+    # 3.0.0, not the base's version. This specification no longer describes the
+    # same API: 61 operations are gone, there is one way to authenticate where
+    # there were five, and the base URLs are different. Carrying the inherited
+    # number forward would say none of that happened.
     spec["info"] = {
         "title": "Prisma AIRS AI Gateway API",
-        "version": version,
+        "version": "3.0.0",
         "description": "",
     }
 
@@ -382,6 +433,7 @@ def build(base_path: Path) -> int:
     # entry pointing at nothing.
     drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
     dropped_paths, dropped_ops = apply_drops(spec, drop_tags, drop_ops, set(rename.values()))
+    dropped_schemes, dropped_security, public_ops = apply_security(spec)
     server_paths, server_ops = apply_servers(spec)
     orphaned = prune_components(spec)
 
@@ -435,6 +487,8 @@ def build(base_path: Path) -> int:
     print(f"paths              {len(spec.get('paths', {}))}  (dropped {len(dropped_paths)})")
     print(f"schemas            {len(spec.get('components', {}).get('schemas', {}))}")
     print(f"components pruned  {len(orphaned)}")
+    print(f"security           1 scheme (dropped {dropped_schemes}, "
+          f"{dropped_security} operation overrides, {len(public_ops)} unauthenticated)")
     print(f"servers            1 root + {len(spec['paths']) and sum('servers' in i for i in spec['paths'].values())} control-plane "
           f"(replaced {server_paths} path-level, {server_ops} operation-level)")
     print(f"tags               {len(spec['tags'])}")
@@ -458,6 +512,13 @@ def build(base_path: Path) -> int:
         "  base already carried unreferenced; the two are indistinguishable and\n"
         "  there is no reason to keep either.\n"
         + "".join(f"    {c}\n" for c in orphaned)
+        + f"\nsecurity schemes dropped         {dropped_schemes}\n"
+        "  Six schemes in five combinations collapsed to one Authorization bearer.\n"
+        f"    operation-level overrides removed  {dropped_security}\n"
+        f"\noperations requiring no authentication  {len(public_ops)}\n"
+        "  Inherited `security: []`. Preserved rather than quietly reversed, but\n"
+        "  each is a claim that the endpoint is public and wants confirming.\n"
+        + "".join(f"    {m}\n" for m in public_ops)
         + f"\nprose fields removed             {len(stripper.removed)}\n"
         f"null defaults dropped            {len(null_defaults)}\n"
         + "".join(f"    {p}\n" for p in null_defaults)

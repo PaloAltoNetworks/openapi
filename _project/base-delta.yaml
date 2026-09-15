@@ -24,6 +24,7 @@ base:
 #   null-defaults  -- nine `default: null` entries that made the base invalid
 #
 #   servers        -- every base URL is now ours and comes from servers.yaml
+#   security       -- six schemes in five combinations became one bearer token
 #
 # `servers` is normalised away rather than allow-listed per operation because
 # the change is to the host, not to the shape: the 97 path-level and 2
@@ -36,6 +37,7 @@ normalise:
   - tags
   - null-defaults
   - servers
+  - security
 
 removed_operations:
   # Audit Logs -- 1 operation(s). Control-plane capability Prisma AIRS

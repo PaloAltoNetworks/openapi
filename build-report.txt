@@ -207,6 +207,15 @@ components pruned                98
     schemas/WorkspaceInviteType
     schemas/WorkspaceMemberList
 
+security schemes dropped         6
+  Six schemes in five combinations collapsed to one Authorization bearer.
+    operation-level overrides removed  85
+
+operations requiring no authentication  1
+  Inherited `security: []`. Preserved rather than quietly reversed, but
+  each is a claim that the endpoint is public and wants confirming.
+    GET /model-configs/pricing/{provider}/{model}
+
 prose fields removed             4075
 null defaults dropped            9
     /components/schemas/CreateCompletionRequest/properties/logit_bias/default

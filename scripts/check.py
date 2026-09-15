@@ -23,7 +23,12 @@ from openapi_spec_validator import validate as validate_spec
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from apply_overlay import apply  # noqa: E402
-from build import HTTP_METHODS, operations  # noqa: E402
+from build import (  # noqa: E402
+    HTTP_METHODS,
+    SECURITY_SCHEME,
+    SECURITY_SCHEME_NAME,
+    operations,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 SPEC = ROOT / "openapi.yaml"
@@ -198,6 +203,56 @@ def check_grounding_gate(overlays) -> None:
         report("grounding gate", f"{written} written descriptions, all with claims")
 
 
+def check_security(spec) -> None:
+    """One scheme, one requirement, declared once at the root.
+
+    The base offered six schemes in five combinations. Prisma AIRS takes a
+    bearer token in the Authorization header and nothing else, so an
+    operation-level `security` block has nothing left to say -- if one appears,
+    something is documenting an auth path this API does not have.
+
+    `security: []` is the exception, and not a variation on the requirement but
+    its absence: it says the endpoint needs no authentication at all. That is a
+    real claim, so it is allowed through and listed every run rather than
+    quietly normalised away.
+    """
+    schemes = (spec.get("components") or {}).get("securitySchemes") or {}
+    root = spec.get("security")
+    problems: list[str] = []
+
+    if set(schemes) != {SECURITY_SCHEME_NAME}:
+        problems.append(f"expected exactly one scheme named {SECURITY_SCHEME_NAME!r}, "
+                        f"found {sorted(schemes)}")
+    elif schemes[SECURITY_SCHEME_NAME] != SECURITY_SCHEME:
+        problems.append(f"{SECURITY_SCHEME_NAME} is {schemes[SECURITY_SCHEME_NAME]}, "
+                        f"expected {SECURITY_SCHEME}")
+    if root != [{SECURITY_SCHEME_NAME: []}]:
+        problems.append(f"root security is {root}, expected [{{{SECURITY_SCHEME_NAME}: []}}]")
+
+    public: list[str] = []
+    for path, method, op in operations(spec):
+        if "security" not in op:
+            continue
+        if op["security"] == []:
+            public.append(f"{method.upper()} {path}")
+        else:
+            problems.append(f"{method.upper()} {path}: operation-level security "
+                            f"override {op['security']}")
+
+    if problems:
+        fail("security", f"{len(problems)} problem(s)")
+        for problem in sorted(set(problems)):
+            print(f"          {problem}")
+        return
+
+    detail = f"one {SECURITY_SCHEME['scheme']} scheme, {SECURITY_SCHEME_NAME} header"
+    report("security", detail)
+    for op in public:
+        # Not a failure, but it should never go unnoticed that an endpoint is
+        # documented as needing no credentials.
+        print(f"          unauthenticated: {op}   <- inherited, wants confirming")
+
+
 def check_servers(spec) -> None:
     """Every base URL comes from _project/servers.yaml and nowhere else.
 
@@ -273,6 +328,7 @@ def main() -> int:
     check_no_prose_in_spec(spec)
     check_tags(spec)
     check_provenance(spec)
+    check_security(spec)
     check_servers(spec)
     check_overlays(spec)
 

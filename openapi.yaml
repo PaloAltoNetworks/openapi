@@ -3,7 +3,7 @@
 openapi: 3.0.0
 info:
   title: Prisma AIRS AI Gateway API
-  version: 2.0.0
+  version: 3.0.0
   description: ''
 servers:
 - url: '{host}/v1'
@@ -25,7 +25,7 @@ x-mint:
     name: Prisma AIRS AI Gateway
     description: ''
 security:
-- Portkey-Key: []
+- Authorization: []
 tags:
 - name: Assistants
   description: ''
@@ -136,18 +136,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateChatCompletionResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: cURL
         label: Default
@@ -222,18 +210,6 @@ paths:
           description: ''
         default:
           description: ''
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: cURL
         label: Default
@@ -296,18 +272,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateCompletionResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -745,18 +709,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImagesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -817,18 +769,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImagesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -894,18 +834,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImagesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -965,18 +893,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateEmbeddingResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1045,18 +961,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateRerankResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1134,18 +1038,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateOcrResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1222,18 +1114,6 @@ paths:
               schema:
                 type: string
                 format: binary
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1305,18 +1185,6 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/CreateTranscriptionResponseJson'
                 - $ref: '#/components/schemas/CreateTranscriptionResponseVerboseJson'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1381,18 +1249,6 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/CreateTranslationResponseJson'
                 - $ref: '#/components/schemas/CreateTranslationResponseVerboseJson'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1456,18 +1312,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListFilesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/files \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -1503,18 +1347,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OpenAIFile'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/files \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -1553,18 +1385,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteFileResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/files/file-abc123 \\\n  -X DELETE \\\n  -H \"x-portkey-api-key:\
@@ -1599,18 +1419,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OpenAIFile'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/files/file-abc123 \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -1646,18 +1454,6 @@ paths:
             application/json:
               schema:
                 type: string
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: 'curl https://api.portkey.ai/v1/files/file-abc123/content \
@@ -1703,18 +1499,6 @@ paths:
               - $ref: '#/components/schemas/OpenAIFinetuneJob'
               - $ref: '#/components/schemas/BedrockFinetuneJob'
               - $ref: '#/components/schemas/PortkeyFinetuneJob'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1780,18 +1564,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListPaginatedFineTuningJobsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1846,18 +1618,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FineTuningJob'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1925,18 +1685,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListFineTuningJobEventsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -1993,18 +1741,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FineTuningJob'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -2072,18 +1808,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListFineTuningJobCheckpointsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -2175,8 +1899,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListModelsResponse'
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -2233,18 +1955,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Model'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/models/VAR_model_id \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -2279,18 +1989,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteModelResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/models/ft:gpt-3.5-turbo:acemeco:suffix:abc123 \\\n  -X\
@@ -2334,18 +2032,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateModerationResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -2420,18 +2106,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListAssistantsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl \"https://api.portkey.ai/v1/assistants?order=desc&limit=20\" \\\n          -H \"\
@@ -2486,18 +2160,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AssistantObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl \"https://api.portkey.ai/v1/assistants\" \\\n  -H \"Content-Type: application/json\"\
@@ -2549,18 +2211,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AssistantObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/assistants/asst_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -2609,18 +2259,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AssistantObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/assistants/asst_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -2674,18 +2312,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteAssistantResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/assistants/asst_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -2851,18 +2477,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThreadObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads \\\n  -H \"Content-Type: application/json\" \\\
@@ -2909,18 +2523,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThreadObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -2967,18 +2569,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThreadObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -3021,18 +2611,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteThreadResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123 \\\n  -H \"Content-Type: application/json\"\
@@ -3098,18 +2676,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListMessagesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/messages \\\n  -H \"Content-Type:\
@@ -3166,18 +2732,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/messages \\\n  -H \"Content-Type:\
@@ -3230,18 +2784,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/messages/msg_abc123 \\\n  -H \"\
@@ -3296,18 +2838,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/messages/msg_abc123 \\\n  -H \"\
@@ -3360,18 +2890,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteMessageResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl -X DELETE https://api.portkey.ai/v1/threads/thread_abc123/messages/msg_abc123 \\\
@@ -3413,18 +2931,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/runs \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -3500,18 +3006,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListRunsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs \\\n  -H \"x-portkey-api-key:\
@@ -3578,18 +3072,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateRunRequest'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       responses:
         '200':
           description: ''
@@ -3651,18 +3133,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs/run_abc123 \\\n  -H \"x-portkey-api-key:\
@@ -3721,18 +3191,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs/run_abc123 \\\n  -H \"x-portkey-api-key:\
@@ -3797,18 +3255,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_123/runs/run_123/submit_tool_outputs \\\
@@ -3873,18 +3319,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs/run_abc123/cancel \\\n  -H\
@@ -3958,18 +3392,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListRunStepsResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs/run_abc123/steps \\\n  -H \"\
@@ -4028,18 +3450,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunStepObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/threads/thread_abc123/runs/run_abc123/steps/step_abc123\
@@ -4104,18 +3514,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListVectorStoresResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -4162,18 +3560,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores \\\n  -H \"x-portkey-api-key: $PORTKEY_API_KEY\"\
@@ -4217,18 +3603,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123 \\\n  -H \"x-portkey-api-key:\
@@ -4274,18 +3648,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123 \\\n  -H \"x-portkey-api-key:\
@@ -4328,18 +3690,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteVectorStoreResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123 \\\n  -H \"x-portkey-api-key:\
@@ -4411,18 +3761,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListVectorStoreFilesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files \\\n  -H \"x-portkey-api-key:\
@@ -4472,18 +3810,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreFileObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files \\\n  -H \"x-portkey-api-key:\
@@ -4531,18 +3857,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreFileObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files/file-abc123 \\\n  -H \"\
@@ -4588,18 +3902,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteVectorStoreFileResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files/file-abc123 \\\n  -H \"\
@@ -4647,18 +3949,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreFileBatchObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/file_batches \\\n  -H \"x-portkey-api-key:\
@@ -4708,18 +3998,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreFileBatchObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files_batches/vsfb_abc123 \\\n\
@@ -4767,18 +4045,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VectorStoreFileBatchObject'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files_batches/vsfb_abc123/cancel\
@@ -4858,18 +4124,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListVectorStoreFilesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         source: "curl https://api.portkey.ai/v1/vector_stores/vs_abc123/files_batches/vsfb_abc123/files\
@@ -4918,18 +4172,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Batch'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -4996,18 +4238,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListBatchesResponse'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -5065,18 +4295,6 @@ paths:
               schema:
                 type: string
                 format: binary
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -5132,18 +4350,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Batch'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -5199,18 +4405,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Batch'
-      security:
-      - Portkey-Key: []
-        Virtual-Key: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-      - Portkey-Key: []
-        Config: []
-      - Portkey-Key: []
-        Provider-Auth: []
-        Provider-Name: []
-        Custom-Host: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -8735,8 +7929,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: createUsageLimitsPolicy
-      security:
-      - Portkey-Key: []
       requestBody:
         required: true
         content:
@@ -8770,8 +7962,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: listUsageLimitsPolicies
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: status
@@ -8826,8 +8016,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: getUsageLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       - name: status
@@ -8872,8 +8060,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: updateUsageLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       requestBody:
@@ -8913,8 +8099,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: deleteUsageLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       responses:
@@ -8954,8 +8138,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: listUsageLimitsPolicyEntities
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       - name: status
@@ -9012,8 +8194,6 @@ paths:
       tags:
       - Usage Limit Policies
       operationId: resetUsageLimitsPolicyEntity
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       - $ref: '#/components/parameters/UsageLimitsPolicyEntityId'
@@ -9050,8 +8230,6 @@ paths:
       tags:
       - Rate Limit Policies
       operationId: createRateLimitsPolicy
-      security:
-      - Portkey-Key: []
       requestBody:
         required: true
         content:
@@ -9083,8 +8261,6 @@ paths:
       tags:
       - Rate Limit Policies
       operationId: listRateLimitsPolicies
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: status
@@ -9157,8 +8333,6 @@ paths:
       tags:
       - Rate Limit Policies
       operationId: getRateLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
       - name: status
@@ -9197,8 +8371,6 @@ paths:
       tags:
       - Rate Limit Policies
       operationId: updateRateLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
       requestBody:
@@ -9238,8 +8410,6 @@ paths:
       tags:
       - Rate Limit Policies
       operationId: deleteRateLimitsPolicy
-      security:
-      - Portkey-Key: []
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
       responses:
@@ -11155,8 +10325,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/SecretReferenceListItem'
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -11211,8 +10379,6 @@ paths:
           description: ''
         '403':
           description: ''
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -11261,8 +10427,6 @@ paths:
                 $ref: '#/components/schemas/SecretReferenceDetailResponse'
         '404':
           description: ''
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -11311,8 +10475,6 @@ paths:
           description: ''
         '404':
           description: ''
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -11351,8 +10513,6 @@ paths:
           description: ''
         '404':
           description: ''
-      security:
-      - Portkey-Key: []
       x-code-samples:
       - lang: curl
         label: Default
@@ -11381,29 +10541,9 @@ paths:
           default: https://mp.us.prod.airs-gw.portkey.ai
 components:
   securitySchemes:
-    Portkey-Key:
-      type: apiKey
-      in: header
-      name: x-portkey-api-key
-    Virtual-Key:
-      type: apiKey
-      in: header
-      name: x-portkey-virtual-key
-    Provider-Auth:
+    Authorization:
       type: http
       scheme: bearer
-    Provider-Name:
-      type: apiKey
-      in: header
-      name: x-portkey-provider
-    Config:
-      type: apiKey
-      in: header
-      name: x-portkey-config
-    Custom-Host:
-      type: apiKey
-      in: header
-      name: x-portkey-custom-host
   parameters:
     TimeOfGenerationMin:
       in: query

@@ -224,10 +224,24 @@ exercised before the endpoint it talks to does.
 Rule of thumb: *if a reader would type it or a machine would parse it, it does
 not change.*
 
-**Never renamed** — `servers[].url`, every `x-portkey-*` header parameter,
-`operationId` values, component and schema names, property names, enum values,
-security scheme keys. `scripts/check.py` reports server URLs on every run to
-catch a well-meaning search and replace.
+**Never renamed** — every `x-portkey-*` header parameter, `operationId` values,
+component and schema names, property names, enum values. These are things a
+reader types or a machine parses, and renaming one breaks a caller.
+
+**Two deliberate exemptions**, both decided 2026-09-15:
+
+- **`servers[].url`.** The base URLs are Prisma AIRS's, not the base's. They
+  now come from `_project/servers.yaml` and nowhere else — one place to edit,
+  and `scripts/check.py` fails if a host appears anywhere it was not written.
+- **Security scheme keys.** Six schemes in five combinations became a single
+  `Authorization` bearer token. A scheme key is a label on a requirement rather
+  than an identifier a caller sends, and leaving `Portkey-Key` pointing at
+  `x-portkey-api-key` would have documented a header this API does not read.
+  `scripts/check.py` enforces that exactly one scheme exists.
+
+The seven `x-portkey-*` header parameters are untouched: they carry tracing,
+metadata and cache controls, not authentication, and dropping them alongside
+the auth schemes would have removed working functionality nobody asked to lose.
 
 **Rebranded** — `info.title` to `Prisma AIRS AI Gateway API`; all descriptions
 and summaries, which are subject to grounding and so are rewritten rather than

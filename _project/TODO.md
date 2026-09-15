@@ -72,12 +72,26 @@ This had to be written down *before* the overrides were deleted — they were th
 only record for 95 of them, and `classification.yaml` names just 23. A path
 absent from it fails the build rather than defaulting to the gateway.
 
-### 3. Authorization header only
-- [ ] Drop the five alternative `security` combinations (Virtual-Key, Provider-Auth, Provider-Name, Config, Custom-Host)
-- [ ] Drop the now-unused security schemes and their `x-portkey-*` parameters
-- [ ] Single `Authorization` bearer scheme, and show only that
-- [ ] Amend the README's "never renamed" rule — this is a deliberate exemption
-- [ ] Record the added scheme in `base-delta.yaml`
+### 3. ~~Authorization header only~~ — done 2026-09-15
+- [x] ~~Drop the five alternative `security` combinations~~ — 85 operation-level overrides removed
+- [x] ~~Drop the now-unused security schemes~~ — 6 schemes to 1
+- [x] ~~Single `Authorization` bearer scheme, and show only that~~ — `type: http, scheme: bearer`
+- [x] ~~Amend the README's "never renamed" rule~~ — both exemptions now written down
+- [x] ~~Record the change in `base-delta.yaml`~~ — normalised, same reasoning as `servers`
+- [x] New `check_security` in `check.py`; three negative tests all fire
+
+Two things to know:
+
+- **The `x-portkey-*` parameters stayed.** All seven carry tracing, span,
+  metadata and cache controls — not authentication. The dropped schemes declared
+  their headers inline in `securitySchemes`, so there were no auth parameters to
+  remove. Dropping the seven would have deleted working functionality that was
+  not part of the ask.
+- **One operation is documented as needing no credentials:**
+  `GET /model-configs/pricing/{provider}/{model}`, inherited `security: []`.
+  Preserved rather than quietly reversed — making it require auth is as much an
+  unverified claim as leaving it public. `check.py` prints it on every run.
+  **Worth confirming with engineering.**
 
 ### 4. Request bodies that can generate a minimal sample
 - [ ] Fill in `required` on the 13 inline request bodies that declare none
@@ -91,8 +105,8 @@ absent from it fails the build rather than defaulting to the gateway.
 - [ ] Use the key `x-codeSamples` — not the base's `x-code-samples`
 - [ ] State the cURL-only decision in the README so it does not read as an omission
 
-### 6. Version and provenance
-- [ ] `info.version` → `3.0.0`
+### 6. ~~Version and provenance~~ — done 2026-09-15
+- [x] ~~`info.version` → `3.0.0`~~ — pinned in `build.py`, no longer inherited from the base
 
 ### 7. Cut the cord from the base — last task of Phase 1 (Q-C)
 - [ ] Keep `check_shape.py` working through tasks 1–6; it is what proves the drops removed and never reshaped

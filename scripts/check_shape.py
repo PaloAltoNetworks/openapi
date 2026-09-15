@@ -90,6 +90,13 @@ def normalise(spec, options: set[str], rename: dict):
         drop_null_defaults(out)
     if "provenance" in options:
         strip_key(out, "x-airs-provenance")
+    if "security" in options:
+        # Both halves of the change, or the check reports half of it. `security`
+        # is the requirement on each operation; `securitySchemes` is what the
+        # requirement names. Six schemes in five combinations became one bearer
+        # token, which is an auth decision rather than a reshape of the API.
+        strip_key(out, "security")
+        (out.get("components") or {}).pop("securitySchemes", None)
     if "servers" in options:
         strip_key(out, "servers")
     if "tags" in options:
