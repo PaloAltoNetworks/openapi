@@ -12,7 +12,7 @@ change.
 
 **Every path is classified.** The build fails if one is not.
 
-**✓** marks a path a human classified, recorded in `planes.yaml` as coming from `classification.yaml` (23 of 118).
+**✓** marks a path a human classified, recorded in `planes.yaml` as coming from `classification.yaml` (23 of 114).
 Everything unmarked was read off the base's per-path server overrides before
 those were deleted, and is **unverified**.
 
@@ -23,14 +23,14 @@ Components each group reaches, and how many *only* that group reaches
 
 | Group | Paths | Components reached | Reached only by this group |
 |---|---|---|---|
-| control plane | 66 | 200 | **198** |
+| control plane | 62 | 195 | **193** |
 | gateway | 52 | 276 | **274** |
 | unclassified | 0 | 0 | **0** |
-| *total* | 118 | 474 | |
+| *total* | 114 | 469 | |
 
-Dropping every control-plane path would orphan **198 components**, which must be pruned in the same change rather than left to accumulate.
+Dropping every control-plane path would orphan **193 components**, which must be pruned in the same change rather than left to accumulate.
 
-## Control Plane — 66 paths
+## Control Plane — 62 paths
 
 Control-plane paths that survive the drops in `drops.yaml`.
 
@@ -167,13 +167,6 @@ Control-plane paths that survive the drops in `drops.yaml`.
 - [ ] `/policies/usage-limits/{policyUsageLimitsId}` ✓ — `DELETE` deleteUsageLimitsPolicy, `GET` getUsageLimitsPolicy, `PUT` updateUsageLimitsPolicy
 - [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities` ✓ — `GET` listUsageLimitsPolicyEntities
 - [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset` ✓ — `PUT` resetUsageLimitsPolicyEntity
-
-### Workspaces
-
-- [ ] `/admin/workspaces` — `GET` *(no operationId)*, `POST` *(no operationId)*
-- [ ] `/admin/workspaces/{workspaceId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
-- [ ] `/scim/workspaces` — `GET` *(no operationId)*, `POST` *(no operationId)*
-- [ ] `/scim/workspaces/{scimWorkspaceGroupId}` — `DELETE` *(no operationId)*
 
 ## Unclassified — 0 paths
 

@@ -41,7 +41,7 @@ that has already merged them, so it is here from the first commit.
 
 The four files under `_project/` are the same idea applied to structure. Each
 holds a decision that would otherwise be spread across the document — sixty-odd
-`servers` blocks, eleven tag groups' worth of operations — where it can be read,
+`servers` blocks, twelve tag groups' worth of operations — where it can be read,
 reviewed and changed in one place. `scripts/build.py` applies them back onto
 `openapi.yaml` and CI fails if the document and the decisions disagree.
 
@@ -50,19 +50,26 @@ reviewed and changed in one place. `scripts/build.py` applies them back onto
 | | |
 |---|---|
 | OpenAPI | 3.0.0 |
-| Paths / operations | 118 / 181 |
-| Components | 475, of which 437 schemas |
-| Tags | 41, across 6 navigation groups |
+| Paths / operations | 114 / 173 |
+| Components | 470, of which 432 schemas |
+| Tags | 40, across 6 navigation groups |
 | Servers | 3 hosts — managed gateway, self-hosted gateway, control plane |
 | Security | 1 scheme: `Authorization: Bearer` |
 | Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
 
-Eleven capability groups the base carried are **not shipped** — Audit Logs,
+Twelve capability groups the base carried are **not shipped** — Audit Logs,
 Collections, Deployments, Labels, Log Exports, Prompts, Prompt Partials, User
-Invites, Users, Virtual Keys and Workspaces > Members. That is 61 operations and
-33 paths, declared by tag in `_project/drops.yaml` and enforced on every build:
-if one reappears, the build fails rather than quietly republishing it.
+Invites, Users, Virtual Keys, Workspaces and Workspaces > Members. That is 69
+operations and 37 paths, declared by tag in `_project/drops.yaml`.
+
+The declaration is enforced in both directions. A normal build only *checks* it:
+if something named there is in `openapi.yaml`, the build fails rather than
+quietly republishing it. Removing a capability is a separate, deliberate act —
+add the tag and run `scripts/build.py --apply-drops` once, which deletes the
+operations, prunes the components nothing reaches any more, and removes the
+now-stale overlay actions. The deletion then shows up in the diff of
+`openapi.yaml` where a reviewer sees it, instead of happening on every build.
 
 ## How the docs consume it
 
@@ -127,8 +134,9 @@ violated:
   non-empty `claims` list, and its `text_digest` must match the prose it ships
 
 `scripts/build.py` additionally refuses to run if a path is missing from
-`_project/planes.yaml`, if an operation carries a tag `tags-map.yaml` does not
-know, or if anything declared in `_project/drops.yaml` has come back.
+`_project/planes.yaml` or classified there but absent from the spec, if an
+operation carries a tag `tags-map.yaml` does not know, or if anything declared
+in `_project/drops.yaml` has come back.
 
 A code sample counts as prose here, which is not obvious. A sample asserts a
 base URL, an auth header and a set of fields worth sending — none of it checked
@@ -159,12 +167,12 @@ shrink, never grow. What is in there today:
 
 | Count | Rule | What it is |
 |---|---|---|
-| 65 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
-| 53 | `operation-operationId` | The known gap |
+| 64 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
+| 45 | `operation-operationId` | The known gap |
 | 4 | `array-items` | Arrays with no `items` |
 | 1 | `operation-success-response` | `GET /realtime` declares no 2xx |
 
-123 findings across 4 rules, down from 193 across 6 before the Phase 1 drops.
+114 findings across 4 rules, down from 193 across 6 before the drops.
 `oas3-unused-component` went from 26 to **0**: the drop pruned every component
 nothing reaches, including 52 the base was already carrying unreferenced.
 
@@ -204,7 +212,7 @@ domain and not subordinate to the KB (recorded exemption, Q6, 2026-09-07). The
 reconciliation loop is therefore three-node — KB ↔ spec ↔ docs — and drift from
 *either* side is a defect, with no authoritative side to fall back on.
 
-`x-airs-provenance` is scaffolded on all 181 operations with `claims` empty. It
+`x-airs-provenance` is scaffolded on all 173 operations with `claims` empty. It
 is not only "which claim supports this description"; it is the **join key that
 makes drift detectable**. Without a claim reference on an operation, nothing can
 tell that the KB moved and the spec did not.
@@ -370,7 +378,7 @@ regenerate.
 - **No code samples.** Mintlify generates one per operation from the schema, and
   it dumps every property: `POST /chat/completions` renders all 24, `seed` and
   `logit_bias` included, because Mintlify does not use `required` to trim the
-  example. Hand-written cURL samples for all 181 operations are Phase 2 work.
+  example. Hand-written cURL samples for all 173 operations are Phase 2 work.
   Until then the generated sample is correct but verbose. cURL only is the
   intended end state — a single `x-codeSamples` entry suppresses the other
   language tabs, and other languages are a separate decision.
@@ -381,14 +389,14 @@ regenerate.
   For the three `PUT`s, requiring nothing may already be correct, since a
   partial update where every field is optional is a normal design. Wants
   engineering.
-- **123 lint findings are baselined**, all inherited. See the linting section.
+- **114 lint findings are baselined**, all inherited. See the linting section.
 - **One operation is documented as needing no credentials** —
   `GET /model-configs/pricing/{provider}/{model}`, which the base declared with
   `security: []`. Preserved rather than quietly reversed: making it require auth
   is as much an unverified claim as leaving it public. `scripts/check.py` prints
   it on every run. Wants engineering.
-- **The plane split is 23 decided and 95 inherited.** `_project/planes.yaml`
-  decides which of the two base URLs each path gets, and for 95 paths that call
+- **The plane split is 23 decided and 91 inherited.** `_project/planes.yaml`
+  decides which of the two base URLs each path gets, and for 91 paths that call
   was read off the base's own per-path server overrides and never independently
   verified. It is recorded per path as `inherited` versus `classification.yaml`,
   and `_project/drop-list.md` marks the difference. Getting one wrong publishes
@@ -405,9 +413,7 @@ regenerate.
   agent-callable, including control-plane mutations such as
   `DELETE /guardrails/{guardrailId}`. This was a deliberate product choice;
   narrowing it means per-operation `x-mint.mcp` blocks.
-- **No self-hosted control plane is offered.** The gateway has a self-hosted
-  entry; the control plane does not. That asymmetry is deliberate — a hybrid
-  deployment, self-hosted data plane against a managed control plane, is a
-  normal arrangement, and nothing here establishes that a self-hosted control
-  plane exists or where it would sit. Offering one would be asserting it. If it
-  does exist, it is two lines in `_project/servers.yaml`.
+- **There is no self-hosted control plane.** The gateway has a self-hosted
+  entry; the control plane does not. Confirmed with engineering on 2026-09-15,
+  so the asymmetry is the product, not a gap in the document: a self-hosted data
+  plane talks to the managed control plane.

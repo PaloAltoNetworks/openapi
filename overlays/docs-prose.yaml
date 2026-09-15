@@ -114,9 +114,6 @@ actions:
 - target: $.tags[?(@.name=='Usage Limit Policies')]
   update:
     description: ''
-- target: $.tags[?(@.name=='Workspaces')]
-  update:
-    description: ''
 - target: $.tags[?(@.name=='Analytics > Graphs')]
   update:
     description: ''
@@ -949,70 +946,6 @@ actions:
       origin_kind: human
       text_digest: ''
 - target: $.paths['/providers/{slug}'].delete
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/admin/workspaces'].post
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/admin/workspaces'].get
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/admin/workspaces/{workspaceId}'].put
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/admin/workspaces/{workspaceId}'].get
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/admin/workspaces/{workspaceId}'].delete
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/scim/workspaces'].get
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/scim/workspaces'].post
-  update:
-    summary: ''
-    description: ''
-    x-airs-provenance:
-      claims: []
-      origin_kind: human
-      text_digest: ''
-- target: $.paths['/scim/workspaces/{scimWorkspaceGroupId}'].delete
   update:
     summary: ''
     description: ''

@@ -154,9 +154,6 @@ tags:
     group: mcp
 
   # --- Administration ----------------------------------------------------
-  - from: Workspaces
-    to: Workspaces
-    group: administration
   - from: Api-Keys
     to: API Keys
     group: administration

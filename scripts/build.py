@@ -134,6 +134,12 @@ def load_drops(path: Path):
     return tags, ops
 
 
+def matches_drop(path: str, method: str, op, drop_tags: set[str],
+                 drop_ops: set[str]) -> bool:
+    return bool(drop_tags.intersection(op.get("tags") or [])) \
+        or f"{method} {path}" in drop_ops
+
+
 def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
     """Nothing declared dropped has come back.
 
@@ -145,15 +151,40 @@ def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
     Declining to drop something is a decision; it just has to be made in
     drops.yaml rather than by an edit nobody reviewed.
     """
-    back: list[str] = []
-    for path, method, op in operations(spec):
-        key = f"{method} {path}"
-        if drop_tags.intersection(op.get("tags") or []) or key in drop_ops:
-            back.append(f"{method.upper()} {path}")
+    back = [f"{method.upper()} {path}"
+            for path, method, op in operations(spec)
+            if matches_drop(path, method, op, drop_tags, drop_ops)]
     if back:
         raise SystemExit(
             f"_project/drops.yaml declares these not shipped, but they are in "
-            f"openapi.yaml: {sorted(back)}")
+            f"openapi.yaml: {sorted(back)}. Run `python scripts/build.py "
+            f"--apply-drops` to remove them.")
+
+
+def apply_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> list[str]:
+    """Delete what drops.yaml newly declares. Only under --apply-drops.
+
+    Removing operations from the published artifact is not something a routine
+    build should do on its own -- it is a deliberate act, and it wants to show
+    up in the diff of openapi.yaml where a reviewer sees it. So the default
+    build only checks, and this runs when a human asks for it: add the tag to
+    drops.yaml, run with the flag once, commit both halves together.
+    """
+    gone: list[str] = []
+    for path, item in list((spec.get("paths") or {}).items()):
+        if not isinstance(item, dict):
+            continue
+        for method in [m for m in list(item) if m in HTTP_METHODS]:
+            op = item[method]
+            if isinstance(op, dict) and matches_drop(path, method, op,
+                                                     drop_tags, drop_ops):
+                del item[method]
+                gone.append(f"{method.upper()} {path}")
+        # A path item with no methods left describes nothing; its parameters
+        # and summary would linger as an empty entry in the navigation.
+        if not any(m in item for m in HTTP_METHODS):
+            del spec["paths"][path]
+    return sorted(gone)
 
 
 # The only way to authenticate. The base offered six schemes in five
@@ -244,6 +275,15 @@ def apply_servers(spec) -> int:
         # look entirely normal while doing it.
         raise SystemExit(
             f"planes.yaml does not classify {len(missing)} path(s): {missing}")
+
+    # The other direction. A classification for a path that no longer exists is
+    # harmless to the build and misleading to everything else -- gen_drop_list.py
+    # counts these, so leftovers from a drop quietly inflate the inventory.
+    stale = sorted((control | gateway) - set(spec.get("paths") or {}))
+    if stale:
+        raise SystemExit(
+            f"planes.yaml classifies {len(stale)} path(s) that are not in "
+            f"openapi.yaml: {stale}")
 
     stamped = 0
     for path, item in (spec.get("paths") or {}).items():
@@ -340,12 +380,24 @@ def jsonpath_for(path: str, method: str) -> str:
     return f"$.paths['{quoted}'].{method}"
 
 
-def build(dry_run: bool = False) -> int:
+def build(dry_run: bool = False, do_drops: bool = False) -> int:
     spec = yaml.safe_load(SPEC.read_text())
     before = yaml.safe_dump(spec, sort_keys=False, allow_unicode=True, width=100)
     tagdoc, tag_names, group_of = load_tag_map(ROOT / "tags-map.yaml")
 
     null_defaults = drop_null_defaults(spec)
+
+    # --- drops --------------------------------------------------------------
+    # Before the tag check, because a tag that has just been dropped is also
+    # about to leave tags-map.yaml, and the two edits land in the same commit.
+    drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
+    if do_drops:
+        dropped = apply_drops(spec, drop_tags, drop_ops)
+        print(f"dropped {len(dropped)} operation(s):")
+        for entry in dropped:
+            print(f"    {entry}")
+    else:
+        check_drops(spec, drop_tags, drop_ops)
 
     # --- info -------------------------------------------------------------
     # 3.0.0 is pinned, not inherited. This specification does not describe the
@@ -369,9 +421,6 @@ def build(dry_run: bool = False) -> int:
         print(f"error: tags used by operations but absent from tags-map.yaml: "
               f"{unmapped}", file=sys.stderr)
         return 1
-
-    drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
-    check_drops(spec, drop_tags, drop_ops)
 
     security_overrides, public_ops = apply_security(spec)
     control_paths = apply_servers(spec)
@@ -431,6 +480,9 @@ def build(dry_run: bool = False) -> int:
         + body
     )
 
+    if do_drops:
+        for target in prune_overlay(spec):
+            print(f"    overlay action removed: {target}")
     added = overlay_stubs(spec)
     write_navigation(tagdoc, used, group_of)
 
@@ -502,6 +554,39 @@ def reorder(spec):
     out = {k: spec[k] for k in order if k in spec}
     out.update({k: v for k, v in spec.items() if k not in out})
     return out
+
+
+def prune_overlay(spec) -> list[str]:
+    """Remove actions whose target no longer resolves. Only under --apply-drops.
+
+    The counterpart to overlay_stubs being add-only: when an operation leaves
+    the specification its prose has nowhere to land, and check.py fails until
+    somebody removes it. That removal is deleting published documentation, so
+    it happens on the same deliberate flag that did the dropping -- and the
+    prose goes out in the same diff as the operation it described.
+    """
+    from apply_overlay import apply as apply_overlay_doc
+
+    path = ROOT / "overlays" / "docs-prose.yaml"
+    if not path.exists():
+        return []
+    doc = yaml.safe_load(path.read_text()) or {}
+    header = ""
+    for line in path.read_text().splitlines():
+        if not line.startswith("#"):
+            break
+        header += line + "\n"
+
+    _, unresolved = apply_overlay_doc(copy.deepcopy(spec), doc, strict=False)
+    if not unresolved:
+        return []
+
+    stale = set(unresolved)
+    doc["actions"] = [a for a in doc.get("actions") or []
+                      if a.get("target") not in stale]
+    path.write_text(header + yaml.safe_dump(
+        doc, sort_keys=False, allow_unicode=True, width=100))
+    return sorted(stale)
 
 
 def overlay_stubs(spec, dry_run: bool = False) -> int:
@@ -605,5 +690,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
                         help="fail instead of writing, for CI")
+    parser.add_argument("--apply-drops", action="store_true",
+                        help="remove operations drops.yaml newly declares, "
+                             "instead of failing because they are still there")
     args = parser.parse_args()
-    sys.exit(build(dry_run=args.check))
+    if args.check and args.apply_drops:
+        parser.error("--check and --apply-drops are contradictory")
+    sys.exit(build(dry_run=args.check, do_drops=args.apply_drops))

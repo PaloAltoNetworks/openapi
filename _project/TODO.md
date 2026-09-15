@@ -107,10 +107,10 @@ unregistered when checked. Publishing it in a document that also says
 from every reader who copies the sample and forgets to change the host. RFC 2606
 reserves `example.com` and IANA will never delegate it, so it fails closed.
 
-No self-hosted **control plane** entry. A hybrid deployment — self-hosted data
-plane, managed control plane — is normal, and nothing here establishes that a
-self-hosted control plane exists or where it sits. Two lines in `servers.yaml`
-if it does. **Worth confirming with engineering.**
+No self-hosted **control plane** entry, and **confirmed with engineering on
+2026-09-15 that there is none** — a self-hosted data plane talks to the managed
+control plane. The commented-out placeholder in `servers.yaml` was removed; the
+asymmetry is now documented as the product rather than as an open question.
 
 ### 3. ~~Authorization header only~~ — done 2026-09-15
 - [x] ~~Drop the five alternative `security` combinations~~ — 85 operation-level overrides removed
@@ -176,15 +176,53 @@ Two things found while doing it:
 
 Five known gaps added to the README that were not written down anywhere a reader
 would find them: no code samples, the five unfilled `required` bodies, the
-unauthenticated pricing endpoint, the 95 inherited plane classifications, and
+unauthenticated pricing endpoint, the 91 inherited plane classifications, and
 the absent self-hosted control plane.
+
+---
+
+## Engineering drop list — 2026-09-15
+
+Engineering sent a list of capabilities dropped from their current API, to
+verify against ours. Described as the first of several updates, so the drop set
+should not be treated as closed.
+
+| Engineering named | Status here |
+|---|---|
+| Prompts | Already dropped |
+| Audit Logs | Already dropped |
+| Users | Already dropped |
+| User Invites | Already dropped |
+| Workspace Members | Already dropped, as `Workspaces > Members` — the base's tag name for `/admin/workspaces/{id}/users*` |
+| **Workspaces** | **Was still shipping. Dropped now** — 5 `/admin/workspaces*` operations |
+| **SCIM Workspace Mappings** | **Was still shipping.** No such tag in the base: `/scim/workspaces*` carries the `Workspaces` tag, so the one drop removed both — 3 operations |
+
+Eight operations, five paths, five components, nine overlay actions. 181 → 173.
+
+Two things this leaves open, both flagged to Vrushank rather than assumed:
+
+- **Seven capabilities we drop that engineering did not name** — Collections,
+  Deployments, Labels, Log Exports, Prompt Partials, Virtual Keys and
+  `Workspaces > Members`. Our list is a superset. The last is covered by their
+  "Workspace Members" and `Prompt Partials` is plausibly inside their "Prompts",
+  but the other five are ours alone. Left dropped; nothing here says to restore
+  them, and restoring is the reversible direction.
+- **Four operations that mention workspaces but are not the Workspaces
+  capability** — `Integrations > Workspaces` (2) and `MCP Integrations >
+  Workspaces` (2). Separate tags, and they attach workspaces to an integration
+  rather than manage them. If workspaces do not exist as a concept, these
+  reference something that is gone; if workspaces exist and only their
+  management API is withdrawn, they stay. Not guessed either way.
+
+`build.py` grew `--apply-drops` for this, because it will happen again. See the
+README section on `_project/drops.yaml`.
 
 ---
 
 ## Phase 2 — deferred, agreed
 
-- [ ] `operationId` on the **53** operations that lack one — first, because SDK generation depends on it and nothing else does
-- [ ] cURL `x-codeSamples` for all 181 operations (task 5)
+- [ ] `operationId` on the **45** operations that lack one — first, because SDK generation depends on it and nothing else does
+- [ ] cURL `x-codeSamples` for all 173 operations (task 5)
 - [ ] `required` on the five request bodies (task 4) — a contract question for engineering
 - [ ] Descriptions, once KB access lands — the grounding gate is already built and empty by design
 - [ ] Code samples in languages beyond cURL

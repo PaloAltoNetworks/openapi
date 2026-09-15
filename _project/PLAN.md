@@ -598,5 +598,46 @@ Two decisions inside the change:
   review of that one file. Confirmed by negative test: hand-editing a server
   description fails the build.
 
-**Next:** Phase 2. `operationId` on the 53 operations lacking one comes first,
+---
+
+## Addendum — the engineering drop list, and drops after the cord was cut
+
+Engineering sent seven capabilities as dropped from their current API. Six were
+already gone; `Workspaces` was still shipping, and their seventh name, "SCIM
+Workspace Mappings", turned out to be the same tag — the base filed
+`/scim/workspaces*` under `Workspaces` rather than giving it its own tag, so one
+line in `drops.yaml` removed both surfaces. Eight operations, five paths.
+
+This was the first drop since `build.py` was inverted, and it exposed a gap in
+the inversion. Task 7 turned the drop applier into a check on the reasoning that
+openapi.yaml is now the source of truth and nothing should be silently deleted
+from it on every build. That reasoning holds, but it left no way to drop
+anything: adding a tag to `drops.yaml` only made the build fail.
+
+The resolution keeps both properties by splitting them across two invocations:
+
+| Invocation | Behaviour |
+|---|---|
+| `build.py` | Fails if anything in `drops.yaml` is present. The guard against reintroduction |
+| `build.py --apply-drops` | Removes them, prunes unreachable components, deletes overlay actions that no longer resolve |
+
+The flag is the deliberate act; the default is the standing invariant. The
+deletion lands in the diff of `openapi.yaml`, which is exactly where a reviewer
+should see a capability leaving the published API — not buried in a build log.
+
+`--apply-drops` is also the only thing that removes overlay actions, for the
+same reason the top-up is add-only: those actions are published prose, and
+deleting prose should be as deliberate as deleting the operation it described.
+The two now happen together, in one commit.
+
+One further guard came out of it. `planes.yaml` tolerated classifications for
+paths that no longer existed — harmless to the build, but `gen_drop_list.py`
+counts them, so a drop would quietly inflate the plane inventory. It is now an
+error in both directions.
+
+Also settled: **there is no self-hosted control plane.** Confirmed with
+engineering, so the commented-out placeholder came out of `servers.yaml` and the
+README's open question became a statement.
+
+**Next:** Phase 2. `operationId` on the 45 operations lacking one comes first,
 since SDK generation depends on it and nothing else does.

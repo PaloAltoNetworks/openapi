@@ -407,17 +407,6 @@
             ]
           },
           "tag": "Usage Limit Policies"
-        },
-        {
-          "group": "Workspaces",
-          "openapi": {
-            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-            "directory": "api-reference",
-            "overlays": [
-              "overlays/docs-prose.yaml"
-            ]
-          },
-          "tag": "Workspaces"
         }
       ]
     },

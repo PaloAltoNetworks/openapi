@@ -1,7 +1,7 @@
 # The base URLs. This is the one place to change them.
 #
 # `scripts/build.py` writes every `servers` block in openapi.yaml from this
-# file -- the root block and the 66 control-plane path overrides. Edit a host
+# file -- the root block and the 62 control-plane path overrides. Edit a host
 # here, rebuild, and the whole document follows. Nothing below needs touching,
 # and there is no second copy to forget. `scripts/check.py` fails if a block in
 # openapi.yaml is not byte-identical to the list here.
@@ -38,7 +38,7 @@ gateway:
   - url: https://self-hosted-gateway-url.example.com/v1
     description: Self-hosted -- replace with your own gateway host
 
-# Management plane. Stamped onto the 66 paths that _project/planes.yaml marks
+# Management plane. Stamped onto the 62 paths that _project/planes.yaml marks
 # control-plane, because OpenAPI has no way for a path to point back at a
 # server declared once at the root.
 #
@@ -53,14 +53,8 @@ control-plane:
   - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
     description: Managed
 
-  # No self-hosted control plane is offered, and that asymmetry is deliberate
-  # rather than an oversight. The base declared SELF_HOSTED_CONTROL_PLANE_URL
-  # alongside the gateway one, but a hybrid deployment -- self-hosted data
-  # plane, managed control plane -- is a normal arrangement, and nothing here
-  # establishes that a self-hosted control plane exists or where it would sit.
-  # Offering one would be asserting it.
-  #
-  # If it does exist, this is a two-line change:
-  #
-  #   - url: https://self-hosted-control-plane-url.example.com/api/v1
-  #     description: Self-hosted -- replace with your own control plane host
+  # One entry, and the asymmetry with the gateway is real rather than an
+  # omission: there is no self-hosted control plane (Vrushank, 2026-09-15,
+  # confirmed with engineering). The base declared SELF_HOSTED_CONTROL_PLANE_URL
+  # alongside the gateway one; it does not apply here. A self-hosted data plane
+  # talks to the managed control plane.

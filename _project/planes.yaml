@@ -16,8 +16,6 @@
 # The gateway is the root server, so gateway paths carry no override.
 
 control-plane:
-  "/admin/workspaces": inherited
-  "/admin/workspaces/{workspaceId}": inherited
   "/analytics/graphs/cache/hit-rate": inherited
   "/analytics/graphs/cache/latency": inherited
   "/analytics/graphs/cost": inherited
@@ -78,8 +76,6 @@ control-plane:
   "/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset": classification.yaml
   "/providers": inherited
   "/providers/{slug}": inherited
-  "/scim/workspaces": inherited
-  "/scim/workspaces/{scimWorkspaceGroupId}": inherited
   "/secret-references": inherited
   "/secret-references/{secretReferenceId}": inherited
 

@@ -1,13 +1,11 @@
 # Operations deliberately not shipped in the Prisma AIRS specification.
 #
-# Read by scripts/build.py, which removes them before anything else runs, so
-# openapi.yaml stays reproducible from the base for as long as the base is
-# still around. Editing openapi.yaml directly would be undone by the next
-# build; this file is the durable record.
-#
-# Every removal here must also appear in base-delta.yaml with a reason, or
-# check_shape.py fails. Two files on purpose: this one decides, that one is
-# the audit trail the fidelity check reads.
+# Read by scripts/build.py. A routine build only checks this file: if
+# anything named here is still in openapi.yaml the build fails, which is the
+# guard against a dropped endpoint being pasted back in. To actually remove
+# something, add it here and run `python scripts/build.py --apply-drops`
+# once, then commit this file and openapi.yaml together -- the deletion is
+# meant to be visible in the diff, not to happen quietly on every build.
 #
 # Selection is by tag, not by path. That is how the decision was actually
 # made -- whole capabilities go, not individual URLs -- and it survives a
@@ -32,6 +30,14 @@ tags:
   - Users
   - Virtual Keys
   - Workspaces > Members
+
+# Engineering, 2026-09-15. Their list named seven capabilities as dropped;
+# six were already gone above. `Workspaces` is the one that was still
+# shipping. Their list also named "SCIM Workspace Mappings" separately, but
+# the base did not tag it separately: /scim/workspaces{,/{id}} carries the
+# `Workspaces` tag too, so this one line removes both surfaces -- five
+# /admin/workspaces operations and three /scim/workspaces ones.
+  - Workspaces
 
 # Individual operations to drop where the whole tag stays. Empty today: every
 # current removal is a clean tag boundary. Entries are "METHOD /path".
