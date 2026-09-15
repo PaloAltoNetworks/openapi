@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Generate _project/drop-list.md -- the control-plane inventory to strike through.
 
-Classification comes from the per-path `servers` overrides the base author left
+Classification defaults to the per-path `servers` overrides the base author left
 behind (SELF_HOSTED_CONTROL_PLANE_URL vs SELF_HOSTED_GATEWAY_URL). That is
-Portkey's opinion, inherited and unverified, so this is a draft to react to and
-not a source of truth.
+Portkey's opinion, inherited and unverified, so it is a draft to react to and
+not a source of truth. `_project/classification.yaml` overrides it with human
+decisions, and the output marks which is which -- a guess and a call should
+never be indistinguishable once both are on the page.
 
 It also computes the blast radius: how many component schemas each group owns
 exclusively, and so would be orphaned if the group went away. Deleting paths is
@@ -17,7 +19,7 @@ Usage:
 from __future__ import annotations
 
 import collections
-import re
+import fnmatch
 import sys
 from pathlib import Path
 
@@ -31,8 +33,38 @@ CONTROL = "control plane"
 GATEWAY = "gateway"
 UNKNOWN = "unclassified"
 
+CONTROL_KEY = "control-plane"
+GATEWAY_KEY = "gateway"
+
+
+def load_decisions(path: Path, known: list[str]) -> dict[str, str]:
+    """{path: plane} from classification.yaml, expanding fnmatch patterns.
+
+    A pattern that matches nothing is an error, not a no-op: the usual cause is
+    that the path was renamed, and a rule that silently stops applying is worse
+    than no rule.
+    """
+    if not path.exists():
+        return {}
+    doc = yaml.safe_load(path.read_text()) or {}
+    decided, unused = {}, []
+    for plane in (CONTROL_KEY, GATEWAY_KEY):
+        for pattern in doc.get(plane) or []:
+            matched = fnmatch.filter(known, pattern)
+            if not matched:
+                unused.append(pattern)
+            for p in matched:
+                decided[p] = CONTROL if plane == CONTROL_KEY else GATEWAY
+    if unused:
+        raise SystemExit(
+            f"{path.name}: {len(unused)} pattern(s) match no path in the spec: "
+            + ", ".join(unused)
+        )
+    return decided
+
 
 def classify(item) -> str:
+    """The inherited default, before any human decision is applied."""
     urls = " ".join(str(s.get("url", "")) for s in (item.get("servers") or []))
     if "CONTROL_PLANE" in urls:
         return CONTROL
@@ -75,12 +107,18 @@ def main() -> int:
     spec = yaml.safe_load((ROOT / "openapi.yaml").read_text())
     paths = spec["paths"]
 
+    decided = load_decisions(ROOT / "_project" / "classification.yaml", list(paths))
+
     groups: dict[str, list[str]] = collections.defaultdict(list)
     reach: dict[str, set] = collections.defaultdict(set)
+    overridden: list[str] = []
     for path, item in paths.items():
         if not isinstance(item, dict):
             continue
-        kind = classify(item)
+        inherited = classify(item)
+        kind = decided.get(path, inherited)
+        if path in decided and decided[path] != inherited:
+            overridden.append(path)
         groups[kind].append(path)
         refs_from(item, reach[kind])
 
@@ -95,9 +133,13 @@ def main() -> int:
         "**Tick a box to drop that path.** Every operation on a ticked path goes.",
         "To keep only some methods on a path, tick it and note which to keep.",
         "",
-        "Classification is inherited from the base author's per-path `servers`",
-        "overrides and is **unverified**. Treat it as a first draft, especially",
-        f"the {len(groups[UNKNOWN])} unclassified paths, which need a call regardless.",
+        "Classification defaults to the base author's per-path `servers` overrides",
+        "and is **unverified** -- a first draft, especially the",
+        f"{len(groups[UNKNOWN])} still-unclassified paths, which need a call regardless.",
+        "",
+        f"**✓** marks a path classified by a human in `classification.yaml`",
+        f"({len(decided)} so far, {len(overridden)} of which the inherited data got wrong).",
+        "Everything unmarked is still Portkey's guess.",
         "",
         "## Blast radius",
         "",
@@ -124,7 +166,8 @@ def main() -> int:
     for kind in (CONTROL, UNKNOWN, GATEWAY):
         note = {
             CONTROL: "The candidates. Tick what goes.",
-            UNKNOWN: "No server override, so the base never said. **Needs a call.**",
+            UNKNOWN: "No server override and no decision recorded yet. "
+                     "**Needs a call** -- add it to `classification.yaml`.",
             GATEWAY: "Data plane. Listed for completeness; expected to stay.",
         }[kind]
         lines += [f"## {kind.title()} — {len(groups[kind])} paths", "", note, ""]
@@ -146,7 +189,8 @@ def main() -> int:
                     f"`{m.upper()}`" + (f" {i}" if i else " *(no operationId)*")
                     for m, i in zip(methods, ids)
                 )
-                lines.append(f"- [ ] `{path}` — {shown}")
+                mark = " ✓" if path in decided else ""
+                lines.append(f"- [ ] `{path}`{mark} — {shown}")
             lines.append("")
 
     out = ROOT / "_project" / "drop-list.md"

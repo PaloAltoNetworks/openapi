@@ -1,0 +1,18 @@
+# Human decisions about which plane a path belongs to.
+#
+# The default classification in drop-list.md is read off the base author's
+# per-path `servers` overrides -- Portkey's opinion, inherited and unverified.
+# Anything decided here overrides it and is marked as decided rather than
+# guessed, so it is always visible which calls were made by a person.
+#
+# Patterns are fnmatch-style: /guardrails* matches /guardrails and everything
+# under it. Every pattern must match at least one path, so a rename in the spec
+# turns a silently-dead rule into a failure.
+
+control-plane:
+  # Vrushank, 2026-09-15. CRUD over a configuration resource. The base never
+  # classified these because it gave them no server override, not because it
+  # thought they were data plane.
+  - /guardrails*
+
+gateway: []
