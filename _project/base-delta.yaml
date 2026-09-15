@@ -23,7 +23,7 @@ base:
 #   tags           -- tag IA was redesigned; tags-map.yaml renames apply
 #   null-defaults  -- nine `default: null` entries that made the base invalid
 #
-# Add `servers` here when the base URL work lands (TASK.md step 3); until then
+# Add `servers` here when the base URL work lands (TODO.md phase 1 task 2); until then
 # leaving it out means the check still guards the 264 inherited server entries.
 normalise:
   - prose

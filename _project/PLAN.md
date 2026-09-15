@@ -3,8 +3,8 @@
 Working notes. Not published, not part of the build. Delete or gitignore when
 the work lands.
 
-Status: **steps 0 and 1 done** (commit `aea10de`). Steps 2–7 blocked on Q1–Q4.
-See the progress log at the bottom.
+Status: steps 0 and 1 done. Live checklist is in `TODO.md`; this file is the
+rationale and the record of findings.
 
 ---
 
