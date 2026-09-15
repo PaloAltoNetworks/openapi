@@ -1,0 +1,40 @@
+# Every accepted difference between this specification and its base.
+#
+# Read by scripts/check_shape.py. Anything that differs and is not listed here
+# fails the check. That is the whole idea: a removal nobody wrote down is
+# indistinguishable from an accident, and a reshaped operation is a structural
+# edit we promised not to make.
+#
+# Sections:
+#   removed_*    in the base, deliberately not here
+#   added_*      not in the base, deliberately here
+#   reshaped_*   in both, structurally different on purpose. Expect this to
+#                stay empty. An entry is a claim that we changed the API's
+#                shape, which is engineering's call and not a docs change.
+
+base:
+  repository: Portkey-AI/openapi
+  commit: 3fa53f23216a2ba6c57e2f9eb538753bf9461f7e
+  date: 2026-09-04
+
+# Systematic differences ignored before comparing, each already decided:
+#   prose          -- all 4,075 natural-language fields are stripped by design
+#   provenance     -- x-airs-provenance is ours, the base has none
+#   tags           -- tag IA was redesigned; tags-map.yaml renames apply
+#   null-defaults  -- nine `default: null` entries that made the base invalid
+#
+# Add `servers` here when the base URL work lands (TASK.md step 3); until then
+# leaving it out means the check still guards the 264 inherited server entries.
+normalise:
+  - prose
+  - provenance
+  - tags
+  - null-defaults
+
+removed_operations: []
+added_operations: []
+reshaped_operations: []
+
+removed_components: []
+added_components: []
+reshaped_components: []

@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import hashlib
+import re
 import sys
 from pathlib import Path
 
@@ -199,12 +200,39 @@ def check_grounding_gate(overlays) -> None:
 
 def check_servers(spec) -> None:
     """Server URLs are typed by readers and parsed by machines. They do not get
-    rebranded. This guards against a well-meaning search and replace."""
-    urls = [s.get("url", "") for s in spec.get("servers", [])]
-    if not urls:
+    rebranded. This guards against a well-meaning search and replace.
+
+    It counts every `servers` block, not just the root one. The base leaves 130
+    path-level and 2 operation-level overrides, so reporting only the root would
+    describe 1 of 264 entries -- and a search and replace that missed the other
+    263 would pass a check whose entire purpose is to catch exactly that.
+    """
+    counts: dict[str, int] = {}
+
+    def collect(node):
+        if isinstance(node, dict):
+            for entry in node.get("servers") or []:
+                url = str(entry.get("url", ""))
+                counts[url] = counts.get(url, 0) + 1
+            for value in node.values():
+                collect(value)
+        elif isinstance(node, list):
+            for value in node:
+                collect(value)
+
+    collect(spec)
+    if not counts:
         fail("servers", "no servers declared")
-    else:
-        report("servers", ", ".join(urls))
+        return
+
+    total = sum(counts.values())
+    report("servers", f"{total} entries, {len(counts)} distinct")
+    for url, count in sorted(counts.items(), key=lambda kv: -kv[1]):
+        shown = url or "(empty)"
+        # A bare token or a scheme-less string is not a URL. The base ships
+        # three of these, unsubstituted; they render and they are clickable.
+        suspect = "" if re.match(r"^https?://[^/\s]+", url) else "   <- not a URL"
+        print(f"          {count:4}  {shown}{suspect}")
 
 
 def main() -> int:

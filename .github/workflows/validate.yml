@@ -38,6 +38,29 @@ jobs:
           name: resolved-specification
           path: build/openapi.resolved.yaml
 
+  shape:
+    name: Fidelity to the base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Fetch the pinned base specification
+        run: ./scripts/fetch-base.sh
+
+      - name: Every surviving operation still matches the base
+        # Removals are fine and expected; they just have to be written down in
+        # _project/base-delta.yaml. A reshaped operation is not fine: structure
+        # was inherited, not authored, so an edit here means somebody changed
+        # the API in a documentation repository.
+        run: python scripts/check_shape.py --require-base
+
   lint:
     name: Spectral
     runs-on: ubuntu-latest
