@@ -6,8 +6,8 @@ checklist. Strike through as they land.
 Every task ends green — `check.py`, `check_shape.py` and `lint.py` passing — so
 work can stop at any line.
 
-**Four questions are open (Q-A to Q-D at the bottom). Two of them change what
-Phase 1 contains.**
+All four questions answered, 2026-09-15. **One thing still needed before task 2
+can finish: the control-plane base URL.** Everything else is unblocked.
 
 ---
 
@@ -15,10 +15,11 @@ Phase 1 contains.**
 
 ### 1. Drop the marked control-plane operations
 - [ ] Delete the 11 tag groups marked `[DROPPED]`: Audit Logs, Collections, Deployments, Labels, Log Exports, Prompt Partials, Prompts, User Invites, Users, Virtual Keys, Workspaces > Members
-- [ ] → **31 paths, 59 operations.** Leaves 120 paths, 183 operations
-- [ ] Prune components orphaned by the deletion, by reachability
+- [ ] Also drop the two gateway `Prompts` paths — `/prompts/{promptId}/completions` and `/prompts/{promptId}/render` — so the whole Prompts surface goes together (Q-A)
+- [ ] → **33 paths, 61 operations.** Leaves **118 paths, 181 operations**
+- [ ] Prune components orphaned by the deletion, by reachability → **578 to 474**
 - [ ] Sweep the 58 components already unreachable before any deletion
-- [ ] Regenerate `tags-map.yaml` and `docs-navigation.json` for emptied tags
+- [ ] Regenerate `tags-map.yaml` and `docs-navigation.json` — **52 tags to 41**, 11 emptied
 - [ ] Re-baseline Spectral and record the new counts
 - [ ] Record every removal in `_project/base-delta.yaml` with a reason
 - [ ] Let `breaking-changes.yml` fire and keep the comment as the audit trail
@@ -28,6 +29,7 @@ Phase 1 contains.**
 - [ ] Single root `servers` block using an OpenAPI server variable with a `default` and an `enum` — one line to edit, and it is how the self-hosted option gets offered
 - [ ] Data plane → `https://aigw.portkey.ai/v1`, prefix unchanged
 - [ ] Offer `SELF_HOSTED_GATEWAY_URL` as the alternate, as today
+- [ ] Second root entry for the control plane — **URL still needed (Q-B)**. 66 control-plane paths survive and sit on a different host
 - [ ] Remove the three placeholder strings that are not URLs
 - [ ] Extend `check.py` to fail if any host appears outside the root block
 - [ ] Add `servers` to `normalise:` in `base-delta.yaml`
@@ -53,9 +55,14 @@ Phase 1 contains.**
 
 ### 6. Version and provenance
 - [ ] `info.version` → `3.0.0`
-- [ ] Cut the cord from the base spec — see **Q-C**, which affects when
 
-### 7. Catch-up
+### 7. Cut the cord from the base — last task of Phase 1 (Q-C)
+- [ ] Keep `check_shape.py` working through tasks 1–6; it is what proves the drops removed and never reshaped
+- [ ] Only then: delete `.source/`, `scripts/check_shape.py`, `scripts/fetch-base.sh`, `_project/base-delta.yaml`
+- [ ] Drop the "Fidelity to the base" CI job
+- [ ] README: Portkey becomes a historical note, not a live relationship
+
+### 8. Catch-up
 - [ ] README: layout, counts, naming, known gaps
 - [ ] `build-report.txt` and `PROSE-INVENTORY.csv` regenerate
 - [ ] Final full run of all checks
@@ -73,32 +80,25 @@ Phase 1 contains.**
 
 ---
 
-## Open questions
+## Answered — 2026-09-15
 
-**Q-A — `Prompts` spans both planes, and only one side is marked.**
-`### Prompts [DROPPED]` sits under Control Plane, covering 5 paths. Two more
-paths carry the same tag but are **gateway**, so as marked they survive:
+| | Question | Answer |
+|---|---|---|
+| Q-A | `Prompts` spans both planes; only the control-plane side was marked | **Drop the two gateway paths too.** The whole Prompts surface goes together |
+| Q-B | Control-plane base URL, since 66 control-plane paths survive | **A different host.** URL to follow — the only outstanding blocker |
+| Q-C | When to retire the base linkage | **End of Phase 1**, so the guardrail covers the drops |
+| Q-D | Is 31 paths the intended drop, not 97? | **Yes.** 66 control-plane paths stay by design |
 
-- `/prompts/{promptId}/completions`
-- `/prompts/{promptId}/render`
+## Still needed
 
-That ships an API where a prompt can be executed but not created, listed or
-versioned. Coherent if prompts are managed in the UI; a gap if not.
-**Drop those two as well, or keep them?**
+- **The control-plane base URL (Q-B).** Task 2 can be done except for that one
+  value. Everything else in Phase 1 is unblocked.
 
-**Q-B — What is the control-plane base URL?**
-Q1 gave the data plane (`https://aigw.portkey.ai/v1`). But 66 control-plane
-paths survive the drop, and they are on a different host today. Same host, a
-second server entry, or something else?
+## The shape of Phase 1
 
-**Q-C — When do we retire the base linkage?**
-You said cut the cord today. Doing it before task 1 removes
-`scripts/check_shape.py` — the guardrail proving we only removed things and
-never reshaped one — during the single riskiest change in this plan. **I would
-retire it at the end of Phase 1, not the start.** Confirm or overrule.
-
-**Q-D — Confirm the drop is 31 paths, not 97.**
-11 of 36 control-plane tag groups are marked, so **66 control-plane paths
-stay** — including Analytics (22 paths), MCP Servers and MCP Integrations (10),
-API Keys, Configs, Workspaces, Guardrails. Deliberate, or is the list still in
-progress?
+| | Now | After task 1 |
+|---|---|---|
+| Paths | 151 | **118** |
+| Operations | 242 | **181** |
+| Components | 578 | **474** |
+| Tags | 52 | **41** |
