@@ -1,4 +1,4 @@
-# TASK — bring the Prisma AIRS updates into the spec
+# PLAN — bring the Prisma AIRS updates into the spec
 
 Working notes. Not published, not part of the build. Delete or gitignore when
 the work lands.
@@ -53,6 +53,8 @@ worst kind: it renders, it is clickable, and it fails at request time.
 This is inherited defect, not something we introduced. But item 4 cannot be done
 by editing a line — it needs the generator.
 
+Vrushank - sounds good.
+
 ### The base spec already labels which operations are control plane
 
 A useful accident. Those per-path server overrides partition the API:
@@ -71,6 +73,8 @@ write 80 paths from memory.
 Caveat, and I want to be plain about it: this is Portkey's classification,
 inherited and unverified. It is a draft to react to, not a source of truth. 22
 paths are unclassified and need a human call regardless.
+
+Vrushank - we worked on this and is good to go.
 
 ### `/chat/completions` is exactly the case you described
 
@@ -94,6 +98,8 @@ is not a universal lever — for those 13 it would render an empty body. They ne
 `required` lists filled in, which is a real (and correct) engineering fix, or
 they need hand-written samples.
 
+Vrushank - sounds good. 
+
 ### Auth is still Portkey-branded
 
 Security schemes: `Portkey-Key`, `Virtual-Key`, `Provider-Auth`,
@@ -105,6 +111,21 @@ because **a code sample shows the auth header**, so items 3 and 4 both collide
 with it. If the AIRS header is not `x-portkey-api-key`, every sample we write
 now is wrong, and we should settle auth before writing samples rather than
 after. See open question Q4.
+
+Vrushank - I would go and drop the other auth mechanisms completely right now. I mean dropping this specifically -       security:
+        - Portkey-Key: []
+          Virtual-Key: []
+        - Portkey-Key: []
+          Provider-Auth: []
+          Provider-Name: []
+        - Portkey-Key: []
+          Config: []
+        - Portkey-Key: []
+          Provider-Auth: []
+          Provider-Name: []
+          Custom-Host: []
+
+
 
 ---
 
@@ -122,6 +143,8 @@ exists, its shape is byte-identical to the base*, plus an explicit allow-list of
 removals. Then "we only dropped things, we never quietly reshaped anything"
 stays a machine-checked claim instead of an intention. Cheap to build, and it is
 the guardrail that makes items 2–4 safe to do quickly.
+
+Vrushank - sounds good.
 
 ### (2) Dropping control-plane operations — comment: mostly about the blast radius
 
@@ -147,6 +170,8 @@ Every downstream task is proportional to the number of operations, so shrinking
 the surface first makes the rest cheaper. It also means we never write a code
 sample for an operation we are about to delete.
 
+Vrushank - sounds good. 
+
 ### (3) Code samples — comment: two real problems, and one I need to test
 
 **Problem A: a code sample is prose, and it is currently ungoverned.**
@@ -165,6 +190,8 @@ costs nothing to set up now and is unpleasant to retrofit.
 
 Note also the spelling: the base used `x-code-samples` (which we dropped);
 **Mintlify reads `x-codeSamples`**. Different key. Do not resurrect the old one.
+
+Vrushank - good.
 
 **Problem B: "the samples are not wrong" is a claim I cannot check.**
 
@@ -207,6 +234,8 @@ in the README, because "only cURL" reads as an omission unless it is stated as a
 decision. `x-codeSamples` with a single entry suppresses Mintlify's other
 language tabs; that is the mechanism if we end up at C.
 
+Vrushank - We will do PHASE-based rollout and for now only do cURL.
+
 ### (4) One base URL that drives everything — comment: agreed, and it should be enforced
 
 Given the 264 entries, "a place at the top of the file" cannot be inside
@@ -240,6 +269,8 @@ a *third* host do the overrides earn their place.
 
 Either way the three malformed placeholder URLs go.
 
+Vrushank - Config build out is too complex. Any reason we can't do variables at the top? 
+
 ---
 
 ## Open questions
@@ -253,6 +284,11 @@ Blocking:
   classified (97 control plane, 54 gateway), so what is left is *how much of the
   control plane goes* — all 97, or a subset. Tick `_project/drop-list.md`.
 
+Q1 - AIRS Base URL for data plane is https://aigw.portkey.ai/v1 - prefix stays the same!! 
+We will also show the user options for "SELF_HOSTED_GATEWAY_URL" exactly like how we show right now.
+
+Q2 - updated drop-list.md now.
+
 Blocking item 3 specifically:
 
 - **Q3 — Where do the simplified samples live**, and were they run against a
@@ -261,6 +297,10 @@ Blocking item 3 specifically:
   If yes, this is larger than the base URL change and should land before any
   sample is written, or we write them all twice. The README currently states
   these are never renamed; that rule would need an explicit exemption.
+
+  Q3 - We should keep them here.
+
+A4 - They don't but in our case we would not need to use any of those headers and just to auth using Authorization header and show that only.
 
 Not blocking, but decide before we ship:
 
@@ -272,6 +312,9 @@ Not blocking, but decide before we ship:
   `3fa53f2`" becomes a historical note rather than a live relationship, and the
   structural-equivalence check should be retired with it.
 
+Q5 - update to 3.0.0
+Q6 - Yes we will cut off today.
+
 Still outstanding from before, unchanged:
 
 - **KB access (Q2 in the original brief)** still blocks all descriptions. None
@@ -279,6 +322,9 @@ Still outstanding from before, unchanged:
   parallel. 0 descriptions written so far, by design.
 - **84 operations have no `operationId`.** Dropping control-plane paths may
   reduce this; worth re-counting after item 2.
+
+KB - later
+operationId - yes we will add this to Phase 2.
 
 ---
 

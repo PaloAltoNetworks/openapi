@@ -70,11 +70,11 @@ The candidates. Tick what goes.
 
 - [ ] `/analytics/summary/cache` — `GET` *(no operationId)*
 
-### Audit Logs
+### Audit Logs [DROPPED]
 
 - [ ] `/audit-logs` — `GET` *(no operationId)*
 
-### Collections
+### Collections [DROPPED]
 
 - [ ] `/collections` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/collections/{collectionId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
@@ -85,7 +85,7 @@ The candidates. Tick what goes.
 - [ ] `/configs/{slug}` — `DELETE` deleteConfig, `GET` getConfig, `PUT` updateConfig
 - [ ] `/configs/{slug}/versions` — `GET` listConfigVersions
 
-### Deployments
+### Deployments [DROPPED]
 
 - [ ] `/deployments` — `GET` listDeployments, `POST` createDeployment
 - [ ] `/deployments/{deploymentId}` — `DELETE` deleteDeployment, `GET` getDeployment, `PUT` updateDeployment
@@ -116,12 +116,12 @@ The candidates. Tick what goes.
 
 - [ ] `/integrations/{slug}/workspaces` ✓ — `GET` *(no operationId)*, `PUT` *(no operationId)*
 
-### Labels
+### Labels [DROPPED]
 
 - [ ] `/labels` — `GET` listLabels, `POST` createLabel
 - [ ] `/labels/{labelId}` — `DELETE` deleteLabel, `GET` getLabel, `PUT` updateLabel
 
-### Log Exports
+### Log Exports [DROPPED]
 
 - [ ] `/logs/exports` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/logs/exports/{exportId}` — `GET` *(no operationId)*, `PUT` *(no operationId)*
@@ -172,14 +172,14 @@ The candidates. Tick what goes.
 
 - [ ] `/models/{model}` ✓ — `DELETE` deleteModel, `GET` retrieveModel
 
-### Prompt Partials
+### Prompt Partials [DROPPED]
 
 - [ ] `/prompts/partials` — `GET` listPromptPartials, `POST` createPromptPartial
 - [ ] `/prompts/partials/{promptPartialId}` — `DELETE` deletePromptPartial, `GET` getPromptPartial, `PUT` updatePromptPartial
 - [ ] `/prompts/partials/{promptPartialId}/makeDefault` — `PUT` updatePromptPartialDefault
 - [ ] `/prompts/partials/{promptPartialId}/versions` — `GET` getPromptPartialVersions
 
-### Prompts
+### Prompts [DROPPED]
 
 - [ ] `/prompts` — `GET` listPrompts, `POST` createPrompt
 - [ ] `/prompts/{promptId}` — `DELETE` deletePrompt, `GET` getPrompt, `PUT` updatePrompt
@@ -209,18 +209,18 @@ The candidates. Tick what goes.
 - [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities` ✓ — `GET` listUsageLimitsPolicyEntities
 - [ ] `/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset` ✓ — `PUT` resetUsageLimitsPolicyEntity
 
-### User Invites
+### User Invites [DROPPED]
 
 - [ ] `/admin/users/invites` — `GET` *(no operationId)*, `POST` Invites_create
 - [ ] `/admin/users/invites/{inviteId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*
 - [ ] `/admin/users/invites/{inviteId}/resend` — `POST` *(no operationId)*
 
-### Users
+### Users [DROPPED]
 
 - [ ] `/admin/users` — `GET` *(no operationId)*
 - [ ] `/admin/users/{userId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
 
-### Virtual Keys
+### Virtual Keys [DROPPED]
 
 - [ ] `/virtual-keys` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/virtual-keys/{slug}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
@@ -232,7 +232,7 @@ The candidates. Tick what goes.
 - [ ] `/scim/workspaces` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/scim/workspaces/{scimWorkspaceGroupId}` — `DELETE` *(no operationId)*
 
-### Workspaces > Members
+### Workspaces > Members [DROPPED]
 
 - [ ] `/admin/workspaces/{workspaceId}/users` — `GET` *(no operationId)*, `POST` *(no operationId)*
 - [ ] `/admin/workspaces/{workspaceId}/users/{userId}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
