@@ -565,6 +565,39 @@ Confirmed working: auth renders as `Authorization: Bearer <token>`.
 
 ---
 
+## Repository cleanup — 2026-09-15
+
+Five files removed. Nothing published changed: `openapi.yaml`,
+`docs-navigation.json` and `build-report.txt` are byte-identical across the
+change, and `check.py`, `build.py --check` and `lint.py` are green either side
+of it. All seven scripts under `scripts/` stayed — every one of them is
+imported or invoked by CI.
+
+| Removed | Why |
+|---|---|
+| `PROSE-INVENTORY.csv` | 677 KB, 44% of the tracked repository. Frozen at the end of Phase 1 and **3,618 of its 4,221 pointers dangled** — they named operations and components the drops deleted. It stored digests, never text, so nothing was recoverable from the 603 that resolved |
+| `brief.md` | The original handoff. Referenced nowhere; superseded by the README and `PLAN.md` |
+| `_project/docs-note.md` | The five docs asks, all completed in Phase 1.5 and recorded there |
+| `_project/drop-list.md` | A generated inventory nothing regenerated. It restated `planes.yaml`, and its job — being the tick-list for *choosing* the drops — ended when the choices landed in `drops.yaml` |
+| `_project/gen_drop_list.py` | Generated the above |
+
+**The drop list is the one worth a second look.** It was not stale when
+removed, but nothing in CI regenerated it, and it had already drifted silently
+once — Phase 1 task 7 found it had gone from 23 unclassified paths to 95
+without failing. A derived file no gate checks is a file that will eventually
+lie. The alternative was to wire it into `build.py --check`; removing it was
+chosen because `planes.yaml` already carries the content under a gate.
+
+**Kept, deliberately.** The KB machinery — `scripts/drift.py`,
+`scripts/emit_change_event.py`, `webhooks/*.schema.json`, `kb-drift.yml`,
+`notify-kb.yml` — is on hold, not cancelled, and is built to stay exercised
+while inert. `_project/classification.yaml` is marked historical but is still a
+live reference target: `planes.yaml` cites it by name in the `how:` field of 23
+paths. `PLAN.md` and `TODO.md` stay whole; a cleanup pass is the wrong place to
+decide which reasoning is worth keeping.
+
+---
+
 ## Answered — 2026-09-15
 
 | | Question | Answer |

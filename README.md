@@ -32,7 +32,6 @@ plausible, wrong description is invisible and survives review.
 | `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
 | `.spectral.yaml` | Both | Lint rules, including the grounding gate | — |
 | `.spectral-baseline.json` | — | Inherited defect counts. May shrink, never grow | — |
-| `PROSE-INVENTORY.csv` | — | Every stripped prose field: location, size, digest | Worklist |
 | `build-report.txt` | — | Counts, and the gaps that want engineering | — |
 
 The split is the point, and it is a split between *where prose is written* and
@@ -50,7 +49,8 @@ docs site, and it was not applying the overlay — so the published URL served
 prose-free pages and nothing failed. It cost nothing while every description was
 empty, and it would have cost the whole gate the day one was written.
 
-The five files under `_project/` are the same idea applied to structure. Each
+The four decision files under `_project/` are the same idea applied to
+structure. Each
 holds a decision that would otherwise be spread across the document — sixty-odd
 `servers` blocks, eleven tag groups' worth of operations, 187 page URLs — where
 it can be read, reviewed and changed in one place. `scripts/build.py` applies
@@ -503,11 +503,14 @@ about files that still decide things: does `openapi.yaml` agree with
 `tags-map.yaml`? The base is gone; the decisions taken against it are still
 enforced.
 
-`PROSE-INVENTORY.csv` records every stripped field by JSON pointer, length and
-SHA-256 digest — never the text. It is a worklist for re-grounding, not an
-archive to restore from. It is now **frozen**: it could only ever be derived by
-diffing against the base, so it describes the strip as it happened and does not
-regenerate.
+The strip itself was recorded in `PROSE-INVENTORY.csv` — a pointer, length and
+SHA-256 digest per field, never the text. It was frozen at the end of Phase 1,
+because it could only be derived by diffing against the base, and removed on
+2026-09-15: 3,618 of its 4,221 pointers had come to name operations and
+components that the drops deleted. The worklist it was meant to be is
+`overlays/docs-prose.yaml`, which has one stub per authoring site and is
+checked on every build. Recoverable from history if the digests are ever
+wanted.
 
 ## Known gaps
 
@@ -559,9 +562,9 @@ regenerate.
 - **The plane split is 39 decided and 82 inherited.** `_project/planes.yaml`
   decides which of the four base URLs each path gets, and for 82 paths that call
   was read off the base's own per-path server overrides and never independently
-  verified. It is recorded per path — `inherited` against a named decision —
-  and `_project/drop-list.md` marks the difference. Getting one wrong publishes
-  a working endpoint against the wrong host.
+  verified. It is recorded per path in that file — `inherited` against a named
+  decision — so the difference is readable there. Getting one wrong publishes a
+  working endpoint against the wrong host.
 - **The recovered Deployments schemas are unexamined.** Deployments was dropped
   in Phase 1 on an engineering list and un-dropped in Phase 2 as an admin-plane
   capability, which meant recovering six operations from the pre-drop revision.

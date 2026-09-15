@@ -1,9 +1,10 @@
 # Human decisions about which plane a path belongs to.
 #
-# The default classification in drop-list.md is read off the base author's
-# per-path `servers` overrides -- Portkey's opinion, inherited and unverified.
-# Anything decided here overrides it and is marked with a tick, so it is always
-# visible which calls were made by a person.
+# The default classification was read off the base author's per-path `servers`
+# overrides -- Portkey's opinion, inherited and unverified. Anything decided
+# here overrode it, and `planes.yaml` still cites this file by name in the
+# `how:` field of every path it decided, so which calls a person made stays
+# visible.
 #
 # Patterns are fnmatch-style. Note that `*` crosses slashes: /models* matches
 # /models/{model} as well as /models, which is exactly the trap below. Two rules

@@ -12,7 +12,7 @@
 # actually made -- whole capabilities go, not individual URLs -- and it
 # survives a path rename, which a path list would not.
 
-# Vrushank, 2026-09-15, marked [DROPPED] in drop-list.md.
+# Vrushank, 2026-09-15, marked [DROPPED] on the Phase 1 drop list.
 #
 # Control-plane capabilities that Prisma AIRS does not expose. Ten of the
 # eleven are control plane throughout. `Prompts` is the exception: it spans
