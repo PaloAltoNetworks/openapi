@@ -9,7 +9,31 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Assistants"
+          "pages": [
+            "GET /assistants",
+            "POST /assistants",
+            "GET /assistants/{assistant_id}",
+            "POST /assistants/{assistant_id}",
+            "DELETE /assistants/{assistant_id}",
+            "POST /threads",
+            "GET /threads/{thread_id}",
+            "POST /threads/{thread_id}",
+            "DELETE /threads/{thread_id}",
+            "GET /threads/{thread_id}/messages",
+            "POST /threads/{thread_id}/messages",
+            "GET /threads/{thread_id}/messages/{message_id}",
+            "POST /threads/{thread_id}/messages/{message_id}",
+            "DELETE /threads/{thread_id}/messages/{message_id}",
+            "POST /threads/runs",
+            "GET /threads/{thread_id}/runs",
+            "POST /threads/{thread_id}/runs",
+            "GET /threads/{thread_id}/runs/{run_id}",
+            "POST /threads/{thread_id}/runs/{run_id}",
+            "POST /threads/{thread_id}/runs/{run_id}/submit_tool_outputs",
+            "POST /threads/{thread_id}/runs/{run_id}/cancel",
+            "GET /threads/{thread_id}/runs/{run_id}/steps",
+            "GET /threads/{thread_id}/runs/{run_id}/steps/{step_id}"
+          ]
         },
         {
           "group": "Audio",
@@ -17,7 +41,11 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Audio"
+          "pages": [
+            "POST /audio/speech",
+            "POST /audio/transcriptions",
+            "POST /audio/translations"
+          ]
         },
         {
           "group": "Batch",
@@ -25,7 +53,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Batch"
+          "pages": [
+            "POST /batches",
+            "GET /batches",
+            "GET /batches/{batch_id}/output",
+            "GET /batches/{batch_id}",
+            "POST /batches/{batch_id}/cancel"
+          ]
         },
         {
           "group": "Chat",
@@ -33,7 +67,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Chat"
+          "pages": [
+            "POST /chat/completions"
+          ]
         },
         {
           "group": "Completions",
@@ -41,7 +77,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Completions"
+          "pages": [
+            "POST /completions"
+          ]
         },
         {
           "group": "Embeddings",
@@ -49,7 +87,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Embeddings"
+          "pages": [
+            "POST /embeddings"
+          ]
         },
         {
           "group": "Files",
@@ -57,7 +97,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Files"
+          "pages": [
+            "GET /files",
+            "POST /files",
+            "DELETE /files/{file_id}",
+            "GET /files/{file_id}",
+            "GET /files/{file_id}/content"
+          ]
         },
         {
           "group": "Fine-Tuning",
@@ -65,7 +111,14 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Fine-Tuning"
+          "pages": [
+            "POST /fine_tuning/jobs",
+            "GET /fine_tuning/jobs",
+            "GET /fine_tuning/jobs/{fine_tuning_job_id}",
+            "GET /fine_tuning/jobs/{fine_tuning_job_id}/events",
+            "POST /fine_tuning/jobs/{fine_tuning_job_id}/cancel",
+            "GET /fine_tuning/jobs/{fine_tuning_job_id}/checkpoints"
+          ]
         },
         {
           "group": "Images",
@@ -73,7 +126,11 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Images"
+          "pages": [
+            "POST /images/generations",
+            "POST /images/edits",
+            "POST /images/variations"
+          ]
         },
         {
           "group": "Model Pricing",
@@ -81,7 +138,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Model Pricing"
+          "pages": [
+            "GET /model-configs/pricing/{provider}/{model}"
+          ]
         },
         {
           "group": "Models",
@@ -89,7 +148,11 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Models"
+          "pages": [
+            "GET /models",
+            "GET /models/{model}",
+            "DELETE /models/{model}"
+          ]
         },
         {
           "group": "Moderations",
@@ -97,7 +160,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Moderations"
+          "pages": [
+            "POST /moderations"
+          ]
         },
         {
           "group": "OCR",
@@ -105,7 +170,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "OCR"
+          "pages": [
+            "POST /ocr"
+          ]
         },
         {
           "group": "Realtime",
@@ -113,7 +180,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Realtime"
+          "pages": [
+            "GET /realtime"
+          ]
         },
         {
           "group": "Rerank",
@@ -121,7 +190,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Rerank"
+          "pages": [
+            "POST /rerank"
+          ]
         },
         {
           "group": "Responses",
@@ -129,7 +200,12 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Responses"
+          "pages": [
+            "POST /responses",
+            "GET /responses/{response_id}",
+            "DELETE /responses/{response_id}",
+            "GET /responses/{response_id}/input_items"
+          ]
         },
         {
           "group": "Vector Stores",
@@ -137,7 +213,21 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Vector Stores"
+          "pages": [
+            "GET /vector_stores",
+            "POST /vector_stores",
+            "GET /vector_stores/{vector_store_id}",
+            "POST /vector_stores/{vector_store_id}",
+            "DELETE /vector_stores/{vector_store_id}",
+            "GET /vector_stores/{vector_store_id}/files",
+            "POST /vector_stores/{vector_store_id}/files",
+            "GET /vector_stores/{vector_store_id}/files/{file_id}",
+            "DELETE /vector_stores/{vector_store_id}/files/{file_id}",
+            "POST /vector_stores/{vector_store_id}/file_batches",
+            "GET /vector_stores/{vector_store_id}/file_batches/{batch_id}",
+            "POST /vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel",
+            "GET /vector_stores/{vector_store_id}/file_batches/{batch_id}/files"
+          ]
         }
       ]
     },
@@ -150,7 +240,14 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Configs"
+          "pages": [
+            "GET /configs",
+            "POST /configs",
+            "DELETE /configs/{slug}",
+            "GET /configs/{slug}",
+            "PUT /configs/{slug}",
+            "GET /configs/{slug}/versions"
+          ]
         },
         {
           "group": "Guardrails",
@@ -158,7 +255,16 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Guardrails"
+          "pages": [
+            "POST /guardrails",
+            "GET /guardrails",
+            "GET /guardrails/{guardrailId}",
+            "PUT /guardrails/{guardrailId}",
+            "DELETE /guardrails/{guardrailId}",
+            "PUT /guardrails/{guardrailId}/mcp-servers",
+            "GET /guardrails/{guardrailId}/mcp-servers",
+            "PUT /guardrails/{guardrailId}/mcp-servers/{mcpServerId}"
+          ]
         }
       ]
     },
@@ -171,7 +277,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Integrations"
+          "pages": [
+            "GET /integrations",
+            "POST /integrations",
+            "GET /integrations/{slug}",
+            "PUT /integrations/{slug}",
+            "DELETE /integrations/{slug}"
+          ]
         },
         {
           "group": "Integrations > Models",
@@ -179,7 +291,11 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Integrations > Models"
+          "pages": [
+            "GET /integrations/{slug}/models",
+            "PUT /integrations/{slug}/models",
+            "DELETE /integrations/{slug}/models"
+          ]
         },
         {
           "group": "Integrations > Workspaces",
@@ -187,7 +303,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Integrations > Workspaces"
+          "pages": [
+            "GET /integrations/{slug}/workspaces",
+            "PUT /integrations/{slug}/workspaces"
+          ]
         },
         {
           "group": "Providers",
@@ -195,7 +314,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Providers"
+          "pages": [
+            "GET /providers",
+            "POST /providers",
+            "GET /providers/{slug}",
+            "PUT /providers/{slug}",
+            "DELETE /providers/{slug}"
+          ]
         },
         {
           "group": "Secret References",
@@ -203,7 +328,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Secret References"
+          "pages": [
+            "GET /secret-references",
+            "POST /secret-references",
+            "GET /secret-references/{secretReferenceId}",
+            "PUT /secret-references/{secretReferenceId}",
+            "DELETE /secret-references/{secretReferenceId}"
+          ]
         }
       ]
     },
@@ -216,7 +347,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Integrations"
+          "pages": [
+            "POST /mcp-integrations",
+            "GET /mcp-integrations",
+            "GET /mcp-integrations/{mcpIntegrationId}",
+            "PUT /mcp-integrations/{mcpIntegrationId}",
+            "DELETE /mcp-integrations/{mcpIntegrationId}"
+          ]
         },
         {
           "group": "MCP Integrations > Capabilities",
@@ -224,7 +361,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Integrations > Capabilities"
+          "pages": [
+            "GET /mcp-integrations/{mcpIntegrationId}/capabilities",
+            "PUT /mcp-integrations/{mcpIntegrationId}/capabilities"
+          ]
         },
         {
           "group": "MCP Integrations > Metadata",
@@ -232,7 +372,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Integrations > Metadata"
+          "pages": [
+            "GET /mcp-integrations/{mcpIntegrationId}/metadata"
+          ]
         },
         {
           "group": "MCP Integrations > Workspaces",
@@ -240,7 +382,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Integrations > Workspaces"
+          "pages": [
+            "GET /mcp-integrations/{mcpIntegrationId}/workspaces",
+            "PUT /mcp-integrations/{mcpIntegrationId}/workspaces"
+          ]
         },
         {
           "group": "MCP Servers",
@@ -248,7 +393,14 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Servers"
+          "pages": [
+            "POST /mcp-servers",
+            "GET /mcp-servers",
+            "GET /mcp-servers/{mcpServerId}",
+            "PUT /mcp-servers/{mcpServerId}",
+            "DELETE /mcp-servers/{mcpServerId}",
+            "POST /mcp-servers/{mcpServerId}/test"
+          ]
         },
         {
           "group": "MCP Servers > Capabilities",
@@ -256,7 +408,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Servers > Capabilities"
+          "pages": [
+            "GET /mcp-servers/{mcpServerId}/capabilities",
+            "PUT /mcp-servers/{mcpServerId}/capabilities"
+          ]
         },
         {
           "group": "MCP Servers > Connections",
@@ -264,7 +419,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Servers > Connections"
+          "pages": [
+            "GET /mcp-servers/{mcpServerId}/connections",
+            "DELETE /mcp-servers/{mcpServerId}/connections"
+          ]
         },
         {
           "group": "MCP Servers > User Access",
@@ -272,7 +430,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "MCP Servers > User Access"
+          "pages": [
+            "GET /mcp-servers/{mcpServerId}/user-access",
+            "PUT /mcp-servers/{mcpServerId}/user-access"
+          ]
         }
       ]
     },
@@ -285,7 +446,14 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "API Keys"
+          "pages": [
+            "POST /api-keys/{type}/{sub-type}",
+            "GET /api-keys",
+            "PUT /api-keys/{id}",
+            "GET /api-keys/{id}",
+            "DELETE /api-keys/{id}",
+            "POST /api-keys/{id}/rotate"
+          ]
         },
         {
           "group": "Deployments",
@@ -293,7 +461,14 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Deployments"
+          "pages": [
+            "GET /deployments",
+            "POST /deployments",
+            "GET /deployments/{deploymentId}",
+            "PUT /deployments/{deploymentId}",
+            "DELETE /deployments/{deploymentId}",
+            "GET /deployments/{deploymentId}/ping"
+          ]
         },
         {
           "group": "Org Guardrails",
@@ -301,7 +476,16 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Org Guardrails"
+          "pages": [
+            "POST /admin/v2/guardrails",
+            "GET /admin/v2/guardrails",
+            "GET /admin/v2/guardrails/{guardrailId}",
+            "PUT /admin/v2/guardrails/{guardrailId}",
+            "DELETE /admin/v2/guardrails/{guardrailId}",
+            "PUT /admin/v2/guardrails/{guardrailId}/mcp-servers",
+            "GET /admin/v2/guardrails/{guardrailId}/mcp-servers",
+            "PUT /admin/v2/guardrails/{guardrailId}/mcp-servers/{mcpServerId}"
+          ]
         },
         {
           "group": "Rate Limit Policies",
@@ -309,7 +493,13 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Rate Limit Policies"
+          "pages": [
+            "POST /policies/rate-limits",
+            "GET /policies/rate-limits",
+            "GET /policies/rate-limits/{rateLimitsPolicyId}",
+            "PUT /policies/rate-limits/{rateLimitsPolicyId}",
+            "DELETE /policies/rate-limits/{rateLimitsPolicyId}"
+          ]
         },
         {
           "group": "Usage Limit Policies",
@@ -317,7 +507,15 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Usage Limit Policies"
+          "pages": [
+            "POST /policies/usage-limits",
+            "GET /policies/usage-limits",
+            "GET /policies/usage-limits/{policyUsageLimitsId}",
+            "PUT /policies/usage-limits/{policyUsageLimitsId}",
+            "DELETE /policies/usage-limits/{policyUsageLimitsId}",
+            "GET /policies/usage-limits/{policyUsageLimitsId}/entities",
+            "PUT /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset"
+          ]
         }
       ]
     },
@@ -330,7 +528,25 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Analytics > Graphs"
+          "pages": [
+            "GET /analytics/graphs/requests",
+            "GET /analytics/graphs/cost",
+            "GET /analytics/graphs/latency",
+            "GET /analytics/graphs/tokens",
+            "GET /analytics/graphs/users",
+            "GET /analytics/graphs/users/requests",
+            "GET /analytics/graphs/errors",
+            "GET /analytics/graphs/errors/rate",
+            "GET /analytics/graphs/errors/stacks",
+            "GET /analytics/graphs/errors/status-codes",
+            "GET /analytics/graphs/requests/rescued",
+            "GET /analytics/graphs/cache/hit-rate",
+            "GET /analytics/graphs/cache/latency",
+            "GET /analytics/graphs/feedbacks",
+            "GET /analytics/graphs/feedbacks/scores",
+            "GET /analytics/graphs/feedbacks/weighted",
+            "GET /analytics/graphs/feedbacks/ai-models"
+          ]
         },
         {
           "group": "Analytics > Groups",
@@ -338,7 +554,12 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Analytics > Groups"
+          "pages": [
+            "GET /analytics/groups/users",
+            "GET /analytics/groups/ai-models",
+            "GET /analytics/groups/provider",
+            "GET /analytics/groups/metadata/{metadataKey}"
+          ]
         },
         {
           "group": "Analytics > Summary",
@@ -346,7 +567,9 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Analytics > Summary"
+          "pages": [
+            "GET /analytics/summary/cache"
+          ]
         },
         {
           "group": "Feedback",
@@ -354,7 +577,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Feedback"
+          "pages": [
+            "POST /feedback",
+            "PUT /feedback/{id}"
+          ]
         },
         {
           "group": "Logs",
@@ -362,7 +588,10 @@
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
             "directory": "api-reference"
           },
-          "tag": "Logs"
+          "pages": [
+            "POST /logs",
+            "GET /logs/{logId}"
+          ]
         }
       ]
     }
