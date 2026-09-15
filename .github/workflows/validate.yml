@@ -37,3 +37,27 @@ jobs:
         with:
           name: resolved-specification
           path: build/openapi.resolved.yaml
+
+  lint:
+    name: Spectral
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Lint against the baseline
+        # Inherited debt is allowed to stay; it is not allowed to grow.
+        run: python scripts/lint.py --json build/spectral.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spectral-findings
+          path: build/spectral.json

@@ -1,0 +1,11 @@
+{
+  "_comment": "Inherited defect counts. A count going up fails CI; debt can only shrink. Regenerate with scripts/lint.py --update and review the diff -- a number going down is the good case and should be committed.",
+  "counts": {
+    "array-items": 4,
+    "duplicated-entry-in-enum": 1,
+    "no-$ref-siblings": 77,
+    "oas3-unused-component": 26,
+    "operation-operationId": 84,
+    "operation-success-response": 1
+  }
+}

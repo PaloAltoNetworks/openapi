@@ -1,0 +1,126 @@
+# Spectral ruleset for the Prisma AIRS AI Gateway API.
+#
+# Two things make this ruleset unusual, and both follow from the grounding
+# model rather than from taste:
+#
+#   1. The stock OpenAPI style guide wants a description on everything. This
+#      repository wants them EMPTY until an accepted KB claim supports them, so
+#      those rules are turned off and replaced by a rule asserting the opposite.
+#      An empty description renders as a visible gap; a plausible invented one
+#      does not.
+#
+#   2. Genuine defects inherited from the base specification are NOT silenced
+#      here. They keep their real severity and are held at their current count
+#      by .spectral-baseline.json, so existing debt is visible and new debt
+#      fails CI. See scripts/lint.py.
+
+extends: ["spectral:oas"]
+
+rules:
+  # --- inverted for grounding -------------------------------------------
+  # Not style preferences. Writing prose here would bypass the grounding gate,
+  # which is the one review that makes the spec safe to publish.
+  operation-description: off
+  info-description: off
+  info-contact: off        # dropped deliberately; the base pointed at Portkey
+
+  # --- the grounding gate, as lint --------------------------------------
+  airs-no-prose-in-spec:
+    description: >-
+      Prose belongs in overlays/docs-prose.yaml, where it is small enough to
+      review claim by claim. A description here has bypassed that review.
+    message: "{{property}} must be empty in openapi.yaml -- write it in overlays/docs-prose.yaml"
+    severity: error
+    given:
+      - $.info.description
+      - $.paths[*][get,put,post,delete,options,head,patch,trace].description
+      - $.paths[*][get,put,post,delete,options,head,patch,trace].summary
+      - $.tags[*].description
+    then:
+      function: pattern
+      functionOptions:
+        match: "^$"
+
+  # --- provenance, the drift join key -----------------------------------
+  airs-provenance-present:
+    description: >-
+      Without a claim reference on an operation, nothing can tell that the KB
+      moved and the specification did not.
+    message: "operation is missing x-airs-provenance"
+    severity: error
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
+    then:
+      field: x-airs-provenance
+      function: truthy
+
+  airs-provenance-well-formed:
+    description: >-
+      The shape goes in before there is anything to put in it. Retrofitting it
+      means reconstructing which claim supported a description after the fact,
+      which is indistinguishable from inventing it.
+    severity: error
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace].x-airs-provenance
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: [claims, origin_kind, text_digest]
+          properties:
+            claims:
+              type: array
+              items:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string }
+                  revision: { type: [string, "null"] }
+            origin_kind:
+              enum: [human, generated, mixed]
+            text_digest:
+              type: string
+
+  # --- naming ------------------------------------------------------------
+  airs-tag-naming:
+    description: >-
+      Tag names are simultaneously navigation display text and reference keys.
+      Title Case, spaces not hyphens, initialisms uppercased, "Parent > Child"
+      for genuine sub-resources. See tags-map.yaml.
+    message: "tag name '{{value}}' does not match the agreed information architecture"
+    severity: error
+    given: $.tags[*].name
+    then:
+      function: pattern
+      functionOptions:
+        # Word = capitalised, optionally hyphen-joined to further capitalised
+        # words, so "Fine-Tuning" passes and "Virtual-keys" does not.
+        match: "^[A-Z][A-Za-z0-9]*(?:-[A-Z][A-Za-z0-9]*)*(?: [A-Z][A-Za-z0-9]*(?:-[A-Z][A-Za-z0-9]*)*)*(?: > [A-Z][A-Za-z0-9]*(?:-[A-Z][A-Za-z0-9]*)*(?: [A-Z][A-Za-z0-9]*(?:-[A-Z][A-Za-z0-9]*)*)*)*$"
+
+  airs-tag-initialisms:
+    description: >-
+      Casing alone cannot tell that "Api" should be "API". These are the
+      initialisms the inherited specification got wrong.
+    message: "tag name '{{value}}' contains a lowercased initialism"
+    severity: error
+    given: $.tags[*].name
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "\\b(Api|Mcp|Ocr|Sdk|Url|Uri|Http|Https|Json|Yaml|Ai|Llm|Id)\\b"
+
+  airs-tag-no-camel-case:
+    description: >-
+      Compound tag names are separated by spaces, not run together.
+      "PromptPartials" is "Prompt Partials".
+    message: "tag name '{{value}}' runs words together; separate them with a space"
+    severity: error
+    given: $.tags[*].name
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "[a-z][A-Z]"
+
+  # --- inherited debt, held at its current count by the baseline ---------
+  # Left at real severity on purpose. Silencing them would lose the signal that
+  # these are defects someone should eventually fix.
+  operation-operationId: warn

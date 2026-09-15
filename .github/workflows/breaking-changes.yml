@@ -1,0 +1,90 @@
+name: Breaking changes
+
+# Grades pull requests against main with oasdiff and posts the result on the PR.
+#
+# It does not block. A breaking change is sometimes the correct change, and this
+# repository is not the place to decide that -- the same reason the drift check
+# opens an issue instead of resolving anything. What it does is make the grading
+# impossible to miss at review time, and put it in the KB notification.
+
+on:
+  pull_request:
+    paths:
+      - 'openapi.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  oasdiff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install oasdiff
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/oasdiff/oasdiff/main/install.sh | sh
+          oasdiff --version
+
+      - name: Extract the base revision of the specification
+        run: |
+          git show "origin/${{ github.base_ref }}:openapi.yaml" > /tmp/base.yaml
+
+      - name: Changelog
+        run: |
+          oasdiff changelog /tmp/base.yaml openapi.yaml -f githubactions
+          oasdiff changelog /tmp/base.yaml openapi.yaml -f text > /tmp/changelog.txt || true
+
+      - name: Breaking changes
+        id: breaking
+        run: |
+          # oasdiff exits non-zero when it finds something; that is the result,
+          # not a failure of the step.
+          oasdiff breaking /tmp/base.yaml openapi.yaml -f text > /tmp/breaking.txt || true
+          count=$(oasdiff breaking /tmp/base.yaml openapi.yaml -f json \
+                  | python3 -c 'import json,sys; print(len(json.load(sys.stdin) or []))')
+          echo "count=$count" >> $GITHUB_OUTPUT
+          echo "found $count breaking change(s)"
+
+      - name: Summarise
+        run: |
+          {
+            echo "### oasdiff"
+            echo
+            echo "**${{ steps.breaking.outputs.count }} breaking change(s)**"
+            echo
+            echo '```'
+            cat /tmp/breaking.txt
+            echo '```'
+            echo
+            echo "<details><summary>Full changelog</summary>"
+            echo
+            echo '```'
+            cat /tmp/changelog.txt
+            echo '```'
+            echo
+            echo "</details>"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on the pull request
+        if: ${{ steps.breaking.outputs.count != '0' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "### :warning: ${{ steps.breaking.outputs.count }} breaking change(s) in \`openapi.yaml\`"
+            echo
+            echo '```'
+            cat /tmp/breaking.txt
+            echo '```'
+            echo
+            echo "This does not block the merge. A breaking change is sometimes the"
+            echo "correct change. It does mean any KB claim describing these"
+            echo "operations should be reviewed, and the \`spec.changed\` webhook will"
+            echo "carry the grading to the KB on merge."
+          } > /tmp/comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/comment.md

@@ -20,6 +20,11 @@
         "previous_commit": { "type": ["string", "null"] }
       }
     },
+    "breaking_change_count": {
+      "description": "Total breaking changes across all operations, as graded by oasdiff.",
+      "type": "integer",
+      "minimum": 0
+    },
     "operations": {
       "type": "array",
       "items": {
@@ -33,6 +38,28 @@
           "change": {
             "description": "structure_changed is the case the KB most needs: the shape moved, so any claim describing its behaviour may now be stale.",
             "enum": ["added", "removed", "structure_changed", "prose_changed", "provenance_changed"]
+          },
+          "breaking": {
+            "description": "True when oasdiff graded any change to this operation as breaking. This is the signal the KB should act on: a claim describing this operation's behaviour is likely now false.",
+            "type": "boolean"
+          },
+          "breaking_changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "description": "oasdiff rule identifier, e.g. new-required-request-parameter.",
+                  "type": ["string", "null"]
+                },
+                "text": { "type": ["string", "null"] },
+                "level": {
+                  "description": "oasdiff severity: 3 error, 2 warning, 1 info.",
+                  "type": ["integer", "null"]
+                }
+              }
+            }
           },
           "claims": {
             "description": "Claims cited by this operation. Empty means the operation is not yet grounded and the KB cannot tell that it drifted.",

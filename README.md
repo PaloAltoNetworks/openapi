@@ -26,6 +26,8 @@ plausible, wrong description is invisible and survives review.
 | `tags-map.yaml` | Docs | Tag information architecture and rename mapping | IA review |
 | `docs-navigation.json` | Docs | Generated `docs.json` navigation fragment | — |
 | `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
+| `.spectral.yaml` | Both | Lint rules, including the grounding gate | — |
+| `.spectral-baseline.json` | — | Inherited defect counts. May shrink, never grow | — |
 | `PROSE-INVENTORY.csv` | — | Every stripped prose field: location, size, digest | Worklist |
 | `build-report.txt` | — | Generation counts and inherited defects | — |
 
@@ -94,6 +96,43 @@ violated:
 - **the grounding gate**: any overlay action that writes prose must carry a
   non-empty `claims` list, and its `text_digest` must match the prose it ships
 
+### Linting
+
+```bash
+scripts/lint.py              # check against the baseline
+scripts/lint.py --update     # re-record it, then review the diff
+```
+
+`.spectral.yaml` is unusual in two ways, both following from the grounding model
+rather than from taste.
+
+**The stock OpenAPI style guide is inverted.** It wants a description on
+everything; `operation-description`, `info-description` and `info-contact` are
+turned off and replaced by `airs-no-prose-in-spec`, which asserts the opposite.
+Custom rules also enforce the provenance block and the tag naming conventions.
+Each was confirmed to fire before being relied on.
+
+**Inherited defects are baselined, not silenced.** They keep their real
+severity; `.spectral-baseline.json` holds them at their current count. Debt can
+shrink, never grow. What is in there today:
+
+| Count | Rule | What it is |
+|---|---|---|
+| 84 | `operation-operationId` | The known gap |
+| 77 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
+| 26 | `oas3-unused-component` | Schemas nothing references |
+| 4 | `array-items` | Arrays with no `items` |
+| 1 | `duplicated-entry-in-enum` | — |
+| 1 | `operation-success-response` | `GET /realtime` declares no 2xx |
+
+The 16 `nullable`-beside-`$ref` cases are the interesting ones: the author meant
+nullable and OpenAPI 3.0 drops it. Fixing that means restructuring into `allOf`,
+which asserts a behaviour, so it is engineering's call and not done here.
+
+For reference, the base specification scored 549 findings to this repository's
+193 — including 144 examples that failed to validate against their own schemas,
+which is independent support for not inheriting examples.
+
 ### Writing a description
 
 Only with an accepted claim. In `overlays/docs-prose.yaml`:
@@ -144,6 +183,13 @@ Bidirectional and webhook-driven. Polling is the backstop, not the mechanism.
 `scripts/emit_change_event.py` classifies what moved. The distinction that
 matters to the KB is `structure_changed` versus `prose_changed`: the shape
 moving may invalidate a claim, docs moving usually does not.
+
+It also grades the diff with **oasdiff**, so the payload carries a reason rather
+than a boolean — `new-required-request-parameter` and
+`api-path-removed-without-deprecation` tell the KB far more than "structure
+changed". `breaking-changes.yml` runs the same grading on pull requests and
+comments the result. Neither blocks: a breaking change is sometimes the correct
+change, and this repository is not where that is decided.
 
 ```bash
 scripts/emit_change_event.py --base HEAD~1 --head HEAD -o build/event.json
@@ -221,7 +267,9 @@ archive to restore from.
   response — and that verification has not been done.
 - **84 operations have no `operationId`** (listed in `build-report.txt`). An
   inherited gap. Inventing identifiers is not the same as recovering them, so
-  they are reported for engineering rather than filled in.
+  they are reported for engineering rather than filled in. This also blocks SDK
+  generation: Stainless, Speakeasy and Fern all derive method names from it.
+- **193 lint findings are baselined**, all inherited. See the linting section.
 - **`info.contact`, `license` and `termsOfService` were dropped.** The base
   pointed all three at Portkey resources.
 - **JSON Schema constraints were retained.** `default`, `maximum`, `minLength`
