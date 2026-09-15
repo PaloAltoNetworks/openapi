@@ -12,7 +12,7 @@ to this repository exactly as it applies to a hand-written page: every
 substantive assertion needs accepted KB support.
 
 This repository was **not** produced by forking and rebranding. Structure was
-carried over mechanically and verifiably; all 4,075 natural-language fields were
+carried over mechanically and verifiably; all 4,221 natural-language fields were
 stripped. Where the KB does not yet support a description, it is empty. An empty
 description renders as a visible gap and shows up in coverage. A confident,
 plausible, wrong description is invisible and survives review.
@@ -23,29 +23,46 @@ plausible, wrong description is invisible and survives review.
 |---|---|---|---|
 | `openapi.yaml` | Engineering | Paths, schemas, types, `required`, enums, security | API review |
 | `overlays/docs-prose.yaml` | Docs | `summary`, `description`, examples, tag prose | **Grounding gate** |
-| `tags-map.yaml` | Docs | Tag information architecture and rename mapping | IA review |
+| `tags-map.yaml` | Docs | Tag information architecture and naming | IA review |
 | `docs-navigation.json` | Docs | Generated `docs.json` navigation fragment | — |
+| `_project/servers.yaml` | Engineering | **The base URLs.** One place, both planes | API review |
+| `_project/planes.yaml` | Engineering | Which plane each path is on | API review |
+| `_project/drops.yaml` | Product | What is deliberately not shipped, by tag | Product |
 | `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
 | `.spectral.yaml` | Both | Lint rules, including the grounding gate | — |
 | `.spectral-baseline.json` | — | Inherited defect counts. May shrink, never grow | — |
 | `PROSE-INVENTORY.csv` | — | Every stripped prose field: location, size, digest | Worklist |
-| `build-report.txt` | — | Generation counts and inherited defects | — |
+| `build-report.txt` | — | Counts, and the gaps that want engineering | — |
 
 The split is the point. Engineering ships structural changes without touching a
 grounded assertion, and the grounding gate applies to a file that is small and
 entirely prose. Retrofitting this means unpicking prose from a specification
 that has already merged them, so it is here from the first commit.
 
+The four files under `_project/` are the same idea applied to structure. Each
+holds a decision that would otherwise be spread across the document — sixty-odd
+`servers` blocks, eleven tag groups' worth of operations — where it can be read,
+reviewed and changed in one place. `scripts/build.py` applies them back onto
+`openapi.yaml` and CI fails if the document and the decisions disagree.
+
 ## What is in it
 
 | | |
 |---|---|
 | OpenAPI | 3.0.0 |
-| Paths / operations | 151 / 242 |
-| Schemas | 535 |
-| Tags | 52, across 6 navigation groups |
-| Prose fields stripped | 4,075 |
+| Paths / operations | 118 / 181 |
+| Components | 475, of which 437 schemas |
+| Tags | 41, across 6 navigation groups |
+| Servers | 2 hosts — gateway and control plane |
+| Security | 1 scheme: `Authorization: Bearer` |
+| Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
+
+Eleven capability groups the base carried are **not shipped** — Audit Logs,
+Collections, Deployments, Labels, Log Exports, Prompts, Prompt Partials, User
+Invites, Users, Virtual Keys and Workspaces > Members. That is 61 operations and
+33 paths, declared by tag in `_project/drops.yaml` and enforced on every build:
+if one reappears, the build fails rather than quietly republishing it.
 
 ## How the docs consume it
 
@@ -79,22 +96,46 @@ Tag structure in the spec becomes navigation structure — which is why
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 
-.venv/bin/python scripts/check.py                    # what CI runs
-./scripts/fetch-base.sh && .venv/bin/python scripts/build.py   # regenerate
+.venv/bin/python scripts/check.py           # what CI runs
+.venv/bin/python scripts/build.py           # reapply _project/ and regenerate
+.venv/bin/python scripts/build.py --check   # fail instead of writing; also CI
 .venv/bin/python scripts/apply_overlay.py openapi.yaml overlays/*.yaml -o build/resolved.yaml
 ```
+
+`scripts/build.py` is idempotent and reads `openapi.yaml` as its own input. Run
+it after editing anything under `_project/` or `tags-map.yaml`: it rewrites the
+`servers` blocks, the security scheme and the ordered `tags` list from those
+files, regenerates `docs-navigation.json` and `build-report.txt`, and tops
+`overlays/docs-prose.yaml` up with empty stubs for anything new. It is
+**add-only against the overlay** — it never overwrites or deletes an action,
+because everything in there is prose that passed the grounding gate.
 
 `scripts/check.py` enforces, and each of these has been confirmed to fail when
 violated:
 
 - `openapi.yaml` is a valid OpenAPI document
-- **no non-empty `description` or `summary` in `openapi.yaml`** — prose belongs
-  in the overlay, where it gets reviewed
+- **no non-empty `description`, `summary` or code sample in `openapi.yaml`** —
+  prose belongs in the overlay, where it gets reviewed
 - every tag used is declared and present in `tags-map.yaml`
 - every operation carries an `x-airs-provenance` block
+- **one security scheme**, declared once at the root, with no operation-level
+  override
+- **every base URL comes from `_project/servers.yaml`** — every block, not just
+  the root, and every URL has to still be a URL
 - every overlay target resolves, and the overlaid result still validates
 - **the grounding gate**: any overlay action that writes prose must carry a
   non-empty `claims` list, and its `text_digest` must match the prose it ships
+
+`scripts/build.py` additionally refuses to run if a path is missing from
+`_project/planes.yaml`, if an operation carries a tag `tags-map.yaml` does not
+know, or if anything declared in `_project/drops.yaml` has come back.
+
+A code sample counts as prose here, which is not obvious. A sample asserts a
+base URL, an auth header and a set of fields worth sending — none of it checked
+by a validator — and Mintlify renders a supplied sample *instead of* the one it
+would generate. The 106 the base carried therefore silently overrode both the
+base URL and the auth scheme, telling readers to call `api.portkey.ai` with
+headers this API does not read. They are stripped, and CI fails if one returns.
 
 ### Linting
 
@@ -118,20 +159,22 @@ shrink, never grow. What is in there today:
 
 | Count | Rule | What it is |
 |---|---|---|
-| 84 | `operation-operationId` | The known gap |
-| 77 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
-| 26 | `oas3-unused-component` | Schemas nothing references |
+| 65 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
+| 53 | `operation-operationId` | The known gap |
 | 4 | `array-items` | Arrays with no `items` |
-| 1 | `duplicated-entry-in-enum` | — |
 | 1 | `operation-success-response` | `GET /realtime` declares no 2xx |
 
-The 16 `nullable`-beside-`$ref` cases are the interesting ones: the author meant
+123 findings across 4 rules, down from 193 across 6 before the Phase 1 drops.
+`oas3-unused-component` went from 26 to **0**: the drop pruned every component
+nothing reaches, including 52 the base was already carrying unreferenced.
+
+The `nullable`-beside-`$ref` cases are the interesting ones: the author meant
 nullable and OpenAPI 3.0 drops it. Fixing that means restructuring into `allOf`,
 which asserts a behaviour, so it is engineering's call and not done here.
 
-For reference, the base specification scored 549 findings to this repository's
-193 — including 144 examples that failed to validate against their own schemas,
-which is independent support for not inheriting examples.
+For reference, the base specification scored 549 findings — including 144
+examples that failed to validate against their own schemas, which is
+independent support for not inheriting examples.
 
 ### Writing a description
 
@@ -161,7 +204,7 @@ domain and not subordinate to the KB (recorded exemption, Q6, 2026-09-07). The
 reconciliation loop is therefore three-node — KB ↔ spec ↔ docs — and drift from
 *either* side is a defect, with no authoritative side to fall back on.
 
-`x-airs-provenance` is scaffolded on all 242 operations with `claims` empty. It
+`x-airs-provenance` is scaffolded on all 181 operations with `claims` empty. It
 is not only "which claim supports this description"; it is the **join key that
 makes drift detectable**. Without a claim reference on an operation, nothing can
 tell that the KB moved and the spec did not.
@@ -260,15 +303,33 @@ produce environment-variant specs or fork descriptions per deployment.
 
 ## Provenance of this repository
 
-Structure derived from `Portkey-AI/openapi` at commit
-`3fa53f23216a2ba6c57e2f9eb538753bf9461f7e` (2026-09-04). The base is not
-committed here — it carries the prose this repository exists in order to not
-inherit, and a copy in the tree is a copy that gets pasted from. Fetch it with
-`scripts/fetch-base.sh`.
+Structure was derived from `Portkey-AI/openapi` at commit
+`3fa53f23216a2ba6c57e2f9eb538753bf9461f7e` (2026-09-04).
+
+**That linkage is closed.** It was a live relationship for the length of Phase 1
+and no longer is: the base is not fetched, not compared against, and not
+committed here. `openapi.yaml` is the source of truth for structure, and Portkey
+is history rather than an upstream.
+
+Closing it was deliberate and deferred until last. While the sweeping changes
+were being made, a fidelity check compared every surviving operation against the
+base — that is what proved the drops *removed* 61 operations and *reshaped*
+none, which is the one thing that could not be established any other way. Once
+that was established the check had nothing left to say, and keeping it would
+have meant treating every future intentional change as drift from a
+specification for a different product.
+
+What replaces it is `scripts/build.py --check`, which asks a narrower question
+about files that still decide things: does `openapi.yaml` agree with
+`_project/servers.yaml`, `_project/planes.yaml`, `_project/drops.yaml` and
+`tags-map.yaml`? The base is gone; the decisions taken against it are still
+enforced.
 
 `PROSE-INVENTORY.csv` records every stripped field by JSON pointer, length and
 SHA-256 digest — never the text. It is a worklist for re-grounding, not an
-archive to restore from.
+archive to restore from. It is now **frozen**: it could only ever be derived by
+diffing against the base, so it describes the strip as it happened and does not
+regenerate.
 
 ## Known gaps
 
@@ -279,11 +340,36 @@ archive to restore from.
   reachable from this workspace. The left-hand column of the inherit/re-ground
   split is *machine-verifiable in principle* — send a request, compare the
   response — and that verification has not been done.
-- **84 operations have no `operationId`** (listed in `build-report.txt`). An
+- **53 operations have no `operationId`** (listed in `build-report.txt`). An
   inherited gap. Inventing identifiers is not the same as recovering them, so
   they are reported for engineering rather than filled in. This also blocks SDK
   generation: Stainless, Speakeasy and Fern all derive method names from it.
-- **193 lint findings are baselined**, all inherited. See the linting section.
+- **No code samples.** Mintlify generates one per operation from the schema, and
+  it dumps every property: `POST /chat/completions` renders all 24, `seed` and
+  `logit_bias` included, because Mintlify does not use `required` to trim the
+  example. Hand-written cURL samples for all 181 operations are Phase 2 work.
+  Until then the generated sample is correct but verbose. cURL only is the
+  intended end state — a single `x-codeSamples` entry suppresses the other
+  language tabs, and other languages are a separate decision.
+- **`required` is unfilled on five request bodies** — `POST /configs`,
+  `POST /admin/workspaces`, and the `PUT`s for configs, providers and
+  workspaces. `required` is a claim about the API contract and nothing here
+  establishes it; getting it wrong means a reader omits a field the API rejects.
+  For the three `PUT`s, requiring nothing may already be correct, since a
+  partial update where every field is optional is a normal design. Wants
+  engineering.
+- **123 lint findings are baselined**, all inherited. See the linting section.
+- **One operation is documented as needing no credentials** —
+  `GET /model-configs/pricing/{provider}/{model}`, which the base declared with
+  `security: []`. Preserved rather than quietly reversed: making it require auth
+  is as much an unverified claim as leaving it public. `scripts/check.py` prints
+  it on every run. Wants engineering.
+- **The plane split is 23 decided and 95 inherited.** `_project/planes.yaml`
+  decides which of the two base URLs each path gets, and for 95 paths that call
+  was read off the base's own per-path server overrides and never independently
+  verified. It is recorded per path as `inherited` versus `classification.yaml`,
+  and `_project/drop-list.md` marks the difference. Getting one wrong publishes
+  a working endpoint against the wrong host.
 - **`info.contact`, `license` and `termsOfService` were dropped.** The base
   pointed all three at Portkey resources.
 - **JSON Schema constraints were retained.** `default`, `maximum`, `minLength`
@@ -294,5 +380,14 @@ archive to restore from.
   made the base specification fail validation.
 - **`x-mint.mcp` is enabled globally**, mirroring the base. Every operation is
   agent-callable, including control-plane mutations such as
-  `DELETE /virtual-keys/{slug}`. This was a deliberate product choice; narrowing
-  it means per-operation `x-mint.mcp` blocks.
+  `DELETE /guardrails/{guardrailId}`. This was a deliberate product choice;
+  narrowing it means per-operation `x-mint.mcp` blocks.
+- **Self-hosting is not offered as a substitutable base URL.** Server variables
+  were built first — a `{host}` variable with a default is exactly the mechanism
+  OpenAPI provides — and reverted, because Mintlify cannot resolve them: with a
+  templated `url` it renders *"A valid request URL is required to generate
+  request examples"* and emits no sample at all, on any operation. Verified
+  locally against `mint 4.2.893`. Little was lost; the base "offered"
+  self-hosting as the literal string `SELF_HOSTED_GATEWAY_URL`, which was never
+  a working address. Where to point a self-hosted deployment is documentation
+  and belongs in prose.

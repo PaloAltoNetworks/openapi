@@ -3,11 +3,15 @@
 Phase-based task list. Rationale and findings live in `PLAN.md`; this is the
 checklist. Strike through as they land.
 
-Every task ends green — `check.py`, `check_shape.py` and `lint.py` passing — so
-work can stop at any line.
+Every task ends green — `build.py --check`, `check.py` and `lint.py` passing —
+so work can stop at any line. Through tasks 1–6 that list also included
+`check_shape.py`, the comparison against the inherited base; task 7 retired it.
 
 All four questions answered, 2026-09-15. Control-plane base URL confirmed the
-same day. **Nothing is blocked.**
+same day.
+
+**Phase 1 is complete**, with tasks 4 and 5 moved to Phase 2 by decision rather
+than left undone. Nothing is blocked.
 
 ---
 
@@ -95,7 +99,7 @@ Two things to know:
   unverified claim as leaving it public. `check.py` prints it on every run.
   **Worth confirming with engineering.**
 
-### 4. Request bodies that can generate a minimal sample — **needs a decision**
+### 4. Request bodies that can generate a minimal sample — **moved to Phase 2**
 - [x] ~~Re-count after the drops~~ — **5, not 13.** The other 8 were inside dropped groups
 - [ ] Fill in `required` — **not done, deliberately. See below.**
 
@@ -120,17 +124,25 @@ For the three `PUT`s, declaring nothing required may well be correct already:
 a partial update where every field is optional is a normal design. So this may
 be two fields to confirm, not five bodies to fill in.
 
-**Needs one of:** engineering confirming the five, or a decision to ship them as
-they are and let the code samples for those five show an empty body.
+**Moved to Phase 2, 2026-09-15.** This task only existed to make a minimal
+generated sample possible, and the task 5 experiment showed Mintlify ignores
+`required` when generating one — so it cannot deliver what it was for, and it
+follows the code samples rather than standing ahead of them. It is still worth
+doing on its own merits, as a contract question: **engineering confirming the
+five**, or a decision to ship them as they are.
 
-### 5. cURL code samples — **experiment done, approach needs a decision**
+### 5. cURL code samples — **experiment done, authoring moved to Phase 2**
 - [x] ~~Run the Mintlify experiment~~ — local `mint 4.2.893`, real spec, 2026-09-15
 - [x] **Found and fixed a live bug** — see below
 - [x] Answer: **it dumps all 24 properties and ignores `required`**
-- [ ] Pick the approach — needs a decision
+- [x] ~~State the gap in the README so it does not read as an omission~~ — done, "Known gaps"
+- [ ] **Phase 2:** hand-write `x-codeSamples` for all 181 operations
 - [ ] cURL only; single entry suppresses the other language tabs
 - [ ] Samples live in `overlays/docs-prose.yaml` with `x-airs-provenance`
-- [ ] State the cURL-only decision in the README so it does not read as an omission
+
+**Decided 2026-09-15: option A, all 181, in Phase 2.** Not the curated set —
+a reader landing on a long-tail endpoint gets the 24-property dump, and "the
+endpoints that matter read well" is a judgement that ages badly.
 
 **The bug.** 106 operations still carried the base's `x-code-samples`.
 `DROP_ROOT_KEYS` only popped the root key, so the per-operation ones survived
@@ -163,22 +175,50 @@ C looks right, but which operations are in the curated set is your call.
 ### 6. ~~Version and provenance~~ — done 2026-09-15
 - [x] ~~`info.version` → `3.0.0`~~ — pinned in `build.py`, no longer inherited from the base
 
-### 7. Cut the cord from the base — last task of Phase 1 (Q-C)
-- [ ] Keep `check_shape.py` working through tasks 1–6; it is what proves the drops removed and never reshaped
-- [ ] Only then: delete `.source/`, `scripts/check_shape.py`, `scripts/fetch-base.sh`, `_project/base-delta.yaml`
-- [ ] Drop the "Fidelity to the base" CI job
-- [ ] README: Portkey becomes a historical note, not a live relationship
+### 7. ~~Cut the cord from the base~~ — done 2026-09-15 (Q-C)
+- [x] ~~Keep `check_shape.py` working through tasks 1–6~~ — final run: 181/181 operations and 474/474 components identical, 0 reshaped
+- [x] ~~Delete `.source/`, `scripts/check_shape.py`, `scripts/fetch-base.sh`, `_project/base-delta.yaml`~~
+- [x] ~~Drop the "Fidelity to the base" CI job~~ — replaced by `build.py --check`
+- [x] ~~README: Portkey becomes a historical note~~
 
-### 8. Catch-up
-- [ ] README: layout, counts, naming, known gaps
-- [ ] `build-report.txt` and `PROSE-INVENTORY.csv` regenerate
-- [ ] Final full run of all checks
+**`build.py` was inverted, not deleted.** It generated `openapi.yaml` *from* the
+base; with the base gone it would have been a script that cannot run, which four
+others import from. It now reads `openapi.yaml`, reapplies what lives in
+`_project/` and `tags-map.yaml`, and writes it back. Idempotent: the rebuild
+produced a byte-identical document, so the whole rewrite diffs as three lines of
+header comment.
+
+Five one-shot steps became checks, each negative-tested and confirmed to fire:
+the prose strip (`check.py`), the tag rename and the 61 drops (`build.py`), the
+prose inventory (frozen), and the overlay (add-only, so a rebuild cannot delete
+grounded prose). Full reasoning in `PLAN.md`, "Phase 1 close-out".
+
+Two things found while doing it:
+- **`gen_drop_list.py` had quietly broken.** It classified paths from the
+  `SELF_HOSTED_*_URL` placeholders task 2 deleted, so it had gone from 23
+  unclassified paths to 95 without failing. Repointed at `planes.yaml`, which is
+  what the build reads, so the inventory cannot drift from the document.
+- **`tags-map.yaml` lost 13 entries** — the 11 dropped groups, plus `Analytics`
+  and `Prompt Collections`, which no operation ever used.
+
+### 8. ~~Catch-up~~ — done 2026-09-15
+- [x] ~~README: layout, counts, naming, known gaps~~ — counts were stale throughout (151/242, 535 schemas, 52 tags, 4,075 prose fields, 193 findings)
+- [x] ~~`build-report.txt` regenerates~~ — now derived from `openapi.yaml`, reporting what wants engineering rather than what the build removed
+- [x] ~~`PROSE-INVENTORY.csv`~~ — **frozen, not regenerated.** It could only ever be derived by diffing the base. Recorded as such in the README
+- [x] ~~Final full run of all checks~~ — `build --check`, `check.py`, `lint.py` all green
+
+Five known gaps added to the README that were not written down anywhere a reader
+would find them: no code samples, the five unfilled `required` bodies, the
+unauthenticated pricing endpoint, the 95 inherited plane classifications, and
+why self-hosting is not a substitutable base URL.
 
 ---
 
 ## Phase 2 — deferred, agreed
 
-- [ ] `operationId` on every operation that lacks one (re-count after Phase 1; 84 today, many are in the dropped groups)
+- [ ] `operationId` on the **53** operations that lack one — first, because SDK generation depends on it and nothing else does
+- [ ] cURL `x-codeSamples` for all 181 operations (task 5)
+- [ ] `required` on the five request bodies (task 4) — a contract question for engineering
 - [ ] Descriptions, once KB access lands — the grounding gate is already built and empty by design
 - [ ] Code samples in languages beyond cURL
 - [ ] Decide the JSON Schema constraint question: `default`, `maximum`, `minLength` are inherited unverified

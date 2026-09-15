@@ -1,43 +1,61 @@
 #!/usr/bin/env python3
-"""Generate the Prisma AIRS specification from an inherited base specification.
+"""Reapply this repository's decisions to openapi.yaml, and regenerate what is
+derived from it.
 
     Inherit the shape. Re-ground the prose.
 
-Structure is carried over. Every natural-language field is stripped and
-replaced with an empty stub in overlays/docs-prose.yaml, to be filled in only
-once an accepted KB claim supports it. An empty description renders as a
-visible gap; a plausible invented one does not.
+openapi.yaml was originally generated from an inherited base specification.
+That linkage is over: the base is no longer fetched, no longer compared
+against, and openapi.yaml is now the source of truth for structure. What
+remains is the set of decisions that are held in small files rather than in the
+document -- the base URLs in _project/servers.yaml, the one security scheme,
+the tag information architecture in tags-map.yaml, the operations declared
+undropped in _project/drops.yaml.
+
+So this script reads openapi.yaml, applies those decisions to it, and writes it
+back. It is idempotent: running it on an unchanged repository changes nothing.
+That is what keeps "the one place to change a base URL is _project/servers.yaml"
+true -- edit a host there, rebuild, and all 67 blocks follow.
+
+What it does NOT do is author. It never writes a description, and it never
+overwrites one: overlays/docs-prose.yaml is topped up with empty stubs for
+operations that lack them and is otherwise left alone.
 
 Usage:
-    scripts/build.py --base .source/portkey-openapi.yaml
+    scripts/build.py
+    scripts/build.py --check      # fail if anything would change
 """
 
 from __future__ import annotations
 
 import argparse
 import copy
-import csv
-import hashlib
+import json
 import sys
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+SPEC = ROOT / "openapi.yaml"
 
-# Natural-language fields. Removed from openapi.yaml at every level.
+# Natural-language fields. These belong in overlays/docs-prose.yaml, never here.
 #
-# Code samples are in here because a code sample is prose. It asserts a base
+# Code samples are in this set because a code sample is prose. It asserts a base
 # URL, an auth header, a content type and a set of fields worth sending -- all
-# claims, none of them checkable by a schema validator. The base carries 106 of
+# claims, none of them checkable by a schema validator. The base carried 106 of
 # them on operations, hardcoding api.portkey.ai and the x-portkey-api-key and
 # x-portkey-virtual-key headers. Mintlify renders a supplied sample *instead of*
-# the one it would generate, so leaving these in place silently overrode both
+# the one it would generate, so leaving those in place silently overrode both
 # the base URL change and the auth change: the reader would have been told to
 # call the old host with headers this API does not read.
 #
-# Both spellings. The base uses x-code-samples; Mintlify reads x-codeSamples.
-# Stripping only the one that is present today is how the other comes back.
+# Both spellings. The base used x-code-samples; Mintlify reads x-codeSamples.
+# Guarding only the one that was present is how the other comes back.
+#
+# The list is kept here rather than in check.py because check.py imports it: the
+# strip that produced openapi.yaml and the check that keeps it clean have to
+# agree on what counts as prose, and two copies of that list would not.
 PROSE_KEYS = {"description", "summary", "example", "examples", "externalDocs",
               "x-code-samples", "x-codeSamples"}
 
@@ -68,75 +86,23 @@ OPAQUE_KEYS = {"default", "enum", "const", "mapping", "scopes"}
 HTTP_METHODS = {"get", "put", "post", "delete", "options", "head", "patch", "trace"}
 
 
-def digest(text: str) -> str:
-    return "sha256-" + hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
-class Stripper:
-    """Removes prose while recording where every removal happened.
-
-    The record is a worklist, not an archive. It stores the JSON pointer and a
-    digest of what was there, never the text itself -- keeping the inherited
-    prose around invites it being pasted back in unreviewed.
-    """
-
-    def __init__(self) -> None:
-        self.removed: list[dict[str, str]] = []
-
-    def record(self, pointer: str, key: str, value) -> None:
-        text = value if isinstance(value, str) else yaml.safe_dump(value, sort_keys=False)
-        self.removed.append(
-            {
-                "pointer": pointer,
-                "field": key,
-                "chars": str(len(text)),
-                "text_digest": digest(text),
-            }
-        )
-
-    def walk(self, node, pointer: str = "", keywords: bool = True, is_response: bool = False):
-        if isinstance(node, list):
-            return [self.walk(v, f"{pointer}/{i}", True) for i, v in enumerate(node)]
-
-        if not isinstance(node, dict):
-            return node
-
-        # A name map's keys are identifiers. Do not read them as keywords, but
-        # each value below them is a keyword object again.
-        if not keywords:
-            return {
-                k: self.walk(v, f"{pointer}/{esc(k)}", True, is_response)
-                for k, v in node.items()
-            }
-
-        out = {}
-        for key, value in node.items():
-            child = f"{pointer}/{esc(key)}"
-            if key in PROSE_KEYS:
-                self.record(child, key, value)
-                # OpenAPI 3.0 makes description required on a Response Object,
-                # so there it is emptied rather than removed. Same visible gap,
-                # still a valid document.
-                if key == "description" and is_response:
-                    out[key] = ""
-                continue
-            if key in OPAQUE_KEYS:
-                out[key] = value
-                continue
-            out[key] = self.walk(
-                value, child, key not in NAME_MAPS, is_response=(key == "responses")
-            )
-        return out
+def esc(token: str) -> str:
+    """RFC 6901 JSON pointer escaping."""
+    return token.replace("~", "~0").replace("/", "~1")
 
 
 def drop_null_defaults(node, pointer: str = "", found: list | None = None) -> list[str]:
     """Remove `default: null`, which is invalid in OpenAPI 3.0 without
     `nullable: true`.
 
-    The base specification carries nine of these and does not validate because
+    The base specification carried nine of these and did not validate because
     of them. Adding `nullable: true` would assert a behaviour nothing here
     supports; removing the default asserts nothing. A default is a stated
     behaviour, so removing an unverifiable one is the conservative direction.
+
+    Kept as an applier rather than a check because it costs nothing and the
+    failure it prevents -- a document that does not validate -- is one a
+    contributor would otherwise hit after the fact.
     """
     found = [] if found is None else found
     if isinstance(node, dict):
@@ -151,16 +117,11 @@ def drop_null_defaults(node, pointer: str = "", found: list | None = None) -> li
     return found
 
 
-def esc(token: str) -> str:
-    """RFC 6901 JSON pointer escaping."""
-    return token.replace("~", "~0").replace("/", "~1")
-
-
 def load_tag_map(path: Path):
     doc = yaml.safe_load(path.read_text())
-    rename = {entry["from"]: entry["to"] for entry in doc["tags"]}
+    names = {entry["to"] for entry in doc["tags"]}
     group_of = {entry["to"]: entry["group"] for entry in doc["tags"]}
-    return doc, rename, group_of
+    return doc, names, group_of
 
 
 def load_drops(path: Path):
@@ -173,52 +134,26 @@ def load_drops(path: Path):
     return tags, ops
 
 
-def apply_drops(spec, drop_tags: set[str], drop_ops: set[str], known_tags: set[str]):
-    """Remove dropped operations, and any path left with none.
+def check_drops(spec, drop_tags: set[str], drop_ops: set[str]) -> None:
+    """Nothing declared dropped has come back.
 
-    Runs after the tag rename, so the names here are this specification's, not
-    the base's -- which is what a reader of drop-list.md decided on.
+    While the base was still being rebuilt from, this was an applier: it deleted
+    the 61 operations. Now that openapi.yaml is the source, the same file has to
+    work the other way round -- as the guard that stops one of them reappearing
+    because somebody pasted an endpoint back in or re-imported from upstream.
 
-    A tag or an operation id that matches nothing is an error. The usual cause
-    is a rename upstream, and a drop rule that has quietly stopped applying
-    puts an endpoint back in public documentation without anyone deciding to.
+    Declining to drop something is a decision; it just has to be made in
+    drops.yaml rather than by an edit nobody reviewed.
     """
-    unknown = sorted(drop_tags - known_tags)
-    if unknown:
-        raise SystemExit(f"drops.yaml names tags absent from tags-map.yaml: {unknown}")
-
-    dropped_ops: list[str] = []
-    dropped_paths: list[str] = []
-    matched_tags: set[str] = set()
-    matched_ops: set[str] = set()
-
-    for path, item in list(spec.get("paths", {}).items()):
-        if not isinstance(item, dict):
-            continue
-        for method in [m for m in item if m in HTTP_METHODS]:
-            op = item[method]
-            if not isinstance(op, dict):
-                continue
-            hit = drop_tags.intersection(op.get("tags") or [])
-            key = f"{method} {path}"
-            if not hit and key not in drop_ops:
-                continue
-            matched_tags |= hit
-            if key in drop_ops:
-                matched_ops.add(key)
-            del item[method]
-            dropped_ops.append(f"{method.upper()} {path}")
-        if not any(m in HTTP_METHODS for m in item):
-            # Nothing callable left. A path item holding only `parameters` is
-            # not a resource, it is a leftover.
-            del spec["paths"][path]
-            dropped_paths.append(path)
-
-    stale = sorted((drop_tags - matched_tags) | (drop_ops - matched_ops))
-    if stale:
-        raise SystemExit(f"drops.yaml entries match no operation: {stale}")
-
-    return sorted(dropped_paths), sorted(dropped_ops)
+    back: list[str] = []
+    for path, method, op in operations(spec):
+        key = f"{method} {path}"
+        if drop_tags.intersection(op.get("tags") or []) or key in drop_ops:
+            back.append(f"{method.upper()} {path}")
+    if back:
+        raise SystemExit(
+            f"_project/drops.yaml declares these not shipped, but they are in "
+            f"openapi.yaml: {sorted(back)}")
 
 
 # The only way to authenticate. The base offered six schemes in five
@@ -234,8 +169,8 @@ SECURITY_SCHEME_NAME = "Authorization"
 SECURITY_SCHEME = {"type": "http", "scheme": "bearer"}
 
 
-def apply_security(spec) -> tuple[int, int, list[str]]:
-    """Collapse six security schemes in five combinations down to one.
+def apply_security(spec) -> tuple[int, list[str]]:
+    """One scheme, one requirement, declared once at the root.
 
     Operation-level `security` is removed so the root requirement applies
     everywhere -- with a single scheme there is nothing left for an override to
@@ -244,7 +179,6 @@ def apply_security(spec) -> tuple[int, int, list[str]]:
     authentication at all. That is a claim about the API, inherited and not
     ours to quietly reverse, so it is preserved and reported.
     """
-    before = set((spec.get("components") or {}).get("securitySchemes") or {})
     spec.setdefault("components", {})["securitySchemes"] = {
         SECURITY_SCHEME_NAME: dict(SECURITY_SCHEME)
     }
@@ -266,20 +200,21 @@ def apply_security(spec) -> tuple[int, int, list[str]]:
             del op["security"]
             removed += 1
 
-    return len(before - {SECURITY_SCHEME_NAME}), removed, sorted(public)
+    return removed, sorted(public)
 
 
-def apply_servers(spec) -> tuple[int, int]:
-    """Replace every inherited `servers` block with the two in servers.yaml.
+def apply_servers(spec) -> int:
+    """Rewrite every `servers` block from _project/servers.yaml.
 
-    The base carried 97 path-level and 2 operation-level overrides, three of
-    which published a bare placeholder string as if it were a URL. Changing the
-    base URL meant editing a hundred places and noticing all of them, which is
-    not a thing anyone does twice.
+    This is the mechanism behind "one place to change the base URL". The base
+    carried 97 path-level and 2 operation-level overrides, three of which
+    published a bare placeholder string as if it were a URL. Changing the base
+    URL meant editing a hundred places and noticing all of them, which is not a
+    thing anyone does twice.
 
-    The gateway becomes the root server, so gateway paths need no override at
-    all. Control-plane paths get one, because OpenAPI gives a path no way to
-    refer back to a server declared once at the root -- the duplication is the
+    The gateway is the root server, so gateway paths need no override at all.
+    Control-plane paths get one, because OpenAPI gives a path no way to refer
+    back to a server declared once at the root -- the duplication is the
     format's, not ours, and it is generated rather than maintained.
     """
     defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
@@ -294,20 +229,20 @@ def apply_servers(spec) -> tuple[int, int]:
         raise SystemExit(
             f"planes.yaml does not classify {len(missing)} path(s): {missing}")
 
-    removed_paths = removed_ops = 0
+    stamped = 0
     for path, item in (spec.get("paths") or {}).items():
         if not isinstance(item, dict):
             continue
-        if item.pop("servers", None) is not None:
-            removed_paths += 1
+        item.pop("servers", None)
         for method in [m for m in item if m in HTTP_METHODS]:
-            if isinstance(item[method], dict) and item[method].pop("servers", None) is not None:
-                removed_ops += 1
+            if isinstance(item[method], dict):
+                item[method].pop("servers", None)
         if path in control:
             item["servers"] = [copy.deepcopy(defs["control-plane"])]
+            stamped += 1
 
     spec["servers"] = [copy.deepcopy(defs["gateway"])]
-    return removed_paths, removed_ops
+    return stamped
 
 
 def refs_in(node, out: set) -> set:
@@ -344,9 +279,8 @@ def prune_components(spec) -> list[str]:
 
     Roots are the whole document apart from `components` itself, so a schema
     survives only if something outside the component pool asks for it, directly
-    or through a chain of $refs. This removes both what the drops orphaned and
-    what the base was already carrying unreferenced -- the two are the same
-    thing and there is no reason to tell them apart.
+    or through a chain of $refs. Reports nothing on a clean tree; it earns its
+    place the next time a group of operations is dropped.
     """
     components = spec.get("components") or {}
     outside = {k: v for k, v in spec.items() if k != "components"}
@@ -390,57 +324,41 @@ def jsonpath_for(path: str, method: str) -> str:
     return f"$.paths['{quoted}'].{method}"
 
 
-def build(base_path: Path) -> int:
-    base = yaml.safe_load(base_path.read_text())
-    tagdoc, rename, group_of = load_tag_map(ROOT / "tags-map.yaml")
-
-    stripper = Stripper()
-    spec = stripper.walk(base)
+def build(dry_run: bool = False) -> int:
+    spec = yaml.safe_load(SPEC.read_text())
+    before = yaml.safe_dump(spec, sort_keys=False, allow_unicode=True, width=100)
+    tagdoc, tag_names, group_of = load_tag_map(ROOT / "tags-map.yaml")
 
     null_defaults = drop_null_defaults(spec)
 
     # --- info -------------------------------------------------------------
-    # Contact, license and terms in the base point at Portkey resources. They
-    # are assertions about this API's governance that nothing here supports,
-    # so they are dropped rather than rewritten to a guessed URL.
-    # 3.0.0, not the base's version. This specification no longer describes the
-    # same API: 61 operations are gone, there is one way to authenticate where
-    # there were five, and the base URLs are different. Carrying the inherited
-    # number forward would say none of that happened.
+    # 3.0.0 is pinned, not inherited. This specification does not describe the
+    # same API the base did: 61 operations are gone, there is one way to
+    # authenticate where there were five, and the base URLs are different.
+    # Contact, license and terms are absent because they are assertions about
+    # this API's governance that nothing here supports.
     spec["info"] = {
         "title": "Prisma AIRS AI Gateway API",
         "version": "3.0.0",
         "description": "",
     }
 
-    # --- tags -------------------------------------------------------------
-    unmapped = set()
-    for _, _, op in operations(spec):
-        renamed = []
-        for tag in op.get("tags", []):
-            if tag not in rename:
-                unmapped.add(tag)
-                renamed.append(tag)
-                continue
-            renamed.append(rename[tag])
-        if renamed:
-            # Merged tags (Fine-tuning + Finetune) can collide; keep order,
-            # drop duplicates.
-            op["tags"] = list(dict.fromkeys(renamed))
-
+    # --- tags ---------------------------------------------------------------
+    # The rename from the base's tag names happened once and is done. What is
+    # left is the invariant: every tag an operation names is one tags-map.yaml
+    # knows about, so it has a navigation group to sit in.
+    unmapped = sorted({t for _, _, op in operations(spec)
+                       for t in op.get("tags") or [] if t not in tag_names})
     if unmapped:
         print(f"error: tags used by operations but absent from tags-map.yaml: "
-              f"{sorted(unmapped)}", file=sys.stderr)
+              f"{unmapped}", file=sys.stderr)
         return 1
 
-    # --- drops --------------------------------------------------------------
-    # After the rename so drops.yaml can name tags as this specification does,
-    # and before `used` is computed so an emptied tag leaves no navigation
-    # entry pointing at nothing.
     drop_tags, drop_ops = load_drops(ROOT / "_project" / "drops.yaml")
-    dropped_paths, dropped_ops = apply_drops(spec, drop_tags, drop_ops, set(rename.values()))
-    dropped_schemes, dropped_security, public_ops = apply_security(spec)
-    server_paths, server_ops = apply_servers(spec)
+    check_drops(spec, drop_tags, drop_ops)
+
+    security_overrides, public_ops = apply_security(spec)
+    control_paths = apply_servers(spec)
     orphaned = prune_components(spec)
 
     used = set()
@@ -453,17 +371,18 @@ def build(base_path: Path) -> int:
     ]
 
     # --- provenance scaffolding -------------------------------------------
-    # Empty now, and deliberately so. Reconstructing which claim supported a
-    # description after the fact is indistinguishable from inventing it, so the
-    # field shape goes in before there is anything to put in it.
+    # Without a claim reference on an operation, nothing can tell that the KB
+    # moved and the specification did not. The scaffold goes in even while the
+    # claims are empty -- but only where it is missing, because an operation
+    # that has been grounded carries a real digest here.
     for _, _, op in operations(spec):
-        op["summary"] = ""
-        op["description"] = ""
-        op["x-airs-provenance"] = {
+        op.setdefault("summary", "")
+        op.setdefault("description", "")
+        op.setdefault("x-airs-provenance", {
             "claims": [],
             "origin_kind": "human",
             "text_digest": "",
-        }
+        })
 
     # --- Mintlify MCP surface ---------------------------------------------
     spec["x-mint"] = {
@@ -476,63 +395,78 @@ def build(base_path: Path) -> int:
 
     spec = reorder(spec)
 
+    body = yaml.safe_dump(spec, sort_keys=False, allow_unicode=True, width=100)
+    changed = body != before
+
+    if dry_run:
+        stubs = overlay_stubs(spec, dry_run=True)
+        if changed or stubs:
+            print("build --check: openapi.yaml or the overlay is not up to date; "
+                  "run scripts/build.py", file=sys.stderr)
+            return 1
+        print("build --check: up to date")
+        return 0
+
     # --- write -------------------------------------------------------------
-    (ROOT / "openapi.yaml").write_text(
-        "# Generated by scripts/build.py. Structure only -- see overlays/docs-prose.yaml\n"
-        "# for every field a reader reads.\n"
-        + yaml.safe_dump(spec, sort_keys=False, allow_unicode=True, width=100)
+    SPEC.write_text(
+        "# Structure only -- see overlays/docs-prose.yaml for every field a\n"
+        "# reader reads. Run scripts/build.py to reapply _project/servers.yaml,\n"
+        "# the security scheme and tags-map.yaml after editing any of them.\n"
+        + body
     )
 
-    write_overlay(spec)
-    write_inventory(stripper.removed)
+    added = overlay_stubs(spec)
     write_navigation(tagdoc, used, group_of)
 
     ops = list(operations(spec))
     missing_ids = [f"{m.upper()} {p}" for p, m, o in ops if not o.get("operationId")]
-    print(f"operations         {len(ops)}  (dropped {len(dropped_ops)})")
-    print(f"paths              {len(spec.get('paths', {}))}  (dropped {len(dropped_paths)})")
+    print(f"operations         {len(ops)}")
+    print(f"paths              {len(spec.get('paths', {}))}")
     print(f"schemas            {len(spec.get('components', {}).get('schemas', {}))}")
     print(f"components pruned  {len(orphaned)}")
-    print(f"security           1 scheme (dropped {dropped_schemes}, "
-          f"{dropped_security} operation overrides, {len(public_ops)} unauthenticated)")
-    print(f"servers            1 root + {len(spec['paths']) and sum('servers' in i for i in spec['paths'].values())} control-plane "
-          f"(replaced {server_paths} path-level, {server_ops} operation-level)")
+    print(f"security           1 scheme ({security_overrides} operation overrides "
+          f"removed, {len(public_ops)} unauthenticated)")
+    print(f"servers            1 root + {control_paths} control-plane")
     print(f"tags               {len(spec['tags'])}")
-    print(f"prose fields removed {len(stripper.removed)}")
+    print(f"overlay stubs added  {added}")
     print(f"null defaults dropped {len(null_defaults)}")
     print(f"operations lacking operationId {len(missing_ids)}")
+    print(f"openapi.yaml       {'rewritten' if changed else 'unchanged'}")
 
     (ROOT / "build-report.txt").write_text(
-        "Generated by scripts/build.py\n\n"
+        "Generated by scripts/build.py from openapi.yaml.\n\n"
         f"operations                       {len(ops)}\n"
         f"paths                            {len(spec.get('paths', {}))}\n"
         f"schemas                          {len(spec.get('components', {}).get('schemas', {}))}\n"
         f"tags                             {len(spec['tags'])}\n"
-        f"\noperations dropped               {len(dropped_ops)}\n"
-        "  Declared in _project/drops.yaml and recorded in _project/base-delta.yaml.\n"
-        + "".join(f"    {m}\n" for m in dropped_ops)
-        + f"\npaths emptied by those drops     {len(dropped_paths)}\n"
-        + "".join(f"    {p}\n" for p in dropped_paths)
-        + f"\ncomponents pruned                {len(orphaned)}\n"
-        "  Reachability sweep. Covers both what the drops orphaned and what the\n"
-        "  base already carried unreferenced; the two are indistinguishable and\n"
-        "  there is no reason to keep either.\n"
-        + "".join(f"    {c}\n" for c in orphaned)
-        + f"\nsecurity schemes dropped         {dropped_schemes}\n"
-        "  Six schemes in five combinations collapsed to one Authorization bearer.\n"
-        f"    operation-level overrides removed  {dropped_security}\n"
+        f"\nservers                          1 root + {control_paths} control-plane\n"
+        "  Both URLs come from _project/servers.yaml; which plane a path is on\n"
+        "  comes from _project/planes.yaml. Edit a host there and rebuild.\n"
+        + "".join(f"    {plane:<14} {defn['url']}\n" for plane, defn in
+                 yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text()).items())
+        + f"\nsecurity                         1 scheme\n"
+        "  One Authorization bearer token, declared once at the root. Six schemes\n"
+        "  in five combinations were collapsed into it.\n"
+        f"    operation-level overrides removed this run  {security_overrides}\n"
         f"\noperations requiring no authentication  {len(public_ops)}\n"
         "  Inherited `security: []`. Preserved rather than quietly reversed, but\n"
         "  each is a claim that the endpoint is public and wants confirming.\n"
         + "".join(f"    {m}\n" for m in public_ops)
-        + f"\nprose fields removed             {len(stripper.removed)}\n"
-        f"null defaults dropped            {len(null_defaults)}\n"
+        + f"\ncomponents pruned this run       {len(orphaned)}\n"
+        "  Reachability sweep. Zero on a clean tree; it earns its place the next\n"
+        "  time a group of operations is dropped.\n"
+        + "".join(f"    {c}\n" for c in orphaned)
+        + f"\nnull defaults dropped this run   {len(null_defaults)}\n"
         + "".join(f"    {p}\n" for p in null_defaults)
         + f"\noperations lacking operationId   {len(missing_ids)}\n"
-        "  These are inherited gaps, not introduced here. operationId values are\n"
-        "  never renamed, and inventing them is not the same as recovering them,\n"
-        "  so they are reported for engineering rather than filled in.\n"
+        "  Inherited gaps, not introduced here. operationId values are never\n"
+        "  renamed, and inventing them is not the same as recovering them, so\n"
+        "  they are reported for engineering rather than filled in. Phase 2.\n"
         + "".join(f"    {m}\n" for m in sorted(missing_ids))
+        + "\noperations not shipped\n"
+        "  Declared by tag in _project/drops.yaml and enforced by this script:\n"
+        "  if one reappears in openapi.yaml the build fails.\n"
+        + "".join(f"    {t}\n" for t in sorted(drop_tags))
     )
     return 0
 
@@ -551,71 +485,66 @@ def reorder(spec):
     return out
 
 
-def write_overlay(spec) -> None:
-    """Emit the prose overlay: every reader-facing field, empty.
+def overlay_stubs(spec, dry_run: bool = False) -> int:
+    """Top up overlays/docs-prose.yaml with empty stubs for anything new.
 
-    Scoped to info, tags and operations -- roughly 300 actions. Schema property
-    prose is stripped from openapi.yaml but not pre-stubbed here; at 3,000-plus
-    entries the overlay would stop being reviewable, which is the one property
-    that makes it a usable grounding gate. Those are added as they are grounded,
-    targeted by JSON path, and tracked in PROSE-INVENTORY.csv until then.
+    Add-only, on purpose. Every value in that file is published documentation
+    that passed the grounding gate, and the cost of regenerating it wholesale is
+    that a rebuild silently deletes reviewed prose. So existing actions are
+    never touched, never reordered and never removed -- a stub appears for an
+    operation or tag that has none, and nothing else changes.
+
+    Stale actions -- a target that no longer resolves, because the operation
+    behind it was dropped -- are left for check.py to fail on rather than
+    cleaned up here. Deleting authored prose should be a decision, not a
+    side effect of running the build.
     """
-    actions = [
-        {
-            "target": "$.info",
-            "update": {"description": ""},
+    path = ROOT / "overlays" / "docs-prose.yaml"
+    doc = yaml.safe_load(path.read_text()) if path.exists() else None
+    if not doc:
+        doc = {
+            "overlay": "1.0.0",
+            "info": {
+                "title": "Prisma AIRS AI Gateway API - documentation prose",
+                "version": "0.1.0",
+            },
+            "actions": [],
         }
-    ]
+    actions = doc.setdefault("actions", [])
+    have = {a.get("target") for a in actions}
 
+    wanted: list[tuple[str, dict]] = [("$.info", {"description": ""})]
     for tag in spec["tags"]:
         name = tag["name"].replace("'", "\\'")
-        actions.append(
-            {
-                "target": f"$.tags[?(@.name=='{name}')]",
-                "update": {"description": ""},
-            }
-        )
+        wanted.append((f"$.tags[?(@.name=='{name}')]", {"description": ""}))
+    for path_, method, _ in operations(spec):
+        wanted.append((jsonpath_for(path_, method), {
+            "summary": "",
+            "description": "",
+            "x-airs-provenance": {
+                "claims": [],
+                "origin_kind": "human",
+                "text_digest": "",
+            },
+        }))
 
-    for path, method, op in operations(spec):
-        actions.append(
-            {
-                "target": jsonpath_for(path, method),
-                "update": {
-                    "summary": "",
-                    "description": "",
-                    "x-airs-provenance": {
-                        "claims": [],
-                        "origin_kind": "human",
-                        "text_digest": "",
-                    },
-                },
-            }
-        )
+    new = [{"target": t, "update": u} for t, u in wanted if t not in have]
+    if dry_run:
+        return len(new)
+    if not new:
+        return 0
 
-    overlay = {
-        "overlay": "1.0.0",
-        "info": {
-            "title": "Prisma AIRS AI Gateway API - documentation prose",
-            "version": "0.1.0",
-        },
-        "actions": actions,
-    }
-
-    (ROOT / "overlays").mkdir(exist_ok=True)
-    (ROOT / "overlays" / "docs-prose.yaml").write_text(
-        "# Generated by scripts/build.py, then edited by hand as claims are accepted.\n"
-        "# Every value here is published documentation and passes the grounding gate.\n"
-        "# Leave a field empty rather than filling it from the inherited specification.\n"
-        + yaml.safe_dump(overlay, sort_keys=False, allow_unicode=True, width=100)
+    actions.extend(new)
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(
+        "# Empty stubs are generated by scripts/build.py; every written value is\n"
+        "# authored by hand as claims are accepted. This file is add-only -- the\n"
+        "# build never overwrites or removes an action, because everything here is\n"
+        "# published documentation that passed the grounding gate.\n"
+        "# Leave a field empty rather than filling it from memory.\n"
+        + yaml.safe_dump(doc, sort_keys=False, allow_unicode=True, width=100)
     )
-
-
-def write_inventory(removed) -> None:
-    """The re-grounding worklist: where prose was, and how much of it."""
-    with (ROOT / "PROSE-INVENTORY.csv").open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=["pointer", "field", "chars", "text_digest"])
-        writer.writeheader()
-        writer.writerows(sorted(removed, key=lambda r: r["pointer"]))
+    return len(new)
 
 
 def write_navigation(tagdoc, used, group_of) -> None:
@@ -648,15 +577,14 @@ def write_navigation(tagdoc, used, group_of) -> None:
             }
         )
 
-    import json
-
     (ROOT / "docs-navigation.json").write_text(
         json.dumps({"groups": groups}, indent=2) + "\n"
     )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--base", default=".source/portkey-openapi.yaml", type=Path)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true",
+                        help="fail instead of writing, for CI")
     args = parser.parse_args()
-    sys.exit(build(args.base))
+    sys.exit(build(dry_run=args.check))

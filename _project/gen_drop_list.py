@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Generate _project/drop-list.md -- the control-plane inventory to strike through.
+"""Generate _project/drop-list.md -- the plane inventory, with blast radius.
 
-Classification defaults to the per-path `servers` overrides the base author left
-behind (SELF_HOSTED_CONTROL_PLANE_URL vs SELF_HOSTED_GATEWAY_URL). That is
-Portkey's opinion, inherited and unverified, so it is a draft to react to and
-not a source of truth. `_project/classification.yaml` overrides it with human
-decisions, and the output marks which is which -- a guess and a call should
-never be indistinguishable once both are on the page.
+Classification comes from `_project/planes.yaml`, which is also what the build
+reads to decide which paths get a control-plane server override. There is one
+record of which plane a path is on and this reads it, so the inventory cannot
+drift from the document it describes.
+
+planes.yaml records *how* each call was made -- `classification.yaml` for the 23
+a human decided, `inherited` for the rest, read off the base's per-path server
+overrides before those were deleted and never independently verified. The output
+marks which is which: a guess and a call should never be indistinguishable once
+both are on the page.
 
 It also computes the blast radius: how many component schemas each group owns
 exclusively, and so would be orphaned if the group went away. Deleting paths is
@@ -19,7 +23,6 @@ Usage:
 from __future__ import annotations
 
 import collections
-import fnmatch
 import sys
 from pathlib import Path
 
@@ -36,56 +39,21 @@ UNKNOWN = "unclassified"
 CONTROL_KEY = "control-plane"
 GATEWAY_KEY = "gateway"
 
+# planes.yaml's `how` value for a path whose plane a human actually decided.
+DECIDED_BY_HAND = "classification.yaml"
 
-def load_decisions(path: Path, known: list[str]) -> dict[str, str]:
-    """{path: plane} from classification.yaml, expanding fnmatch patterns.
 
-    A pattern that matches nothing is an error, not a no-op: the usual cause is
-    that the path was renamed, and a rule that silently stops applying is worse
-    than no rule.
-    """
-    if not path.exists():
-        return {}
+def load_planes(path: Path) -> tuple[dict[str, str], set[str]]:
+    """{path: plane} and the subset a human decided, from planes.yaml."""
     doc = yaml.safe_load(path.read_text()) or {}
-    decided: dict[str, str] = {}
-    source: dict[str, str] = {}
-    unused: list[str] = []
-    clashes: list[str] = []
-
-    for plane in (CONTROL_KEY, GATEWAY_KEY):
-        kind = CONTROL if plane == CONTROL_KEY else GATEWAY
-        for pattern in doc.get(plane) or []:
-            matched = fnmatch.filter(known, pattern)
-            if not matched:
-                unused.append(pattern)
-            for p in matched:
-                # fnmatch's * crosses slashes, so /models* silently swallows
-                # /models/{model} and every other path beneath it. Claiming a
-                # path for both planes is always a mistake, and resolving it
-                # by order would hide the one case worth seeing.
-                if p in decided and decided[p] != kind:
-                    clashes.append(f"{p} (via {source[p]} and {pattern})")
-                decided[p] = kind
-                source[p] = pattern
-
-    problems = []
-    if unused:
-        problems.append(f"{len(unused)} pattern(s) match no path: " + ", ".join(unused))
-    if clashes:
-        problems.append(f"{len(clashes)} path(s) claimed by both planes: " + "; ".join(clashes))
-    if problems:
-        raise SystemExit(f"{path.name}: " + "\n  ".join(problems))
-    return decided
-
-
-def classify(item) -> str:
-    """The inherited default, before any human decision is applied."""
-    urls = " ".join(str(s.get("url", "")) for s in (item.get("servers") or []))
-    if "CONTROL_PLANE" in urls:
-        return CONTROL
-    if "GATEWAY" in urls:
-        return GATEWAY
-    return UNKNOWN
+    plane_of: dict[str, str] = {}
+    by_hand: set[str] = set()
+    for key, kind in ((CONTROL_KEY, CONTROL), (GATEWAY_KEY, GATEWAY)):
+        for p, how in (doc.get(key) or {}).items():
+            plane_of[p] = kind
+            if str(how).strip() == DECIDED_BY_HAND:
+                by_hand.add(p)
+    return plane_of, by_hand
 
 
 def refs_from(node, out: set) -> set:
@@ -122,20 +90,16 @@ def main() -> int:
     spec = yaml.safe_load((ROOT / "openapi.yaml").read_text())
     paths = spec["paths"]
 
-    decided = load_decisions(ROOT / "_project" / "classification.yaml", list(paths))
+    plane_of, decided = load_planes(ROOT / "_project" / "planes.yaml")
 
     # Seeded for all three so an empty group -- which is the goal for
     # `unclassified` -- is a normal state and not a KeyError.
     groups: dict[str, list[str]] = {k: [] for k in (CONTROL, GATEWAY, UNKNOWN)}
     reach: dict[str, set] = {k: set() for k in (CONTROL, GATEWAY, UNKNOWN)}
-    overridden: list[str] = []
     for path, item in paths.items():
         if not isinstance(item, dict):
             continue
-        inherited = classify(item)
-        kind = decided.get(path, inherited)
-        if path in decided and decided[path] != inherited:
-            overridden.append(path)
+        kind = plane_of.get(path, UNKNOWN)
         groups[kind].append(path)
         refs_from(item, reach[kind])
 
@@ -143,27 +107,27 @@ def main() -> int:
     total = set().union(*closure.values()) if closure else set()
 
     lines = [
-        "# Control-plane drop list",
+        "# Plane inventory",
         "",
-        "Generated by `_project/gen_drop_list.py` from `openapi.yaml`, so it shows",
-        "what the specification **currently ships** -- paths already dropped are gone",
-        "from it. Regenerate after any change.",
+        "Generated by `_project/gen_drop_list.py` from `openapi.yaml` and",
+        "`_project/planes.yaml`, so it shows what the specification **currently",
+        "ships** -- paths already dropped are gone from it. Regenerate after any",
+        "change.",
         "",
         "> Decisions do not live here. This file is generated and any mark made in it",
-        "> is lost on the next run. The durable record of what was dropped and why is",
-        "> `_project/drops.yaml`, enforced by `scripts/build.py`, with the audit trail",
-        "> in `_project/base-delta.yaml`. To drop something, add it there.",
+        "> is lost on the next run. The durable record of what is not shipped is",
+        "> `_project/drops.yaml`, enforced by `scripts/build.py`; the record of which",
+        "> plane a path is on is `_project/planes.yaml`. Change those.",
         "",
-        "Classification defaults to the base author's per-path `servers` overrides,",
-        "which are **unverified**. Treat anything unmarked as a first draft.",
-        "",
-        (f"**{len(groups[UNKNOWN])} paths are still unclassified** and need a call."
+        (f"**{len(groups[UNKNOWN])} paths are missing from planes.yaml** and need a"
+         " call -- the build fails until they have one."
          if groups[UNKNOWN] else
-         "**Every path is classified.** Nothing is left to the inherited guess."),
+         "**Every path is classified.** The build fails if one is not."),
         "",
-        f"**✓** marks a path classified by a human in `classification.yaml`",
-        f"({len(decided)} so far, {len(overridden)} of which the inherited data got wrong).",
-        "Everything unmarked is still Portkey's guess.",
+        "**✓** marks a path a human classified, recorded in `planes.yaml` as coming"
+        f" from `classification.yaml` ({len(decided)} of {len(plane_of)}).",
+        "Everything unmarked was read off the base's per-path server overrides before",
+        "those were deleted, and is **unverified**.",
         "",
         "## Blast radius",
         "",
@@ -190,8 +154,8 @@ def main() -> int:
     for kind in (CONTROL, UNKNOWN, GATEWAY):
         note = {
             CONTROL: "Control-plane paths that survive the drops in `drops.yaml`.",
-            UNKNOWN: "No server override and no decision recorded yet. "
-                     "**Needs a call** -- add it to `classification.yaml`.",
+            UNKNOWN: "Absent from `planes.yaml`. **Needs a call** -- add it there, "
+                     "or the build refuses to run.",
             GATEWAY: "Data plane. Listed for completeness; expected to stay.",
         }[kind]
         lines += [f"## {kind.title()} — {len(groups[kind])} paths", ""]

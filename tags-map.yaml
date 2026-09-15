@@ -1,10 +1,20 @@
 # Tag information architecture for the Prisma AIRS AI Gateway API.
 #
 # Tag names are simultaneously navigation display text and reference keys that
-# operations point at. This file is the single place where that rename is
-# decided, so the mapping stays reviewable instead of being spread across 242
-# operations. `scripts/build.py` applies it; `scripts/check.py` enforces that
-# every tag an operation names is declared here.
+# operations point at. This file is the single place where the naming and the
+# navigation grouping are decided, so both stay reviewable instead of being
+# spread across 181 operations. `scripts/build.py` orders the spec's `tags`
+# block and generates docs-navigation.json from it; `scripts/check.py` enforces
+# that every tag an operation names is declared here.
+#
+# `from` is the name the inherited Portkey specification used. The rename it
+# describes happened once and is done -- nothing reads `from` any more. It is
+# kept because it is the only record of where a tag name came from, and two
+# entries mapping to one `to` is how a merge is documented.
+#
+# Only shipped tags are listed. The eleven groups dropped in Phase 1 were
+# removed from this file when the base linkage was retired; the record of what
+# is not shipped, and why, is `_project/drops.yaml`.
 #
 # Naming conventions applied:
 #   - Title Case, spaces as the word separator (not hyphens, not camelCase)
@@ -96,26 +106,8 @@ tags:
   - from: Configs
     to: Configs
     group: gateway-config
-  - from: Prompts
-    to: Prompts
-    group: gateway-config
-  - from: PromptPartials
-    to: Prompt Partials
-    group: gateway-config
-  - from: Prompt Collections
-    to: Prompt Collections
-    group: gateway-config
-  - from: Collections
-    to: Collections
-    group: gateway-config
   - from: Guardrails
     to: Guardrails
-    group: gateway-config
-  - from: Labels
-    to: Labels
-    group: gateway-config
-  - from: Deployments
-    to: Deployments
     group: gateway-config
 
   # --- Providers and Credentials ---------------------------------------
@@ -130,9 +122,6 @@ tags:
     group: providers
   - from: Integrations > Workspaces
     to: Integrations > Workspaces
-    group: providers
-  - from: Virtual-keys
-    to: Virtual Keys
     group: providers
   - from: Secret-References
     to: Secret References
@@ -165,17 +154,8 @@ tags:
     group: mcp
 
   # --- Administration ----------------------------------------------------
-  - from: Users
-    to: Users
-    group: administration
-  - from: User-invites
-    to: User Invites
-    group: administration
   - from: Workspaces
     to: Workspaces
-    group: administration
-  - from: Workspaces > Members
-    to: Workspaces > Members
     group: administration
   - from: Api-Keys
     to: API Keys
@@ -188,9 +168,6 @@ tags:
     group: administration
 
   # --- Observability -----------------------------------------------------
-  - from: Analytics
-    to: Analytics
-    group: observability
   - from: Analytics > Graphs
     to: Analytics > Graphs
     group: observability
@@ -202,12 +179,6 @@ tags:
     group: observability
   - from: Logs
     to: Logs
-    group: observability
-  - from: Logs Export
-    to: Log Exports
-    group: observability
-  - from: Audit Logs
-    to: Audit Logs
     group: observability
   - from: Feedback
     to: Feedback

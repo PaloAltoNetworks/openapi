@@ -498,5 +498,66 @@ remains is the product call about how much of it to cut.
 
 ---
 
-**Next:** step 2 needs the ticked drop list (Q2); step 3 needs the base URL and
-host count (Q1). Nothing further can start without one of those.
+### Phase 1 close-out — the cord is cut, 2026-09-15
+
+Everything above this line is a record of how the specification was derived from
+`Portkey-AI/openapi`. **It is now history.** The base is no longer fetched or
+compared against, and `openapi.yaml` is the source of truth for structure.
+
+Retired, and gone from the tree:
+
+| File | Why it can go |
+|---|---|
+| `.source/` | Nothing reads the base any more |
+| `scripts/fetch-base.sh` | Nothing to fetch |
+| `scripts/check_shape.py` | It established that the drops removed 61 operations and reshaped none. Having established that, it has nothing further to say, and every intentional change from here would register as drift |
+| `_project/base-delta.yaml` | The allow-list only had meaning against the base |
+| The `Fidelity to the base` CI job | Replaced by `scripts/build.py --check` |
+
+`scripts/build.py` was the other half of this. It read the base and generated
+`openapi.yaml`; with the base gone it would have been a script that could not
+run, which four other scripts import from. So it was inverted rather than
+deleted: it now reads `openapi.yaml`, reapplies the decisions that live in
+`_project/` and `tags-map.yaml`, and writes it back. Running it on an unchanged
+repository produces a byte-identical document — which is how the inversion was
+checked, and the diff for the whole rewrite was three lines of header comment.
+
+The appliers that stayed appliers are the ones that are still idempotent and
+still driven by a file: `servers`, `security`, the component reachability sweep,
+the `tags` ordering, `default: null`. The ones that could only run once became
+checks:
+
+| Was | Is now |
+|---|---|
+| Strip 4,221 prose fields | `check.py` fails if prose reappears |
+| Rename 52 tags from the base's names | `build.py` fails on a tag `tags-map.yaml` does not know |
+| Delete 61 operations | `build.py` fails if a dropped tag reappears |
+| Write `PROSE-INVENTORY.csv` | Frozen; it could only be derived by diffing the base |
+| Generate `overlays/docs-prose.yaml` | Add-only top-up, so a rebuild cannot delete grounded prose |
+
+All five inversions were negative-tested and confirmed to fire.
+
+Two smaller consequences worth recording:
+
+- **`tags-map.yaml` lost 13 entries** — the 11 dropped groups plus `Analytics`
+  and `Prompt Collections`, which no operation used. It had to keep them while
+  the drop ran *after* the rename; now the drop is a check against the shipped
+  document and the map can describe only what ships.
+- **`_project/gen_drop_list.py` was classifying from server overrides that no
+  longer exist.** Task 2 deleted the `SELF_HOSTED_*_URL` placeholders it read,
+  so it had quietly gone from 23 unclassified paths to 95 without failing. It
+  now reads `_project/planes.yaml`, which is the same file the build reads, so
+  the inventory cannot drift from the document it describes. `classification.yaml`
+  becomes a dormant record of the 23 human calls and their reasoning; the
+  fnmatch clash guard went with it, but it guarded pattern expansion and
+  `planes.yaml` has no patterns.
+
+**Phase 1 is complete** apart from the two items moved to Phase 2 by decision:
+hand-written cURL samples for all 181 operations, and the `required` fields on
+five request bodies. The second only existed to make a minimal generated sample
+possible, and the Mintlify experiment showed `required` does not affect the
+generated sample at all — so it follows the first rather than standing alone. It
+is still worth doing for its own sake, as a contract question for engineering.
+
+**Next:** Phase 2. `operationId` on the 53 operations lacking one comes first,
+since SDK generation depends on it and nothing else does.
