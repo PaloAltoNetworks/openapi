@@ -25,21 +25,75 @@ rules:
   info-contact: off        # dropped deliberately; the base pointed at Portkey
 
   # --- the grounding gate, as lint --------------------------------------
-  airs-no-prose-in-spec:
+  # This rule used to assert that prose in openapi.yaml was *empty*, because
+  # prose lived in overlays/docs-prose.yaml and was applied downstream. It is
+  # applied upstream now -- openapi.yaml is the published document and carries
+  # the resolved prose -- so "empty" would fail the moment the first description
+  # was written, and would have been silenced rather than fixed.
+  #
+  # The assertion underneath it survives the move, and gets sharper: prose may
+  # be here, but not without the claim that supports it. Written summary or
+  # description, empty `claims`, is the failure the split exists to prevent, and
+  # on the resolved document it is checkable in one place.
+  #
+  # scripts/check.py enforces the other half -- that the prose in openapi.yaml
+  # is byte-for-byte what the overlay produces, so it cannot be typed in here
+  # and cannot bypass review. Spectral cannot see the overlay, and info and tag
+  # descriptions have no provenance block to point at, so they are checked
+  # there rather than here.
+  airs-prose-is-grounded:
     description: >-
-      Prose belongs in overlays/docs-prose.yaml, where it is small enough to
-      review claim by claim. A description here has bypassed that review.
-    message: "{{property}} must be empty in openapi.yaml -- write it in overlays/docs-prose.yaml"
+      Every published description is an assertion about the API. It ships with
+      the accepted claim that supports it or it does not ship.
+    message: "prose without an accepted claim -- see overlays/docs-prose.yaml"
     severity: error
-    given:
-      - $.info.description
-      - $.paths[*][get,put,post,delete,options,head,patch,trace].description
-      - $.paths[*][get,put,post,delete,options,head,patch,trace].summary
-      - $.tags[*].description
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
     then:
-      function: pattern
+      function: schema
       functionOptions:
-        match: "^$"
+        schema:
+          type: object
+          allOf:
+            - if:
+                required: [summary]
+                properties:
+                  summary: { type: string, minLength: 1 }
+              then:
+                required: [x-airs-provenance]
+                properties:
+                  x-airs-provenance:
+                    type: object
+                    required: [claims]
+                    properties:
+                      claims: { type: array, minItems: 1 }
+            - if:
+                required: [description]
+                properties:
+                  description: { type: string, minLength: 1 }
+              then:
+                required: [x-airs-provenance]
+                properties:
+                  x-airs-provenance:
+                    type: object
+                    required: [claims]
+                    properties:
+                      claims: { type: array, minItems: 1 }
+
+  # --- the docs URL contract ---------------------------------------------
+  # A published page address. scripts/check.py owns uniqueness, tag consistency
+  # and the comparison against _project/hrefs.yaml; presence is here so a
+  # Spectral run on its own still catches an operation that would generate a
+  # page nothing can link to.
+  airs-mint-href-present:
+    description: >-
+      Without x-mint.href an operation's page has no stable URL: Mintlify
+      derives the slug from prose, so it moves when prose lands.
+    message: "operation is missing x-mint.href"
+    severity: error
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
+    then:
+      field: x-mint.href
+      function: truthy
 
   # --- provenance, the drift join key -----------------------------------
   airs-provenance-present:

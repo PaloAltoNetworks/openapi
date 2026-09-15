@@ -12,6 +12,17 @@
 #   - a pattern matching no path is an error, so a rename cannot silently
 #     deactivate a rule
 #   - a path claimed by both planes is an error, rather than resolved by order
+#
+# **Historical as of Phase 2.** This file records one round of classification
+# into two planes, and nothing reads it -- the rules above ran once, against the
+# base, and their result is in `_project/planes.yaml`, which is what the build
+# reads. Phase 2 split the management side into `control-plane`, `admin` and
+# `admin-in-path`, so three entries below are now finer-grained in planes.yaml
+# than they are here: `/integrations/{slug}/models` and
+# `/integrations/{slug}/workspaces` are on the admin plane, and `/guardrails*`
+# covers a control-plane surface and an admin one that did not exist when this
+# was written. They are left as they were rather than edited, because the value
+# of this file is the reasoning at the time; planes.yaml is the current answer.
 
 control-plane:
   # Vrushank, 2026-09-15. CRUD over a configuration resource. The base never

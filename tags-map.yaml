@@ -10,7 +10,8 @@
 # `from` is the name the inherited Portkey specification used. The rename it
 # describes happened once and is done -- nothing reads `from` any more. It is
 # kept because it is the only record of where a tag name came from, and two
-# entries mapping to one `to` is how a merge is documented.
+# entries mapping to one `to` is how a merge is documented. A tag introduced
+# here rather than inherited has no `from` at all.
 #
 # Only shipped tags are listed. The eleven groups dropped in Phase 1 were
 # removed from this file when the base linkage was retired; the record of what
@@ -159,6 +160,19 @@ tags:
     group: administration
   - from: Rate Limits Policies
     to: Rate Limit Policies
+    group: administration
+  # The org-level guardrails, served on the admin plane at the same suffix as
+  # the control-plane ones. A separate tag rather than eight more entries under
+  # `Guardrails`, because two identical-looking pages differing only in the host
+  # shown in the sample is how a reader calls the wrong one. The tag is also
+  # what `check_planes` uses to keep the two surfaces on their own hosts.
+  # No `from`: this tag has no ancestor in the base, it was introduced here.
+  - to: Org Guardrails
+    group: administration
+  # Dropped in Phase 1 and recovered in Phase 2; the `from` name is the base's
+  # and is why it reads the same.
+  - from: Deployments
+    to: Deployments
     group: administration
   - from: Usage Limits Policies
     to: Usage Limit Policies

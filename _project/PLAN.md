@@ -668,5 +668,133 @@ Also settled: **there is no self-hosted control plane.** Confirmed with
 engineering, so the commented-out placeholder came out of `servers.yaml` and the
 README's open question became a statement.
 
-**Next:** Phase 2. `operationId` on the 45 operations lacking one comes first,
-since SDK generation depends on it and nothing else does.
+---
+
+## Addendum — Phase 1.5, what docs asked for, 2026-09-15
+
+Five asks, in `_project/docs-note.md`, all done. The checklist and the findings
+are in `TODO.md` under *Phase 1.5*. Two decisions are worth recording here
+because they changed how the repository is shaped rather than what is in the
+document.
+
+### The structure/prose split moved, and got stronger
+
+Docs asked that the URL they read serve prose. The two ways to give them that
+were a second resolved file alongside a structure-only `openapi.yaml`, or
+flattening the overlay into `openapi.yaml` itself. **Vrushank chose flattening**,
+and the argument for it is that a second file is a second thing to point at: the
+reason the overlay was never applied in the first place is that the join between
+the document and its prose lived in somebody else's configuration.
+
+The gate does not weaken. The old invariant was *there is no prose in
+`openapi.yaml`*, enforced by walking the document for non-empty strings. The new
+one is *the prose in `openapi.yaml` is exactly what the overlay produces* —
+strip, reapply, compare. That is strictly stronger: the old check permitted any
+prose as long as it was empty, and this one permits only prose with an
+identified author. The overlay is still the only authoring surface and still the
+only file the gate reviews.
+
+What made the old arrangement look free was that it was not being exercised.
+`docs-navigation.json` told Mintlify to apply `overlays/docs-prose.yaml`, a path
+that exists in this repository and not in the one resolving it. Nothing failed,
+because every description was empty. The first written description would have
+been the test, and it would have failed silently on the public site.
+
+### A published URL is a contract, so the derivation cannot be the source
+
+The href scheme is mechanical — tag path plus operation slug — and the temptation
+is to derive hrefs at build time and be done. That would mean a tag rename
+silently republishes every page under it at a new address, breaking inbound
+links and the 122 link sites docs are about to write.
+
+So `_project/hrefs.yaml` records them and wins; the derivation is a check against
+it. A difference is a build failure with two exits that mean different things:
+adopt the new URLs (`--apply-hrefs`, a docs migration) or pin the old one through
+the rename. That is the same shape as `drops.yaml` — the decision is in a file,
+the build enforces it, and changing it is a deliberate act that shows up in a
+diff — and it is what makes docs' fourth ask, *treat a tag rename as a
+coordinated change*, a mechanism instead of a promise.
+
+The 45 operations without an `operationId` get slugs and still no `operationId`.
+Docs made the distinction themselves and it is the right one: an `operationId`
+is a client-facing contract key that SDK generators turn into method names, so
+a fabricated one is worse than a missing one, while an href binds nothing in
+client code. Nothing back-fills one from the other.
+
+---
+
+## Addendum — Phase 2, the admin plane, 2026-09-15
+
+The management surface became two planes on a new host. The checklist and the
+negative tests are in `TODO.md` under *Phase 2*; three decisions are worth the
+longer form.
+
+### The plane split is a fourth plane, because OpenAPI cannot key one path twice
+
+`/ai_gw/v2/guardrails` and `/ai_gw/admin/v2/guardrails` are both real, both
+documented, and identical in payload. A single OpenAPI document cannot hold two
+`paths` entries spelled `/guardrails`, so one of the two copies has to carry its
+prefix somewhere other than the server URL.
+
+Three shapes were weighed:
+
+1. **Only the copies get long keys.** `/admin/v2/guardrails`, on a plane whose
+   server stops at `/ai_gw`. Four paths are odd; everything else stays bare.
+2. **The whole admin plane gets long keys.** One rule per plane and immune to the
+   next collision — but it rewrites the keys of 14 paths that already ship, and
+   the docs URL of an operation with no `operationId` is derived from its path,
+   so `get-integrations-by-slug-models` would become
+   `get-admin-v2-integrations-by-slug-models`.
+3. **Version in the key, `/admin` in the server.** Shorter, but reads as though
+   `v2` were part of the resource path.
+
+Option 1, and the deciding argument is Phase 1.5: docs had just repointed 122
+links at URLs this repository publishes, and `hrefs.yaml` exists to make those
+URLs expensive to move. Option 2 moves fourteen of them to tidy up four. The
+cost of option 1 is that `admin-in-path` has to be explained wherever it appears,
+which is what its name is for.
+
+### A tag sits on one plane, and that is checked
+
+The ask was phrased in capabilities — "Integrations, MCP Integrations, Secret
+References, Org Guardrails and Deployments are administered on /ai_gw/admin/v2"
+— but `planes.yaml` can only record paths. Nothing in that file knows that
+`/integrations/{slug}/models` belongs with `/integrations`, so the next path
+added under an admin capability can be classified control-plane and will look
+deliberate: it will have a server block, the block will be internally
+consistent, and every existing check will pass.
+
+Tags are what carry a capability, so `check_planes` compares those instead. It
+found one violation on its first run, and the violation was correct: `Models`
+spans both planes on purpose, because listing the models available to a caller
+is a gateway concern and administering one is not. That is declared in
+`planes.yaml` under `tags-spanning-planes` with its reasoning — and an allowance
+that stops being needed is itself a failure, so the licence cannot outlive the
+case for it.
+
+This is also why the org-level guardrails got their own tag rather than eight
+more entries under `Guardrails`. Two pages that read identically apart from the
+host in the sample is how a reader calls the wrong one, and one tag spanning two
+planes would have been indistinguishable from the accident above.
+
+### Un-dropping is recovery, not a flag flip
+
+`drops.yaml` is declarative and the build enforces it, but the enforcement is
+one-directional: removing a line does not bring an endpoint back, because the
+base was retired at the end of Phase 1 and `openapi.yaml` is now the only copy.
+Deployments came back out of `d9d380b`, the revision before the Phase 1 drop —
+three paths, six operations, ten schemas, with `organisation_id` stripped on the
+way in because that parameter is still dropped everywhere else.
+
+**What came back is Portkey's shape.** It was dropped in Phase 1 on an
+engineering list saying Prisma AIRS does not expose Deployments; it is now said
+to be exposed on the admin plane. Those two statements are compatible with the
+recovered document being a description of a different API that happens to share
+a name. The build strips what is obviously stale — `api.portkey.ai` samples, a
+`Portkey-Key` override — but request and response schemas are not the sort of
+thing a build can check, and nobody has called the endpoint. That is the first
+item in Phase 3 and it is ranked ahead of everything else in it.
+
+**Next:** Phase 3. Confirming the recovered Deployments schemas comes first,
+then `operationId` on the 45 operations lacking one, since SDK generation
+depends on it and nothing else does.

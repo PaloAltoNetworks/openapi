@@ -1,6 +1,8 @@
-# Structure only -- see overlays/docs-prose.yaml for every field a
-# reader reads. Run scripts/build.py to reapply _project/servers.yaml,
-# the security scheme and tags-map.yaml after editing any of them.
+# The published specification, prose included. Generated: prose is
+# authored in overlays/docs-prose.yaml and applied here by
+# scripts/build.py, which also reapplies _project/servers.yaml,
+# _project/hrefs.yaml, the security scheme and tags-map.yaml. Editing
+# this file by hand is not how any of that changes.
 openapi: 3.0.0
 info:
   title: Prisma AIRS AI Gateway API
@@ -11,15 +13,6 @@ servers:
   description: Managed
 - url: https://self-hosted-gateway-url.example.com/v1
   description: Self-hosted -- replace with your own gateway host
-x-server-groups:
-  ControlPlaneServers:
-  - url: https://api.portkey.ai/v1
-  - url: SELF_HOSTED_CONTROL_PLANE_URL
-  DataPlaneServers:
-  - url: https://api.portkey.ai/v1
-  - url: SELF_HOSTED_GATEWAY_URL
-  PublicServers:
-  - url: https://api.portkey.ai
 x-mint:
   mcp:
     enabled: true
@@ -94,6 +87,10 @@ tags:
   description: ''
 - name: API Keys
   description: ''
+- name: Deployments
+  description: ''
+- name: Org Guardrails
+  description: ''
 - name: Rate Limit Policies
   description: ''
 - name: Usage Limit Policies
@@ -141,6 +138,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/chat/create-chat-completion
   /realtime:
     get:
       operationId: connectRealtime
@@ -170,6 +169,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/realtime/connect-realtime
   /completions:
     post:
       operationId: createCompletion
@@ -194,6 +195,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/completions/create-completion
   /guardrails:
     post:
       operationId: createGuardrail
@@ -236,6 +239,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/create-guardrail
     get:
       operationId: listGuardrails
       tags:
@@ -284,8 +289,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/list-guardrails
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /guardrails/{guardrailId}:
     get:
@@ -323,6 +330,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/get-guardrail
     put:
       operationId: updateGuardrail
       tags:
@@ -364,6 +373,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/update-guardrail
     delete:
       operationId: deleteGuardrail
       tags:
@@ -395,8 +406,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/delete-guardrail
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /guardrails/{guardrailId}/mcp-servers:
     parameters:
@@ -452,6 +465,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/bulk-sync-guardrail-mcp-servers
     get:
       operationId: listGuardrailMcpServers
       tags:
@@ -489,8 +504,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/list-guardrail-mcp-servers
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /guardrails/{guardrailId}/mcp-servers/{mcpServerId}:
     parameters:
@@ -552,8 +569,387 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/guardrails/upsert-guardrail-mcp-server
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /admin/v2/guardrails:
+    post:
+      operationId: createOrgGuardrail
+      tags:
+      - Org Guardrails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGuardrailRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGuardrailResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/create-org-guardrail
+    get:
+      operationId: listOrgGuardrails
+      tags:
+      - Org Guardrails
+      parameters:
+      - name: workspace_id
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+      - name: current_page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGuardrailsResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/list-org-guardrails
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw
+      description: Managed
+  /admin/v2/guardrails/{guardrailId}:
+    get:
+      operationId: getOrgGuardrail
+      tags:
+      - Org Guardrails
+      parameters:
+      - name: guardrailId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardrailDetails'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/get-org-guardrail
+    put:
+      operationId: updateOrgGuardrail
+      tags:
+      - Org Guardrails
+      parameters:
+      - name: guardrailId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardrailRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardrailResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/update-org-guardrail
+    delete:
+      operationId: deleteOrgGuardrail
+      tags:
+      - Org Guardrails
+      parameters:
+      - name: guardrailId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/delete-org-guardrail
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw
+      description: Managed
+  /admin/v2/guardrails/{guardrailId}/mcp-servers:
+    parameters:
+    - name: guardrailId
+      in: path
+      required: true
+      schema:
+        type: string
+    put:
+      operationId: bulkSyncOrgGuardrailMcpServers
+      tags:
+      - Org Guardrails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkSyncMcpServerMappingsRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkSyncMcpServerMappingsResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/bulk-sync-org-guardrail-mcp-servers
+    get:
+      operationId: listOrgGuardrailMcpServers
+      tags:
+      - Org Guardrails
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/McpServerMapping'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/list-org-guardrail-mcp-servers
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw
+      description: Managed
+  /admin/v2/guardrails/{guardrailId}/mcp-servers/{mcpServerId}:
+    parameters:
+    - name: guardrailId
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: mcpServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    put:
+      operationId: upsertOrgGuardrailMcpServer
+      tags:
+      - Org Guardrails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertMcpServerMappingRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpsertMcpServerMappingResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/org-guardrails/upsert-org-guardrail-mcp-server
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw
       description: Managed
   /images/generations:
     post:
@@ -579,6 +975,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/images/create-image
   /images/edits:
     post:
       operationId: createImageEdit
@@ -603,6 +1001,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/images/create-image-edit
   /images/variations:
     post:
       operationId: createImageVariation
@@ -627,6 +1027,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/images/create-image-variation
   /embeddings:
     post:
       operationId: createEmbedding
@@ -651,6 +1053,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/embeddings/create-embedding
   /rerank:
     post:
       operationId: createRerank
@@ -681,6 +1085,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rerank/create-rerank
   /ocr:
     post:
       operationId: createOcr
@@ -711,6 +1117,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/ocr/create-ocr
   /audio/speech:
     post:
       operationId: createSpeech
@@ -740,6 +1148,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/audio/create-speech
   /audio/transcriptions:
     post:
       operationId: createTranscription
@@ -766,6 +1176,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/audio/create-transcription
   /audio/translations:
     post:
       operationId: createTranslation
@@ -792,6 +1204,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/audio/create-translation
   /files:
     get:
       operationId: listFiles
@@ -816,6 +1230,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/files/list-files
     post:
       operationId: createFile
       tags:
@@ -839,6 +1255,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/files/create-file
   /files/{file_id}:
     delete:
       operationId: deleteFile
@@ -863,6 +1281,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/files/delete-file
     get:
       operationId: retrieveFile
       tags:
@@ -886,6 +1306,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/files/retrieve-file
   /files/{file_id}/content:
     get:
       operationId: downloadFile
@@ -910,6 +1332,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/files/download-file
   /fine_tuning/jobs:
     post:
       operationId: createFineTuningJob
@@ -937,6 +1361,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/create-fine-tuning-job
     get:
       operationId: listPaginatedFineTuningJobs
       tags:
@@ -966,6 +1392,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/list-paginated-fine-tuning-jobs
   /fine_tuning/jobs/{fine_tuning_job_id}:
     get:
       operationId: retrieveFineTuningJob
@@ -990,6 +1418,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/retrieve-fine-tuning-job
   /fine_tuning/jobs/{fine_tuning_job_id}/events:
     get:
       operationId: listFineTuningEvents
@@ -1025,6 +1455,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/list-fine-tuning-events
   /fine_tuning/jobs/{fine_tuning_job_id}/cancel:
     post:
       operationId: cancelFineTuningJob
@@ -1049,6 +1481,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/cancel-fine-tuning-job
   /fine_tuning/jobs/{fine_tuning_job_id}/checkpoints:
     get:
       operationId: listFineTuningJobCheckpoints
@@ -1084,6 +1518,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/fine-tuning/list-fine-tuning-job-checkpoints
   /models:
     get:
       operationId: listModels
@@ -1142,6 +1578,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/models/list-models
   /models/{model}:
     get:
       operationId: retrieveModel
@@ -1166,6 +1604,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/models/retrieve-model
     delete:
       operationId: deleteModel
       tags:
@@ -1189,8 +1629,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/models/delete-model
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /moderations:
     post:
@@ -1216,6 +1658,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/moderations/create-moderation
   /assistants:
     get:
       operationId: listAssistants
@@ -1257,6 +1701,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/list-assistants
     post:
       operationId: createAssistant
       tags:
@@ -1280,6 +1726,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/create-assistant
   /assistants/{assistant_id}:
     get:
       operationId: getAssistant
@@ -1304,6 +1752,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/get-assistant
     post:
       operationId: modifyAssistant
       tags:
@@ -1333,6 +1783,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/modify-assistant
     delete:
       operationId: deleteAssistant
       tags:
@@ -1356,6 +1808,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/delete-assistant
   /responses:
     post:
       operationId: createResponse
@@ -1383,6 +1837,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/responses/create-response
   /responses/{response_id}:
     get:
       operationId: getResponse
@@ -1413,6 +1869,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/responses/get-response
     delete:
       operationId: deleteResponse
       tags:
@@ -1438,6 +1896,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/responses/delete-response
   /responses/{response_id}/input_items:
     get:
       operationId: listInputItems
@@ -1483,6 +1943,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/responses/list-input-items
   /threads:
     post:
       operationId: createThread
@@ -1506,6 +1968,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/create-thread
   /threads/{thread_id}:
     get:
       operationId: getThread
@@ -1530,6 +1994,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/get-thread
     post:
       operationId: modifyThread
       tags:
@@ -1559,6 +2025,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/modify-thread
     delete:
       operationId: deleteThread
       tags:
@@ -1582,6 +2050,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/delete-thread
   /threads/{thread_id}/messages:
     get:
       operationId: listMessages
@@ -1632,6 +2102,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/list-messages
     post:
       operationId: createMessage
       tags:
@@ -1661,6 +2133,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/create-message
   /threads/{thread_id}/messages/{message_id}:
     get:
       operationId: getMessage
@@ -1690,6 +2164,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/get-message
     post:
       operationId: modifyMessage
       tags:
@@ -1724,6 +2200,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/modify-message
     delete:
       operationId: deleteMessage
       tags:
@@ -1752,6 +2230,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/delete-message
   /threads/runs:
     post:
       operationId: createThreadAndRun
@@ -1776,6 +2256,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/create-thread-and-run
   /threads/{thread_id}/runs:
     get:
       operationId: listRuns
@@ -1822,6 +2304,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/list-runs
     post:
       operationId: createRun
       tags:
@@ -1851,6 +2335,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/create-run
   /threads/{thread_id}/runs/{run_id}:
     get:
       operationId: getRun
@@ -1880,6 +2366,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/get-run
     post:
       operationId: modifyRun
       tags:
@@ -1914,6 +2402,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/modify-run
   /threads/{thread_id}/runs/{run_id}/submit_tool_outputs:
     post:
       operationId: submitToolOuputsToRun
@@ -1949,6 +2439,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/submit-tool-ouputs-to-run
   /threads/{thread_id}/runs/{run_id}/cancel:
     post:
       operationId: cancelRun
@@ -1978,6 +2470,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/cancel-run
   /threads/{thread_id}/runs/{run_id}/steps:
     get:
       operationId: listRunSteps
@@ -2029,6 +2523,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/list-run-steps
   /threads/{thread_id}/runs/{run_id}/steps/{step_id}:
     get:
       operationId: getRunStep
@@ -2063,6 +2559,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/assistants/get-run-step
   /vector_stores:
     get:
       operationId: listVectorStores
@@ -2104,6 +2602,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/list-vector-stores
     post:
       operationId: createVectorStore
       tags:
@@ -2127,6 +2627,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/create-vector-store
   /vector_stores/{vector_store_id}:
     get:
       operationId: getVectorStore
@@ -2151,6 +2653,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/get-vector-store
     post:
       operationId: modifyVectorStore
       tags:
@@ -2180,6 +2684,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/modify-vector-store
     delete:
       operationId: deleteVectorStore
       tags:
@@ -2203,6 +2709,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/delete-vector-store
   /vector_stores/{vector_store_id}/files:
     get:
       operationId: listVectorStoreFiles
@@ -2258,6 +2766,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/list-vector-store-files
     post:
       operationId: createVectorStoreFile
       tags:
@@ -2287,6 +2797,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/create-vector-store-file
   /vector_stores/{vector_store_id}/files/{file_id}:
     get:
       operationId: getVectorStoreFile
@@ -2316,6 +2828,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/get-vector-store-file
     delete:
       operationId: deleteVectorStoreFile
       tags:
@@ -2344,6 +2858,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/delete-vector-store-file
   /vector_stores/{vector_store_id}/file_batches:
     post:
       operationId: createVectorStoreFileBatch
@@ -2374,6 +2890,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/create-vector-store-file-batch
   /vector_stores/{vector_store_id}/file_batches/{batch_id}:
     get:
       operationId: getVectorStoreFileBatch
@@ -2403,6 +2921,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/get-vector-store-file-batch
   /vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel:
     post:
       operationId: cancelVectorStoreFileBatch
@@ -2432,6 +2952,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/cancel-vector-store-file-batch
   /vector_stores/{vector_store_id}/file_batches/{batch_id}/files:
     get:
       operationId: listFilesInVectorStoreBatch
@@ -2492,6 +3014,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/vector-stores/list-files-in-vector-store-batch
   /batches:
     post:
       operationId: createBatch
@@ -2520,6 +3044,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/batch/create-batch
     get:
       operationId: listBatches
       tags:
@@ -2549,6 +3075,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/batch/list-batches
   /batches/{batch_id}/output:
     get:
       operationId: getBatchOutput
@@ -2574,6 +3102,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/batch/get-batch-output
   /batches/{batch_id}:
     get:
       operationId: retrieveBatch
@@ -2598,6 +3128,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/batch/retrieve-batch
   /batches/{batch_id}/cancel:
     post:
       operationId: cancelBatch
@@ -2622,6 +3154,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/batch/cancel-batch
   /configs:
     get:
       tags:
@@ -2675,6 +3209,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/list-configs
     post:
       tags:
       - Configs
@@ -2718,8 +3254,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/create-config
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /configs/{slug}:
     delete:
@@ -2745,6 +3283,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/delete-config
     get:
       tags:
       - Configs
@@ -2807,6 +3347,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/get-config
     put:
       tags:
       - Configs
@@ -2855,8 +3397,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/update-config
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /configs/{slug}/versions:
     get:
@@ -2930,8 +3474,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/configs/list-config-versions
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /feedback:
     post:
@@ -2957,8 +3503,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/feedback/create-feedback
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /feedback/{id}:
     put:
@@ -2991,8 +3539,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/feedback/update-feedback
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /integrations:
     get:
@@ -3044,6 +3594,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/get-integrations
     post:
       tags:
       - Integrations
@@ -3072,8 +3624,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/post-integrations
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /integrations/{slug}:
     get:
@@ -3098,6 +3652,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/get-integrations-by-slug
     put:
       tags:
       - Integrations
@@ -3126,6 +3682,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/put-integrations-by-slug
     delete:
       tags:
       - Integrations
@@ -3148,8 +3706,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/delete-integrations-by-slug
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /integrations/{slug}/models:
     get:
@@ -3174,6 +3734,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/models/get-integrations-by-slug-models
     put:
       tags:
       - Integrations > Models
@@ -3202,6 +3764,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/models/put-integrations-by-slug-models
     delete:
       tags:
       - Integrations > Models
@@ -3229,8 +3793,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/models/delete-integrations-by-slug-models
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /integrations/{slug}/workspaces:
     get:
@@ -3255,6 +3821,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/workspaces/get-integrations-by-slug-workspaces
     put:
       tags:
       - Integrations > Workspaces
@@ -3283,8 +3851,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/integrations/workspaces/put-integrations-by-slug-workspaces
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /providers:
     get:
@@ -3327,6 +3897,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/providers/get-providers
     post:
       tags:
       - Providers
@@ -3377,8 +3949,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/providers/post-providers
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /providers/{slug}:
     get:
@@ -3407,6 +3981,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/providers/get-providers-by-slug
     put:
       tags:
       - Providers
@@ -3461,6 +4037,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/providers/put-providers-by-slug
     delete:
       tags:
       - Providers
@@ -3487,8 +4065,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/providers/delete-providers-by-slug
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-integrations:
     post:
@@ -3514,6 +4094,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/mcp-integrations-create
     get:
       operationId: McpIntegrations_list
       tags:
@@ -3561,8 +4143,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/mcp-integrations-list
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /mcp-integrations/{mcpIntegrationId}:
     parameters:
@@ -3588,6 +4172,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/mcp-integrations-retrieve
     put:
       operationId: McpIntegrations_update
       tags:
@@ -3610,6 +4196,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/mcp-integrations-update
     delete:
       operationId: McpIntegrations_delete
       tags:
@@ -3627,8 +4215,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/mcp-integrations-delete
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /mcp-integrations/{mcpIntegrationId}/workspaces:
     parameters:
@@ -3661,6 +4251,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/workspaces/mcp-integration-workspaces-list
     put:
       operationId: McpIntegrationWorkspaces_bulkUpdate
       tags:
@@ -3684,8 +4276,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/workspaces/mcp-integration-workspaces-bulk-update
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /mcp-integrations/{mcpIntegrationId}/capabilities:
     parameters:
@@ -3734,6 +4328,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/capabilities/mcp-integration-capabilities-list
     put:
       operationId: McpIntegrationCapabilities_bulkUpdate
       tags:
@@ -3757,8 +4353,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/capabilities/mcp-integration-capabilities-bulk-update
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /mcp-integrations/{mcpIntegrationId}/metadata:
     parameters:
@@ -3784,8 +4382,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-integrations/metadata/mcp-integration-metadata-retrieve
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /mcp-servers:
     post:
@@ -3811,6 +4411,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-create
     get:
       operationId: McpServers_list
       tags:
@@ -3855,8 +4457,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-list
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-servers/{mcpServerId}:
     parameters:
@@ -3882,6 +4486,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-retrieve
     put:
       operationId: McpServers_update
       tags:
@@ -3904,6 +4510,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-update
     delete:
       operationId: McpServers_delete
       tags:
@@ -3921,8 +4529,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-delete
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-servers/{mcpServerId}/test:
     parameters:
@@ -3948,8 +4558,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/mcp-servers-test
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-servers/{mcpServerId}/capabilities:
     parameters:
@@ -3998,6 +4610,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-list
     put:
       operationId: McpServerCapabilities_bulkUpdate
       tags:
@@ -4021,8 +4635,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-bulk-update
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-servers/{mcpServerId}/user-access:
     parameters:
@@ -4066,6 +4682,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-list
     put:
       operationId: McpServerUserAccess_bulkUpdate
       tags:
@@ -4088,8 +4706,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-bulk-update
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /mcp-servers/{mcpServerId}/connections:
     parameters:
@@ -4137,6 +4757,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/connections/mcp-server-connections-list
     delete:
       operationId: McpServerConnections_delete
       tags:
@@ -4164,8 +4786,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/mcp-servers/connections/mcp-server-connections-delete
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /logs:
     post:
@@ -4190,6 +4814,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/logs/post-logs
   /logs/{logId}:
     get:
       tags:
@@ -4235,6 +4861,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/logs/get-logs-by-log-id
   /api-keys/{type}/{sub-type}:
     post:
       tags:
@@ -4288,8 +4916,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/post-api-keys-by-type-by-sub-type
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /api-keys:
     get:
@@ -4325,8 +4955,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/get-api-keys
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /api-keys/{id}:
     put:
@@ -4361,6 +4993,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/put-api-keys-by-id
     get:
       tags:
       - API Keys
@@ -4388,6 +5022,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/get-api-keys-by-id
     delete:
       tags:
       - API Keys
@@ -4415,8 +5051,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/delete-api-keys-by-id
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /api-keys/{id}/rotate:
     post:
@@ -4451,8 +5089,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/api-keys/post-api-keys-by-id-rotate
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/usage-limits:
     post:
@@ -4488,6 +5128,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/create-usage-limits-policy
     get:
       tags:
       - Usage Limit Policies
@@ -4536,8 +5178,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/list-usage-limits-policies
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/usage-limits/{policyUsageLimitsId}:
     get:
@@ -4584,6 +5228,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/get-usage-limits-policy
     put:
       tags:
       - Usage Limit Policies
@@ -4623,6 +5269,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/update-usage-limits-policy
     delete:
       tags:
       - Usage Limit Policies
@@ -4656,8 +5304,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/delete-usage-limits-policy
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/usage-limits/{policyUsageLimitsId}/entities:
     get:
@@ -4710,8 +5360,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/list-usage-limits-policy-entities
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset:
     put:
@@ -4744,8 +5396,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/usage-limit-policies/reset-usage-limits-policy-entity
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/rate-limits:
     post:
@@ -4779,6 +5433,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rate-limit-policies/create-rate-limits-policy
     get:
       tags:
       - Rate Limit Policies
@@ -4845,8 +5501,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rate-limit-policies/list-rate-limits-policies
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /policies/rate-limits/{rateLimitsPolicyId}:
     get:
@@ -4887,6 +5545,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rate-limit-policies/get-rate-limits-policy
     put:
       tags:
       - Rate Limit Policies
@@ -4926,6 +5586,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rate-limit-policies/update-rate-limits-policy
     delete:
       tags:
       - Rate Limit Policies
@@ -4959,8 +5621,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/rate-limit-policies/delete-rate-limits-policy
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/requests:
     get:
@@ -5035,8 +5699,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-requests
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/cost:
     get:
@@ -5117,8 +5783,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cost
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/latency:
     get:
@@ -5211,8 +5879,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-latency
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/tokens:
     get:
@@ -5293,8 +5963,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-tokens
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/users:
     get:
@@ -5369,8 +6041,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-users
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/users/requests:
     get:
@@ -5451,8 +6125,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-users-requests
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/errors:
     get:
@@ -5527,8 +6203,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/errors/rate:
     get:
@@ -5603,8 +6281,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-rate
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/errors/stacks:
     get:
@@ -5686,8 +6366,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-stacks
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/errors/status-codes:
     get:
@@ -5764,8 +6446,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-status-codes
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/requests/rescued:
     get:
@@ -5853,8 +6537,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-requests-rescued
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/cache/hit-rate:
     get:
@@ -5944,8 +6630,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cache-hit-rate
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/cache/latency:
     get:
@@ -6015,8 +6703,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cache-latency
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/feedbacks:
     get:
@@ -6091,8 +6781,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/feedbacks/scores:
     get:
@@ -6166,8 +6858,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-scores
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/feedbacks/weighted:
     get:
@@ -6242,8 +6936,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-weighted
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/graphs/feedbacks/ai-models:
     get:
@@ -6315,8 +7011,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-ai-models
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/summary/cache:
     get:
@@ -6381,8 +7079,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/summary/get-analytics-summary-cache
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/groups/users:
     get:
@@ -6456,8 +7156,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-users
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/groups/ai-models:
     get:
@@ -6529,8 +7231,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-ai-models
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/groups/provider:
     get:
@@ -6608,8 +7312,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-provider
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /analytics/groups/metadata/{metadataKey}:
     get:
@@ -6697,8 +7403,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-metadata-by-metadata-key
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /model-configs/pricing/{provider}/{model}:
     get:
@@ -6739,8 +7447,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/model-pricing/get-model-pricing
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
   /secret-references:
     get:
@@ -6803,6 +7513,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/secret-references/list-secret-references
     post:
       operationId: createSecretReference
       tags:
@@ -6840,8 +7552,10 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/secret-references/create-secret-reference
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
   /secret-references/{secretReferenceId}:
     get:
@@ -6869,6 +7583,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/secret-references/get-secret-reference
     put:
       operationId: updateSecretReference
       tags:
@@ -6902,6 +7618,8 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/secret-references/update-secret-reference
     delete:
       operationId: deleteSecretReference
       tags:
@@ -6929,8 +7647,244 @@ paths:
         claims: []
         origin_kind: human
         text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/secret-references/delete-secret-reference
     servers:
-    - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+      description: Managed
+  /deployments:
+    get:
+      operationId: listDeployments
+      tags:
+      - Deployments
+      parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - active
+          - archived
+      - in: query
+        name: type
+        schema:
+          type: string
+          enum:
+          - production
+          - non_production
+      - in: query
+        name: workspace_slug
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: tags
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        style: deepObject
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeploymentListItem'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/list-deployments
+    post:
+      operationId: createDeployment
+      tags:
+      - Deployments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentCreateResponse'
+        '400':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/create-deployment
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+      description: Managed
+  /deployments/{deploymentId}:
+    get:
+      operationId: getDeployment
+      tags:
+      - Deployments
+      parameters:
+      - in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDetailResponse'
+        '404':
+          description: ''
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/get-deployment
+    put:
+      operationId: updateDeployment
+      tags:
+      - Deployments
+      parameters:
+      - in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeploymentRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/update-deployment
+    delete:
+      operationId: deleteDeployment
+      tags:
+      - Deployments
+      parameters:
+      - in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: ''
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/delete-deployment
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+      description: Managed
+  /deployments/{deploymentId}/ping:
+    get:
+      operationId: pingDeployment
+      tags:
+      - Deployments
+      parameters:
+      - in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentPingResponse'
+        '400':
+          description: ''
+        '404':
+          description: ''
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/deployments/ping-deployment
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
 components:
   securitySchemes:
@@ -17657,3 +18611,304 @@ components:
       properties:
         success:
           type: boolean
+    CreateDeploymentRequest:
+      type: object
+      required:
+      - name
+      properties:
+        organisation_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+        type:
+          type: string
+          enum:
+          - production
+          - non_production
+          default: production
+        deployment_config:
+          type: object
+        is_default:
+          type: boolean
+        auth_settings:
+          $ref: '#/components/schemas/DeploymentAuthSettingsInput'
+        tags:
+          $ref: '#/components/schemas/DeploymentTags'
+    DeploymentAuthSettings:
+      type: object
+      properties:
+        gateway_base_url:
+          type: string
+          format: uri
+        mcp_gateway_base_url:
+          type: string
+          format: uri
+        private_link_endpoint:
+          type: string
+          format: uri
+        use_private_link_proxy:
+          type: integer
+          enum:
+          - 0
+          - 1
+        is_dataservice_hosted:
+          type: integer
+          enum:
+          - 0
+          - 1
+        is_playground_proxy_allowed:
+          type: integer
+          enum:
+          - 0
+          - 1
+        disable_portkey_gateway:
+          type: integer
+          enum:
+          - 0
+          - 1
+        workspaces_allowed:
+          type: array
+          items:
+            type: string
+        jwt_subs_allowed:
+          type: array
+          items:
+            type: string
+        jwt_sub_workspace_mapping:
+          type: object
+          additionalProperties:
+            type: string
+    DeploymentAuthSettingsInput:
+      type: object
+      properties:
+        gateway_base_url:
+          type: string
+          format: uri
+        mcp_gateway_base_url:
+          type: string
+          format: uri
+        is_dataservice_hosted:
+          type: integer
+          enum:
+          - 0
+          - 1
+        is_playground_proxy_allowed:
+          type: integer
+          enum:
+          - 0
+          - 1
+        workspaces_allowed:
+          type: array
+          items:
+            type: string
+        jwt_subs_allowed:
+          type: array
+          items:
+            type: string
+        jwt_sub_workspace_mapping:
+          type: object
+          additionalProperties:
+            type: string
+    DeploymentCreateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        client_auth:
+          type: string
+        credentials:
+          allOf:
+          - $ref: '#/components/schemas/DeploymentCredentials'
+        object:
+          type: string
+          enum:
+          - deployment
+    DeploymentCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    DeploymentDetailResponse:
+      allOf:
+      - $ref: '#/components/schemas/DeploymentListItem'
+      - type: object
+        properties:
+          auth_settings:
+            allOf:
+            - $ref: '#/components/schemas/DeploymentAuthSettings'
+            - type: object
+              properties:
+                allow_all_workspaces:
+                  type: integer
+                  enum:
+                  - 0
+                  - 1
+          deployment_config:
+            type: object
+            nullable: true
+          workspaces:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                slug:
+                  type: string
+          credentials:
+            allOf:
+            - $ref: '#/components/schemas/DeploymentCredentials'
+          client_auth:
+            type: string
+    DeploymentListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        type:
+          type: string
+          enum:
+          - production
+          - non_production
+        status:
+          type: string
+          enum:
+          - active
+          - archived
+        is_default:
+          type: integer
+          enum:
+          - 0
+          - 1
+        connection_status:
+          type: string
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+        created_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        last_synced_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_resynced_at:
+          type: string
+          format: date-time
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/DeploymentTags'
+        object:
+          type: string
+          enum:
+          - deployment
+    DeploymentPingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - healthy
+          - partial
+          - unhealthy
+        gateway_base_url:
+          type: string
+          format: uri
+        outbound:
+          type: object
+          properties:
+            status:
+              type: string
+              enum:
+              - healthy
+              - unhealthy
+              - unreachable
+            status_code:
+              type: integer
+            version:
+              type: string
+            error:
+              type: string
+        inbound:
+          type: object
+          properties:
+            status:
+              type: string
+              enum:
+              - healthy
+              - failed
+            error:
+              type: string
+        object:
+          type: string
+          enum:
+          - deployment
+    DeploymentTags:
+      type: object
+      nullable: true
+      additionalProperties:
+        type: string
+    UpdateDeploymentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - production
+          - non_production
+        status:
+          type: string
+          enum:
+          - active
+          - archived
+        deployment_config:
+          type: object
+          nullable: true
+        is_default:
+          type: boolean
+        rotate_auth:
+          type: boolean
+        override_existing:
+          type: boolean
+        auth_settings:
+          allOf:
+          - $ref: '#/components/schemas/DeploymentAuthSettingsInput'
+          - type: object
+            properties:
+              allow_all_workspaces:
+                type: boolean
+              remove_workspaces_allowed:
+                type: array
+                items:
+                  type: string
+              remove_subs_allowed:
+                type: array
+                items:
+                  type: string
+        tags:
+          $ref: '#/components/schemas/DeploymentTags'

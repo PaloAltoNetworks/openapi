@@ -88,7 +88,12 @@ def shape_of(op):
     changed, and that is what the KB needs to hear about.
     """
     stripped = copy.deepcopy(op)
-    for key in ("summary", "description", "x-airs-provenance", "externalDocs"):
+    # x-mint is the operation's docs URL. It moves when a tag is renamed, which
+    # is a documentation migration and not a change to the API -- reporting it
+    # as `structure_changed` would tell the KB to re-review claims about
+    # behaviour that did not move.
+    for key in ("summary", "description", "x-airs-provenance", "externalDocs",
+                "x-mint"):
         stripped.pop(key, None)
     return json.dumps(stripped, sort_keys=True)
 

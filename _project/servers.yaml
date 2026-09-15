@@ -1,10 +1,14 @@
 # The base URLs. This is the one place to change them.
 #
 # `scripts/build.py` writes every `servers` block in openapi.yaml from this
-# file -- the root block and the 62 control-plane path overrides. Edit a host
+# file -- the root block and one override per non-gateway path. Edit a host
 # here, rebuild, and the whole document follows. Nothing below needs touching,
 # and there is no second copy to forget. `scripts/check.py` fails if a block in
 # openapi.yaml is not byte-identical to the list here.
+#
+# Every key here is a plane, and `_project/planes.yaml` puts each path on one.
+# The two files are checked against each other: a plane in one and not the
+# other fails the build, so neither can be edited alone.
 #
 # Each plane is an OpenAPI `servers` array, so it is ordered and the order
 # matters: **Mintlify uses the first entry for the generated code sample** and
@@ -17,7 +21,12 @@
 # code sample at all, on every operation. Verified locally against mint 4.2.893
 # -- swap any of these for `{host}` and the samples disappear.
 
-# Data plane. The root server block, so the 52 gateway paths need no override.
+# Data plane. The root server block, so the gateway paths need no override.
+#
+# Unchanged by the Phase 2 move to api.apps.paloaltonetworks.com (Vrushank,
+# 2026-09-15): only the management planes moved. The gateway keeps the Portkey
+# host, so this document now publishes two vendors' hostnames, which is a fact
+# about the deployment rather than an oversight.
 gateway:
   - url: https://aigw.portkey.ai/v1
     description: Managed
@@ -38,19 +47,23 @@ gateway:
   - url: https://self-hosted-gateway-url.example.com/v1
     description: Self-hosted -- replace with your own gateway host
 
-# Management plane. Stamped onto the 62 paths that _project/planes.yaml marks
+# Management plane. Stamped onto every path _project/planes.yaml marks
 # control-plane, because OpenAPI has no way for a path to point back at a
 # server declared once at the root.
 #
 # A path-level block *replaces* the root list rather than adding to it
 # (confirmed against mint 4.2.893), which is why the gateway's two entries do
-# not leak onto control-plane operations.
+# not leak onto management operations.
 #
-# The two planes do not share a prefix -- gateway is /v1, control plane is
-# /api/v1. Paths are declared bare (`/api-keys`, not `/api/v1/api-keys`), so
-# the prefix lives entirely here.
+# No plane shares a prefix with another -- gateway is /v1, this is /ai_gw/v2.
+# Paths are declared bare (`/api-keys`, not `/ai_gw/v2/api-keys`), so the
+# prefix lives entirely here.
+#
+# Vrushank, 2026-09-15: replaces https://mp.us.prod.airs-gw.portkey.ai/api/v1.
+# Both the host and the version moved, and nothing in the document needed
+# touching for either -- which is the whole return on Phase 1 task 2.
 control-plane:
-  - url: https://mp.us.prod.airs-gw.portkey.ai/api/v1
+  - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
     description: Managed
 
   # One entry, and the asymmetry with the gateway is real rather than an
@@ -58,3 +71,29 @@ control-plane:
   # confirmed with engineering). The base declared SELF_HOSTED_CONTROL_PLANE_URL
   # alongside the gateway one; it does not apply here. A self-hosted data plane
   # talks to the managed control plane.
+
+# Administrative plane. The same host, one segment deeper, and a genuinely
+# different surface: Integrations, MCP Integrations, Secret References and
+# Deployments are administered here rather than on /ai_gw/v2 (Vrushank,
+# 2026-09-15).
+#
+# Which paths, and why each one, is _project/planes.yaml. The decision was made
+# by capability -- "Integrations", not a list of URLs -- and planes.yaml records
+# the resulting paths with that provenance.
+admin:
+  - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+    description: Managed
+
+# The same administrative plane, for paths that also exist on /ai_gw/v2 under
+# the identical suffix. Guardrails is the case today: the API serves both
+# /ai_gw/v2/guardrails and /ai_gw/admin/v2/guardrails, and OpenAPI cannot key
+# one document by two paths that are spelled the same.
+#
+# So for those, and only those, the server stops at /ai_gw and the `/admin/v2`
+# prefix moves into the path key. The rendered URL is identical either way; what
+# changes is which file the prefix is written in. Keeping it here for the rest
+# of the admin plane is what stops the existing paths, their operationIds and
+# their published docs URLs from all moving to accommodate one collision.
+admin-in-path:
+  - url: https://api.apps.paloaltonetworks.com/ai_gw
+    description: Managed

@@ -22,7 +22,11 @@
 tags:
   - Audit Logs
   - Collections
-  - Deployments
+  # Deployments was here until Phase 2. Vrushank, 2026-09-15: it is exposed
+  # after all, on the admin plane, so the six operations were recovered from
+  # the pre-drop revision (d9d380b) and put back. What came back is the
+  # inherited Portkey shape -- nothing has checked it against the API now
+  # serving /ai_gw/admin/v2/deployments.
   - Labels
   - Log Exports
   - Prompt Partials

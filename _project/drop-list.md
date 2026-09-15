@@ -12,7 +12,7 @@ change.
 
 **Every path is classified.** The build fails if one is not.
 
-**✓** marks a path a human classified, recorded in `planes.yaml` as coming from `classification.yaml` (23 of 114).
+**✓** marks a path a human classified -- anything whose `how` in `planes.yaml` is not `inherited`, so `classification.yaml` and the Phase 2 admin split alike (39 of 121).
 Everything unmarked was read off the base's per-path server overrides before
 those were deleted, and is **unverified**.
 
@@ -23,14 +23,14 @@ Components each group reaches, and how many *only* that group reaches
 
 | Group | Paths | Components reached | Reached only by this group |
 |---|---|---|---|
-| control plane | 62 | 195 | **193** |
+| control plane | 69 | 205 | **203** |
 | gateway | 52 | 276 | **274** |
 | unclassified | 0 | 0 | **0** |
-| *total* | 114 | 469 | |
+| *total* | 121 | 479 | |
 
-Dropping every control-plane path would orphan **193 components**, which must be pruned in the same change rather than left to accumulate.
+Dropping every control-plane path would orphan **203 components**, which must be pruned in the same change rather than left to accumulate.
 
-## Control Plane — 62 paths
+## Control Plane — 69 paths
 
 Control-plane paths that survive the drops in `drops.yaml`.
 
@@ -78,6 +78,12 @@ Control-plane paths that survive the drops in `drops.yaml`.
 - [ ] `/configs/{slug}` — `DELETE` deleteConfig, `GET` getConfig, `PUT` updateConfig
 - [ ] `/configs/{slug}/versions` — `GET` listConfigVersions
 
+### Deployments
+
+- [ ] `/deployments` ✓ — `GET` listDeployments, `POST` createDeployment
+- [ ] `/deployments/{deploymentId}` ✓ — `DELETE` deleteDeployment, `GET` getDeployment, `PUT` updateDeployment
+- [ ] `/deployments/{deploymentId}/ping` ✓ — `GET` pingDeployment
+
 ### Feedback
 
 - [ ] `/feedback` — `POST` createFeedback
@@ -92,8 +98,8 @@ Control-plane paths that survive the drops in `drops.yaml`.
 
 ### Integrations
 
-- [ ] `/integrations` — `GET` *(no operationId)*, `POST` *(no operationId)*
-- [ ] `/integrations/{slug}` — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
+- [ ] `/integrations` ✓ — `GET` *(no operationId)*, `POST` *(no operationId)*
+- [ ] `/integrations/{slug}` ✓ — `DELETE` *(no operationId)*, `GET` *(no operationId)*, `PUT` *(no operationId)*
 
 ### Integrations > Models
 
@@ -105,20 +111,20 @@ Control-plane paths that survive the drops in `drops.yaml`.
 
 ### MCP Integrations
 
-- [ ] `/mcp-integrations` — `GET` McpIntegrations_list, `POST` McpIntegrations_create
-- [ ] `/mcp-integrations/{mcpIntegrationId}` — `DELETE` McpIntegrations_delete, `GET` McpIntegrations_retrieve, `PUT` McpIntegrations_update
+- [ ] `/mcp-integrations` ✓ — `GET` McpIntegrations_list, `POST` McpIntegrations_create
+- [ ] `/mcp-integrations/{mcpIntegrationId}` ✓ — `DELETE` McpIntegrations_delete, `GET` McpIntegrations_retrieve, `PUT` McpIntegrations_update
 
 ### MCP Integrations > Capabilities
 
-- [ ] `/mcp-integrations/{mcpIntegrationId}/capabilities` — `GET` McpIntegrationCapabilities_list, `PUT` McpIntegrationCapabilities_bulkUpdate
+- [ ] `/mcp-integrations/{mcpIntegrationId}/capabilities` ✓ — `GET` McpIntegrationCapabilities_list, `PUT` McpIntegrationCapabilities_bulkUpdate
 
 ### MCP Integrations > Metadata
 
-- [ ] `/mcp-integrations/{mcpIntegrationId}/metadata` — `GET` McpIntegrationMetadata_retrieve
+- [ ] `/mcp-integrations/{mcpIntegrationId}/metadata` ✓ — `GET` McpIntegrationMetadata_retrieve
 
 ### MCP Integrations > Workspaces
 
-- [ ] `/mcp-integrations/{mcpIntegrationId}/workspaces` — `GET` McpIntegrationWorkspaces_list, `PUT` McpIntegrationWorkspaces_bulkUpdate
+- [ ] `/mcp-integrations/{mcpIntegrationId}/workspaces` ✓ — `GET` McpIntegrationWorkspaces_list, `PUT` McpIntegrationWorkspaces_bulkUpdate
 
 ### MCP Servers
 
@@ -146,6 +152,13 @@ Control-plane paths that survive the drops in `drops.yaml`.
 
 - [ ] `/models/{model}` ✓ — `DELETE` deleteModel, `GET` retrieveModel
 
+### Org Guardrails
+
+- [ ] `/admin/v2/guardrails` ✓ — `GET` listOrgGuardrails, `POST` createOrgGuardrail
+- [ ] `/admin/v2/guardrails/{guardrailId}` ✓ — `DELETE` deleteOrgGuardrail, `GET` getOrgGuardrail, `PUT` updateOrgGuardrail
+- [ ] `/admin/v2/guardrails/{guardrailId}/mcp-servers` ✓ — `GET` listOrgGuardrailMcpServers, `PUT` bulkSyncOrgGuardrailMcpServers
+- [ ] `/admin/v2/guardrails/{guardrailId}/mcp-servers/{mcpServerId}` ✓ — `PUT` upsertOrgGuardrailMcpServer
+
 ### Providers
 
 - [ ] `/providers` — `GET` *(no operationId)*, `POST` *(no operationId)*
@@ -158,8 +171,8 @@ Control-plane paths that survive the drops in `drops.yaml`.
 
 ### Secret References
 
-- [ ] `/secret-references` — `GET` listSecretReferences, `POST` createSecretReference
-- [ ] `/secret-references/{secretReferenceId}` — `DELETE` deleteSecretReference, `GET` getSecretReference, `PUT` updateSecretReference
+- [ ] `/secret-references` ✓ — `GET` listSecretReferences, `POST` createSecretReference
+- [ ] `/secret-references/{secretReferenceId}` ✓ — `DELETE` deleteSecretReference, `GET` getSecretReference, `PUT` updateSecretReference
 
 ### Usage Limit Policies
 

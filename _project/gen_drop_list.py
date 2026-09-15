@@ -6,11 +6,16 @@ reads to decide which paths get a control-plane server override. There is one
 record of which plane a path is on and this reads it, so the inventory cannot
 drift from the document it describes.
 
-planes.yaml records *how* each call was made -- `classification.yaml` for the 23
-a human decided, `inherited` for the rest, read off the base's per-path server
-overrides before those were deleted and never independently verified. The output
-marks which is which: a guess and a call should never be indistinguishable once
-both are on the page.
+planes.yaml records *how* each call was made -- `classification.yaml` or a dated
+name for the ones a human decided, `inherited` for the rest, read off the base's
+per-path server overrides before those were deleted and never independently
+verified. The output marks which is which: a guess and a call should never be
+indistinguishable once both are on the page.
+
+It groups by data plane against management, which is the question it exists to
+answer. The management side spans three planes in planes.yaml since the Phase 2
+admin split; that distinction is about hosts and does not change the blast
+radius, so it is flattened here.
 
 It also computes the blast radius: how many component schemas each group owns
 exclusively, and so would be orphaned if the group went away. Deleting paths is
@@ -30,28 +35,38 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-from build import HTTP_METHODS  # noqa: E402
+from build import HTTP_METHODS, SPANNING_KEY  # noqa: E402
 
 CONTROL = "control plane"
 GATEWAY = "gateway"
 UNKNOWN = "unclassified"
 
-CONTROL_KEY = "control-plane"
 GATEWAY_KEY = "gateway"
 
-# planes.yaml's `how` value for a path whose plane a human actually decided.
-DECIDED_BY_HAND = "classification.yaml"
+# planes.yaml's `how` value for a path nobody decided: it was read off the
+# base's server override. Everything else names whoever made the call.
+INHERITED = "inherited"
 
 
 def load_planes(path: Path) -> tuple[dict[str, str], set[str]]:
-    """{path: plane} and the subset a human decided, from planes.yaml."""
+    """{path: plane} and the subset a human decided, from planes.yaml.
+
+    planes.yaml distinguishes four planes; this file asks one question --
+    would dropping the management surface orphan this path -- so everything
+    that is not the gateway is the control plane here. Reading only the two
+    keys it used to know about would have silently reclassified the 18 admin
+    paths as unclassified, which is how this script broke once before.
+    """
     doc = yaml.safe_load(path.read_text()) or {}
     plane_of: dict[str, str] = {}
     by_hand: set[str] = set()
-    for key, kind in ((CONTROL_KEY, CONTROL), (GATEWAY_KEY, GATEWAY)):
-        for p, how in (doc.get(key) or {}).items():
+    for key, paths in doc.items():
+        if key == SPANNING_KEY:   # not a plane; the tags allowed to span two
+            continue
+        kind = GATEWAY if key == GATEWAY_KEY else CONTROL
+        for p, how in (paths or {}).items():
             plane_of[p] = kind
-            if str(how).strip() == DECIDED_BY_HAND:
+            if str(how).strip() != INHERITED:
                 by_hand.add(p)
     return plane_of, by_hand
 
@@ -124,8 +139,9 @@ def main() -> int:
          if groups[UNKNOWN] else
          "**Every path is classified.** The build fails if one is not."),
         "",
-        "**✓** marks a path a human classified, recorded in `planes.yaml` as coming"
-        f" from `classification.yaml` ({len(decided)} of {len(plane_of)}).",
+        "**✓** marks a path a human classified -- anything whose `how` in"
+        " `planes.yaml` is not `inherited`, so `classification.yaml` and the"
+        f" Phase 2 admin split alike ({len(decided)} of {len(plane_of)}).",
         "Everything unmarked was read off the base's per-path server overrides before",
         "those were deleted, and is **unverified**.",
         "",

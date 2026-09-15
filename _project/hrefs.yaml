@@ -1,0 +1,214 @@
+# The published URL of every operation's reference page. This is a public
+# contract, not a derived artifact.
+#
+# scripts/build.py stamps these into openapi.yaml as `x-mint.href` and
+# scripts/check.py enforces them. Keys are "METHOD /path", the same shape
+# _project/drops.yaml uses.
+#
+# The values follow the scheme in scripts/hrefs.py, and the build re-derives
+# each one and fails if it does not match what is recorded here. That is
+# deliberate: a tag rename silently changes the derived href of every operation
+# under it, and these URLs are written into links in the docs repository. A
+# change here is a docs migration and wants coordinating, so it stops the build
+# rather than republishing 40 pages at new addresses.
+#
+# Two ways past that failure, and they mean different things:
+#
+#   scripts/build.py --apply-hrefs   adopt the new URLs. Tell docs; the old
+#                                    ones stop resolving.
+#   pinned:                          keep the recorded URL even though the
+#                                    scheme now derives a different one. For
+#                                    when a tag was renamed and the URLs must
+#                                    not move.
+#
+# New operations are added here automatically with their derived href -- there
+# is no URL to break yet, so nothing needs deciding.
+hrefs:
+  POST /chat/completions: /aigw/api-reference/chat/create-chat-completion
+  GET /realtime: /aigw/api-reference/realtime/connect-realtime
+  POST /completions: /aigw/api-reference/completions/create-completion
+  POST /guardrails: /aigw/api-reference/guardrails/create-guardrail
+  GET /guardrails: /aigw/api-reference/guardrails/list-guardrails
+  GET /guardrails/{guardrailId}: /aigw/api-reference/guardrails/get-guardrail
+  PUT /guardrails/{guardrailId}: /aigw/api-reference/guardrails/update-guardrail
+  DELETE /guardrails/{guardrailId}: /aigw/api-reference/guardrails/delete-guardrail
+  PUT /guardrails/{guardrailId}/mcp-servers: /aigw/api-reference/guardrails/bulk-sync-guardrail-mcp-servers
+  GET /guardrails/{guardrailId}/mcp-servers: /aigw/api-reference/guardrails/list-guardrail-mcp-servers
+  PUT /guardrails/{guardrailId}/mcp-servers/{mcpServerId}: /aigw/api-reference/guardrails/upsert-guardrail-mcp-server
+  POST /admin/v2/guardrails: /aigw/api-reference/org-guardrails/create-org-guardrail
+  GET /admin/v2/guardrails: /aigw/api-reference/org-guardrails/list-org-guardrails
+  GET /admin/v2/guardrails/{guardrailId}: /aigw/api-reference/org-guardrails/get-org-guardrail
+  PUT /admin/v2/guardrails/{guardrailId}: /aigw/api-reference/org-guardrails/update-org-guardrail
+  DELETE /admin/v2/guardrails/{guardrailId}: /aigw/api-reference/org-guardrails/delete-org-guardrail
+  PUT /admin/v2/guardrails/{guardrailId}/mcp-servers: /aigw/api-reference/org-guardrails/bulk-sync-org-guardrail-mcp-servers
+  GET /admin/v2/guardrails/{guardrailId}/mcp-servers: /aigw/api-reference/org-guardrails/list-org-guardrail-mcp-servers
+  PUT /admin/v2/guardrails/{guardrailId}/mcp-servers/{mcpServerId}: /aigw/api-reference/org-guardrails/upsert-org-guardrail-mcp-server
+  POST /images/generations: /aigw/api-reference/images/create-image
+  POST /images/edits: /aigw/api-reference/images/create-image-edit
+  POST /images/variations: /aigw/api-reference/images/create-image-variation
+  POST /embeddings: /aigw/api-reference/embeddings/create-embedding
+  POST /rerank: /aigw/api-reference/rerank/create-rerank
+  POST /ocr: /aigw/api-reference/ocr/create-ocr
+  POST /audio/speech: /aigw/api-reference/audio/create-speech
+  POST /audio/transcriptions: /aigw/api-reference/audio/create-transcription
+  POST /audio/translations: /aigw/api-reference/audio/create-translation
+  GET /files: /aigw/api-reference/files/list-files
+  POST /files: /aigw/api-reference/files/create-file
+  DELETE /files/{file_id}: /aigw/api-reference/files/delete-file
+  GET /files/{file_id}: /aigw/api-reference/files/retrieve-file
+  GET /files/{file_id}/content: /aigw/api-reference/files/download-file
+  POST /fine_tuning/jobs: /aigw/api-reference/fine-tuning/create-fine-tuning-job
+  GET /fine_tuning/jobs: /aigw/api-reference/fine-tuning/list-paginated-fine-tuning-jobs
+  GET /fine_tuning/jobs/{fine_tuning_job_id}: /aigw/api-reference/fine-tuning/retrieve-fine-tuning-job
+  GET /fine_tuning/jobs/{fine_tuning_job_id}/events: /aigw/api-reference/fine-tuning/list-fine-tuning-events
+  POST /fine_tuning/jobs/{fine_tuning_job_id}/cancel: /aigw/api-reference/fine-tuning/cancel-fine-tuning-job
+  GET /fine_tuning/jobs/{fine_tuning_job_id}/checkpoints: /aigw/api-reference/fine-tuning/list-fine-tuning-job-checkpoints
+  GET /models: /aigw/api-reference/models/list-models
+  GET /models/{model}: /aigw/api-reference/models/retrieve-model
+  DELETE /models/{model}: /aigw/api-reference/models/delete-model
+  POST /moderations: /aigw/api-reference/moderations/create-moderation
+  GET /assistants: /aigw/api-reference/assistants/list-assistants
+  POST /assistants: /aigw/api-reference/assistants/create-assistant
+  GET /assistants/{assistant_id}: /aigw/api-reference/assistants/get-assistant
+  POST /assistants/{assistant_id}: /aigw/api-reference/assistants/modify-assistant
+  DELETE /assistants/{assistant_id}: /aigw/api-reference/assistants/delete-assistant
+  POST /responses: /aigw/api-reference/responses/create-response
+  GET /responses/{response_id}: /aigw/api-reference/responses/get-response
+  DELETE /responses/{response_id}: /aigw/api-reference/responses/delete-response
+  GET /responses/{response_id}/input_items: /aigw/api-reference/responses/list-input-items
+  POST /threads: /aigw/api-reference/assistants/create-thread
+  GET /threads/{thread_id}: /aigw/api-reference/assistants/get-thread
+  POST /threads/{thread_id}: /aigw/api-reference/assistants/modify-thread
+  DELETE /threads/{thread_id}: /aigw/api-reference/assistants/delete-thread
+  GET /threads/{thread_id}/messages: /aigw/api-reference/assistants/list-messages
+  POST /threads/{thread_id}/messages: /aigw/api-reference/assistants/create-message
+  GET /threads/{thread_id}/messages/{message_id}: /aigw/api-reference/assistants/get-message
+  POST /threads/{thread_id}/messages/{message_id}: /aigw/api-reference/assistants/modify-message
+  DELETE /threads/{thread_id}/messages/{message_id}: /aigw/api-reference/assistants/delete-message
+  POST /threads/runs: /aigw/api-reference/assistants/create-thread-and-run
+  GET /threads/{thread_id}/runs: /aigw/api-reference/assistants/list-runs
+  POST /threads/{thread_id}/runs: /aigw/api-reference/assistants/create-run
+  GET /threads/{thread_id}/runs/{run_id}: /aigw/api-reference/assistants/get-run
+  POST /threads/{thread_id}/runs/{run_id}: /aigw/api-reference/assistants/modify-run
+  POST /threads/{thread_id}/runs/{run_id}/submit_tool_outputs: /aigw/api-reference/assistants/submit-tool-ouputs-to-run
+  POST /threads/{thread_id}/runs/{run_id}/cancel: /aigw/api-reference/assistants/cancel-run
+  GET /threads/{thread_id}/runs/{run_id}/steps: /aigw/api-reference/assistants/list-run-steps
+  GET /threads/{thread_id}/runs/{run_id}/steps/{step_id}: /aigw/api-reference/assistants/get-run-step
+  GET /vector_stores: /aigw/api-reference/vector-stores/list-vector-stores
+  POST /vector_stores: /aigw/api-reference/vector-stores/create-vector-store
+  GET /vector_stores/{vector_store_id}: /aigw/api-reference/vector-stores/get-vector-store
+  POST /vector_stores/{vector_store_id}: /aigw/api-reference/vector-stores/modify-vector-store
+  DELETE /vector_stores/{vector_store_id}: /aigw/api-reference/vector-stores/delete-vector-store
+  GET /vector_stores/{vector_store_id}/files: /aigw/api-reference/vector-stores/list-vector-store-files
+  POST /vector_stores/{vector_store_id}/files: /aigw/api-reference/vector-stores/create-vector-store-file
+  GET /vector_stores/{vector_store_id}/files/{file_id}: /aigw/api-reference/vector-stores/get-vector-store-file
+  DELETE /vector_stores/{vector_store_id}/files/{file_id}: /aigw/api-reference/vector-stores/delete-vector-store-file
+  POST /vector_stores/{vector_store_id}/file_batches: /aigw/api-reference/vector-stores/create-vector-store-file-batch
+  GET /vector_stores/{vector_store_id}/file_batches/{batch_id}: /aigw/api-reference/vector-stores/get-vector-store-file-batch
+  POST /vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel: /aigw/api-reference/vector-stores/cancel-vector-store-file-batch
+  GET /vector_stores/{vector_store_id}/file_batches/{batch_id}/files: /aigw/api-reference/vector-stores/list-files-in-vector-store-batch
+  POST /batches: /aigw/api-reference/batch/create-batch
+  GET /batches: /aigw/api-reference/batch/list-batches
+  GET /batches/{batch_id}/output: /aigw/api-reference/batch/get-batch-output
+  GET /batches/{batch_id}: /aigw/api-reference/batch/retrieve-batch
+  POST /batches/{batch_id}/cancel: /aigw/api-reference/batch/cancel-batch
+  GET /configs: /aigw/api-reference/configs/list-configs
+  POST /configs: /aigw/api-reference/configs/create-config
+  DELETE /configs/{slug}: /aigw/api-reference/configs/delete-config
+  GET /configs/{slug}: /aigw/api-reference/configs/get-config
+  PUT /configs/{slug}: /aigw/api-reference/configs/update-config
+  GET /configs/{slug}/versions: /aigw/api-reference/configs/list-config-versions
+  POST /feedback: /aigw/api-reference/feedback/create-feedback
+  PUT /feedback/{id}: /aigw/api-reference/feedback/update-feedback
+  GET /integrations: /aigw/api-reference/integrations/get-integrations
+  POST /integrations: /aigw/api-reference/integrations/post-integrations
+  GET /integrations/{slug}: /aigw/api-reference/integrations/get-integrations-by-slug
+  PUT /integrations/{slug}: /aigw/api-reference/integrations/put-integrations-by-slug
+  DELETE /integrations/{slug}: /aigw/api-reference/integrations/delete-integrations-by-slug
+  GET /integrations/{slug}/models: /aigw/api-reference/integrations/models/get-integrations-by-slug-models
+  PUT /integrations/{slug}/models: /aigw/api-reference/integrations/models/put-integrations-by-slug-models
+  DELETE /integrations/{slug}/models: /aigw/api-reference/integrations/models/delete-integrations-by-slug-models
+  GET /integrations/{slug}/workspaces: /aigw/api-reference/integrations/workspaces/get-integrations-by-slug-workspaces
+  PUT /integrations/{slug}/workspaces: /aigw/api-reference/integrations/workspaces/put-integrations-by-slug-workspaces
+  GET /providers: /aigw/api-reference/providers/get-providers
+  POST /providers: /aigw/api-reference/providers/post-providers
+  GET /providers/{slug}: /aigw/api-reference/providers/get-providers-by-slug
+  PUT /providers/{slug}: /aigw/api-reference/providers/put-providers-by-slug
+  DELETE /providers/{slug}: /aigw/api-reference/providers/delete-providers-by-slug
+  POST /mcp-integrations: /aigw/api-reference/mcp-integrations/mcp-integrations-create
+  GET /mcp-integrations: /aigw/api-reference/mcp-integrations/mcp-integrations-list
+  GET /mcp-integrations/{mcpIntegrationId}: /aigw/api-reference/mcp-integrations/mcp-integrations-retrieve
+  PUT /mcp-integrations/{mcpIntegrationId}: /aigw/api-reference/mcp-integrations/mcp-integrations-update
+  DELETE /mcp-integrations/{mcpIntegrationId}: /aigw/api-reference/mcp-integrations/mcp-integrations-delete
+  GET /mcp-integrations/{mcpIntegrationId}/workspaces: /aigw/api-reference/mcp-integrations/workspaces/mcp-integration-workspaces-list
+  PUT /mcp-integrations/{mcpIntegrationId}/workspaces: /aigw/api-reference/mcp-integrations/workspaces/mcp-integration-workspaces-bulk-update
+  GET /mcp-integrations/{mcpIntegrationId}/capabilities: /aigw/api-reference/mcp-integrations/capabilities/mcp-integration-capabilities-list
+  PUT /mcp-integrations/{mcpIntegrationId}/capabilities: /aigw/api-reference/mcp-integrations/capabilities/mcp-integration-capabilities-bulk-update
+  GET /mcp-integrations/{mcpIntegrationId}/metadata: /aigw/api-reference/mcp-integrations/metadata/mcp-integration-metadata-retrieve
+  POST /mcp-servers: /aigw/api-reference/mcp-servers/mcp-servers-create
+  GET /mcp-servers: /aigw/api-reference/mcp-servers/mcp-servers-list
+  GET /mcp-servers/{mcpServerId}: /aigw/api-reference/mcp-servers/mcp-servers-retrieve
+  PUT /mcp-servers/{mcpServerId}: /aigw/api-reference/mcp-servers/mcp-servers-update
+  DELETE /mcp-servers/{mcpServerId}: /aigw/api-reference/mcp-servers/mcp-servers-delete
+  POST /mcp-servers/{mcpServerId}/test: /aigw/api-reference/mcp-servers/mcp-servers-test
+  GET /mcp-servers/{mcpServerId}/capabilities: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-list
+  PUT /mcp-servers/{mcpServerId}/capabilities: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-bulk-update
+  GET /mcp-servers/{mcpServerId}/user-access: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-list
+  PUT /mcp-servers/{mcpServerId}/user-access: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-bulk-update
+  GET /mcp-servers/{mcpServerId}/connections: /aigw/api-reference/mcp-servers/connections/mcp-server-connections-list
+  DELETE /mcp-servers/{mcpServerId}/connections: /aigw/api-reference/mcp-servers/connections/mcp-server-connections-delete
+  POST /logs: /aigw/api-reference/logs/post-logs
+  GET /logs/{logId}: /aigw/api-reference/logs/get-logs-by-log-id
+  POST /api-keys/{type}/{sub-type}: /aigw/api-reference/api-keys/post-api-keys-by-type-by-sub-type
+  GET /api-keys: /aigw/api-reference/api-keys/get-api-keys
+  PUT /api-keys/{id}: /aigw/api-reference/api-keys/put-api-keys-by-id
+  GET /api-keys/{id}: /aigw/api-reference/api-keys/get-api-keys-by-id
+  DELETE /api-keys/{id}: /aigw/api-reference/api-keys/delete-api-keys-by-id
+  POST /api-keys/{id}/rotate: /aigw/api-reference/api-keys/post-api-keys-by-id-rotate
+  POST /policies/usage-limits: /aigw/api-reference/usage-limit-policies/create-usage-limits-policy
+  GET /policies/usage-limits: /aigw/api-reference/usage-limit-policies/list-usage-limits-policies
+  GET /policies/usage-limits/{policyUsageLimitsId}: /aigw/api-reference/usage-limit-policies/get-usage-limits-policy
+  PUT /policies/usage-limits/{policyUsageLimitsId}: /aigw/api-reference/usage-limit-policies/update-usage-limits-policy
+  DELETE /policies/usage-limits/{policyUsageLimitsId}: /aigw/api-reference/usage-limit-policies/delete-usage-limits-policy
+  GET /policies/usage-limits/{policyUsageLimitsId}/entities: /aigw/api-reference/usage-limit-policies/list-usage-limits-policy-entities
+  PUT /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset: /aigw/api-reference/usage-limit-policies/reset-usage-limits-policy-entity
+  POST /policies/rate-limits: /aigw/api-reference/rate-limit-policies/create-rate-limits-policy
+  GET /policies/rate-limits: /aigw/api-reference/rate-limit-policies/list-rate-limits-policies
+  GET /policies/rate-limits/{rateLimitsPolicyId}: /aigw/api-reference/rate-limit-policies/get-rate-limits-policy
+  PUT /policies/rate-limits/{rateLimitsPolicyId}: /aigw/api-reference/rate-limit-policies/update-rate-limits-policy
+  DELETE /policies/rate-limits/{rateLimitsPolicyId}: /aigw/api-reference/rate-limit-policies/delete-rate-limits-policy
+  GET /analytics/graphs/requests: /aigw/api-reference/analytics/graphs/get-analytics-graphs-requests
+  GET /analytics/graphs/cost: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cost
+  GET /analytics/graphs/latency: /aigw/api-reference/analytics/graphs/get-analytics-graphs-latency
+  GET /analytics/graphs/tokens: /aigw/api-reference/analytics/graphs/get-analytics-graphs-tokens
+  GET /analytics/graphs/users: /aigw/api-reference/analytics/graphs/get-analytics-graphs-users
+  GET /analytics/graphs/users/requests: /aigw/api-reference/analytics/graphs/get-analytics-graphs-users-requests
+  GET /analytics/graphs/errors: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors
+  GET /analytics/graphs/errors/rate: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-rate
+  GET /analytics/graphs/errors/stacks: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-stacks
+  GET /analytics/graphs/errors/status-codes: /aigw/api-reference/analytics/graphs/get-analytics-graphs-errors-status-codes
+  GET /analytics/graphs/requests/rescued: /aigw/api-reference/analytics/graphs/get-analytics-graphs-requests-rescued
+  GET /analytics/graphs/cache/hit-rate: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cache-hit-rate
+  GET /analytics/graphs/cache/latency: /aigw/api-reference/analytics/graphs/get-analytics-graphs-cache-latency
+  GET /analytics/graphs/feedbacks: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks
+  GET /analytics/graphs/feedbacks/scores: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-scores
+  GET /analytics/graphs/feedbacks/weighted: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-weighted
+  GET /analytics/graphs/feedbacks/ai-models: /aigw/api-reference/analytics/graphs/get-analytics-graphs-feedbacks-ai-models
+  GET /analytics/summary/cache: /aigw/api-reference/analytics/summary/get-analytics-summary-cache
+  GET /analytics/groups/users: /aigw/api-reference/analytics/groups/get-analytics-groups-users
+  GET /analytics/groups/ai-models: /aigw/api-reference/analytics/groups/get-analytics-groups-ai-models
+  GET /analytics/groups/provider: /aigw/api-reference/analytics/groups/get-analytics-groups-provider
+  GET /analytics/groups/metadata/{metadataKey}: /aigw/api-reference/analytics/groups/get-analytics-groups-metadata-by-metadata-key
+  GET /model-configs/pricing/{provider}/{model}: /aigw/api-reference/model-pricing/get-model-pricing
+  GET /secret-references: /aigw/api-reference/secret-references/list-secret-references
+  POST /secret-references: /aigw/api-reference/secret-references/create-secret-reference
+  GET /secret-references/{secretReferenceId}: /aigw/api-reference/secret-references/get-secret-reference
+  PUT /secret-references/{secretReferenceId}: /aigw/api-reference/secret-references/update-secret-reference
+  DELETE /secret-references/{secretReferenceId}: /aigw/api-reference/secret-references/delete-secret-reference
+  GET /deployments: /aigw/api-reference/deployments/list-deployments
+  POST /deployments: /aigw/api-reference/deployments/create-deployment
+  GET /deployments/{deploymentId}: /aigw/api-reference/deployments/get-deployment
+  PUT /deployments/{deploymentId}: /aigw/api-reference/deployments/update-deployment
+  DELETE /deployments/{deploymentId}: /aigw/api-reference/deployments/delete-deployment
+  GET /deployments/{deploymentId}/ping: /aigw/api-reference/deployments/ping-deployment
+pinned: []

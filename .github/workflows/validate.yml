@@ -28,15 +28,15 @@ jobs:
       - name: Check specification, overlays and grounding gate
         run: python scripts/check.py
 
-      - name: Resolve overlays and upload the published document
-        run: |
-          python scripts/apply_overlay.py openapi.yaml overlays/*.yaml \
-            -o build/openapi.resolved.yaml
-
+      # openapi.yaml is itself the resolved document now -- scripts/build.py
+      # applies the overlay before committing it, and check.py above proves the
+      # prose in it is exactly what the overlay produces. This job used to
+      # resolve the overlay here and upload the result, which meant the thing
+      # CI verified and the thing the docs site read were different files.
       - uses: actions/upload-artifact@v4
         with:
-          name: resolved-specification
-          path: build/openapi.resolved.yaml
+          name: published-specification
+          path: openapi.yaml
 
   build:
     name: Derived artifacts are up to date

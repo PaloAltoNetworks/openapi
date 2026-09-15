@@ -5,15 +5,36 @@
 # destroyed -- otherwise the split would have become unreproducible the moment
 # the overrides went.
 #
-# `scripts/build.py` reads this to decide which paths need a control-plane
-# server override. Every path in openapi.yaml must appear here or the build
-# fails: a path added without a plane would silently inherit the gateway URL.
+# `scripts/build.py` reads this to decide which server block each path needs.
+# Every path in openapi.yaml must appear here or the build fails: a path added
+# without a plane would silently inherit the gateway URL.
+#
+# The keys are plane names and each one must exist in _project/servers.yaml,
+# which holds the URLs. Four planes:
+#
+#   gateway         the data plane; the root server, so no override is written
+#   control-plane   /ai_gw/v2
+#   admin           /ai_gw/admin/v2
+#   admin-in-path   also /ai_gw/admin/v2, but the prefix is in the path key
+#                   rather than the server URL -- see servers.yaml for why
 #
 # `how` records where the call came from:
 #   classification.yaml  -- a human decided, see that file for the reasoning
 #   inherited            -- read off the base's server override, unverified
-#
-# The gateway is the root server, so gateway paths carry no override.
+#   vrushank.2026-09-15  -- the Phase 2 admin split, decided by capability
+#                           (Integrations, MCP Integrations, Secret References,
+#                           Org Guardrails, Deployments) and written out here
+#                           as the paths those capabilities cover
+
+# Tags whose operations are deliberately not all on one plane. `check.py` fails
+# on any other tag that spans two, because the split was decided by capability
+# and a tag is what carries one -- a single path drifting onto another host
+# otherwise reads as intentional.
+tags-spanning-planes:
+  # Vrushank, 2026-09-15, in classification.yaml: listing the models available
+  # to a caller is a gateway concern (/models) and administering one is not
+  # (/models/{model}). One tag, two planes, on purpose.
+  - Models
 
 control-plane:
   "/analytics/graphs/cache/hit-rate": inherited
@@ -51,15 +72,6 @@ control-plane:
   "/guardrails/{guardrailId}": classification.yaml
   "/guardrails/{guardrailId}/mcp-servers": classification.yaml
   "/guardrails/{guardrailId}/mcp-servers/{mcpServerId}": classification.yaml
-  "/integrations": inherited
-  "/integrations/{slug}": inherited
-  "/integrations/{slug}/models": classification.yaml
-  "/integrations/{slug}/workspaces": classification.yaml
-  "/mcp-integrations": inherited
-  "/mcp-integrations/{mcpIntegrationId}": inherited
-  "/mcp-integrations/{mcpIntegrationId}/capabilities": inherited
-  "/mcp-integrations/{mcpIntegrationId}/metadata": inherited
-  "/mcp-integrations/{mcpIntegrationId}/workspaces": inherited
   "/mcp-servers": inherited
   "/mcp-servers/{mcpServerId}": inherited
   "/mcp-servers/{mcpServerId}/capabilities": inherited
@@ -76,8 +88,40 @@ control-plane:
   "/policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset": classification.yaml
   "/providers": inherited
   "/providers/{slug}": inherited
-  "/secret-references": inherited
-  "/secret-references/{secretReferenceId}": inherited
+
+# Administered on /ai_gw/admin/v2. Selected by capability, not by URL: the call
+# was "Integrations, MCP Integrations, Secret References, Deployments and Org
+# Guardrails are admin", and these are the paths those capabilities cover. A new
+# path under one of them belongs here too, and `check.py` says so if the tag it
+# carries is administered elsewhere.
+admin:
+  "/integrations": vrushank.2026-09-15
+  "/integrations/{slug}": vrushank.2026-09-15
+  "/integrations/{slug}/models": vrushank.2026-09-15
+  "/integrations/{slug}/workspaces": vrushank.2026-09-15
+  "/mcp-integrations": vrushank.2026-09-15
+  "/mcp-integrations/{mcpIntegrationId}": vrushank.2026-09-15
+  "/mcp-integrations/{mcpIntegrationId}/capabilities": vrushank.2026-09-15
+  "/mcp-integrations/{mcpIntegrationId}/metadata": vrushank.2026-09-15
+  "/mcp-integrations/{mcpIntegrationId}/workspaces": vrushank.2026-09-15
+  "/secret-references": vrushank.2026-09-15
+  "/secret-references/{secretReferenceId}": vrushank.2026-09-15
+
+  # Recovered in Phase 2, having been dropped in Phase 1 as a capability Prisma
+  # AIRS does not expose. The shape here is the inherited Portkey one and has
+  # not been checked against the admin API that now serves it.
+  "/deployments": vrushank.2026-09-15
+  "/deployments/{deploymentId}": vrushank.2026-09-15
+  "/deployments/{deploymentId}/ping": vrushank.2026-09-15
+
+# The org-level guardrails, which the API serves at the same suffix as the
+# control-plane ones. The `/admin/v2` in these keys is the server prefix, moved
+# here because a document cannot hold two paths spelled `/guardrails`.
+admin-in-path:
+  "/admin/v2/guardrails": vrushank.2026-09-15
+  "/admin/v2/guardrails/{guardrailId}": vrushank.2026-09-15
+  "/admin/v2/guardrails/{guardrailId}/mcp-servers": vrushank.2026-09-15
+  "/admin/v2/guardrails/{guardrailId}/mcp-servers/{mcpServerId}": vrushank.2026-09-15
 
 gateway:
   "/assistants": inherited

@@ -21,12 +21,13 @@ plausible, wrong description is invisible and survives review.
 
 | Path | Owner | Contents | Review |
 |---|---|---|---|
-| `openapi.yaml` | Engineering | Paths, schemas, types, `required`, enums, security | API review |
-| `overlays/docs-prose.yaml` | Docs | `summary`, `description`, examples, tag prose | **Grounding gate** |
+| `openapi.yaml` | Generated | **The published document.** Structure and resolved prose | — |
+| `overlays/docs-prose.yaml` | Docs | Where `summary`, `description`, examples and tag prose are *written* | **Grounding gate** |
 | `tags-map.yaml` | Docs | Tag information architecture and naming | IA review |
 | `docs-navigation.json` | Docs | Generated `docs.json` navigation fragment | — |
-| `_project/servers.yaml` | Engineering | **The base URLs.** One place, both planes | API review |
-| `_project/planes.yaml` | Engineering | Which plane each path is on | API review |
+| `_project/servers.yaml` | Engineering | **The base URLs.** One place, all four planes | API review |
+| `_project/planes.yaml` | Engineering | Which plane each path is on, and which tags may span two | API review |
+| `_project/hrefs.yaml` | Docs | **The published URL of every operation's page** | Docs migration |
 | `_project/drops.yaml` | Product | What is deliberately not shipped: tags, operations, parameters | Product |
 | `webhooks/*.schema.json` | Both | The KB sync contract, in both directions | Both |
 | `.spectral.yaml` | Both | Lint rules, including the grounding gate | — |
@@ -34,34 +35,52 @@ plausible, wrong description is invisible and survives review.
 | `PROSE-INVENTORY.csv` | — | Every stripped prose field: location, size, digest | Worklist |
 | `build-report.txt` | — | Counts, and the gaps that want engineering | — |
 
-The split is the point. Engineering ships structural changes without touching a
-grounded assertion, and the grounding gate applies to a file that is small and
-entirely prose. Retrofitting this means unpicking prose from a specification
-that has already merged them, so it is here from the first commit.
+The split is the point, and it is a split between *where prose is written* and
+*what gets published* — not between two files someone else has to join up.
+`openapi.yaml` is the published document, prose included; `scripts/build.py`
+strips every prose field out of it and reapplies the overlay on every run. So
+the grounding gate reviews a file that is small and entirely prose, and what it
+reviews is byte-for-byte what ships. A description typed straight into
+`openapi.yaml` does not survive a build, and `scripts/check.py` fails on it
+until one is run.
 
-The four files under `_project/` are the same idea applied to structure. Each
+It used to work the other way: `openapi.yaml` was structure-only and the overlay
+was applied downstream by whoever rendered it. That had exactly one reader, the
+docs site, and it was not applying the overlay — so the published URL served
+prose-free pages and nothing failed. It cost nothing while every description was
+empty, and it would have cost the whole gate the day one was written.
+
+The five files under `_project/` are the same idea applied to structure. Each
 holds a decision that would otherwise be spread across the document — sixty-odd
-`servers` blocks, twelve tag groups' worth of operations — where it can be read,
-reviewed and changed in one place. `scripts/build.py` applies them back onto
-`openapi.yaml` and CI fails if the document and the decisions disagree.
+`servers` blocks, eleven tag groups' worth of operations, 187 page URLs — where
+it can be read, reviewed and changed in one place. `scripts/build.py` applies
+them back onto `openapi.yaml` and CI fails if the document and the decisions
+disagree.
 
 ## What is in it
 
 | | |
 |---|---|
 | OpenAPI | 3.0.0 |
-| Paths / operations | 114 / 173 |
-| Components | 470, of which 432 schemas |
-| Tags | 40, across 6 navigation groups |
-| Servers | 3 hosts — managed gateway, self-hosted gateway, control plane |
+| Paths / operations | 121 / 187 |
+| Components | 480, of which 442 schemas |
+| Tags | 42, across 6 navigation groups |
+| Servers | 5 hosts across 4 planes — managed and self-hosted gateway, control plane, admin, admin-in-path |
 | Security | 1 scheme: `Authorization: Bearer` |
+| Docs URLs | 187 — one `x-mint.href` per operation, all unique |
 | Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
 
-Twelve capability groups the base carried are **not shipped** — Audit Logs,
-Collections, Deployments, Labels, Log Exports, Prompts, Prompt Partials, User
-Invites, Users, Virtual Keys, Workspaces and Workspaces > Members. That is 69
-operations and 37 paths, declared by tag in `_project/drops.yaml`.
+Eleven capability groups the base carried are **not shipped** — Audit Logs,
+Collections, Labels, Log Exports, Prompts, Prompt Partials, User Invites, Users,
+Virtual Keys, Workspaces and Workspaces > Members. That is 63 operations and 34
+paths, declared by tag in `_project/drops.yaml`.
+
+Deployments was a twelfth until Phase 2, when it turned out to be exposed on the
+admin plane after all. Un-dropping is recovery rather than a flag flip: the base
+was retired at the end of Phase 1, so removing the line brought nothing back and
+the six operations were recovered from the pre-drop revision. What came back is
+the inherited shape, and nothing has checked it against the API now serving it.
 
 `drops.yaml` also names **parameters** that must not appear on any operation,
 matched on `name` wherever they occur. Today that is `organisation_id`, which
@@ -93,9 +112,8 @@ per operation. `docs-navigation.json` is generated from the spec's own tags:
 {
   "group": "Chat",
   "openapi": {
-    "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/main/openapi.yaml",
-    "directory": "api-reference",
-    "overlays": ["overlays/docs-prose.yaml"]
+    "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
+    "directory": "api-reference"
   },
   "tag": "Chat"
 }
@@ -105,6 +123,50 @@ No stub files, no per-endpoint navigation entries, no join key to keep in sync.
 Tag structure in the spec becomes navigation structure — which is why
 `tags-map.yaml` is information architecture, not a lookup table.
 
+There is no `overlays` key, and its absence is a fix rather than an omission. It
+used to list `overlays/docs-prose.yaml` — a path in *this* repository, resolved
+against the *docs* repository, where no such file exists. That URL is now the
+whole story: it serves the resolved document.
+
+**Two things in here are load-bearing joins with the docs repository, and
+changing either is a migration rather than a spec edit.**
+
+- **Tag names.** A tag is the join between an operation and a navigation group.
+  Rename one and the group silently empties; add one and it goes unrendered.
+  Docs run `check_nav_matches_remote.py` against this repository and it fails on
+  drift in either direction, but only after a change ships. So a rename or an
+  addition wants telling them first.
+- **`x-mint.href`.** Mintlify generates a page per operation, and the href is
+  that page's address. Without one the slug is derived from whatever prose the
+  operation carries, which means it moves when prose lands and nothing can link
+  to it. They are recorded in `_project/hrefs.yaml`:
+
+```
+/aigw/api-reference/{tag-path}/{operation-slug}
+
+/aigw/api-reference/chat/create-chat-completion      # from operationId
+/aigw/api-reference/analytics/graphs/get-analytics-graphs-cost
+```
+
+`{tag-path}` is the tag kebab-cased, with `>` becoming a path separator, and
+`{operation-slug}` is the `operationId` kebab-cased. The **45 operations with no
+`operationId` get a slug from their method and path** — `by-id` for a `{id}`
+segment — and *not* an `operationId`. The distinction is why this could be done
+while Phase 2 waits: an `operationId` is a contract key that SDK generators turn
+into method names, so inventing one is worse than leaving it missing, whereas an
+href binds nothing in client code. Nothing back-fills one from the other.
+
+The build re-derives every href and **fails if it no longer matches what is
+recorded**, because a tag rename moves them all at once and links point at them.
+Two ways past it, meaning different things: `scripts/build.py --apply-hrefs`
+adopts the new URLs (tell docs — the old ones stop resolving), or a key listed
+under `pinned:` keeps its recorded URL through a rename.
+
+None of this can be verified here. A green build says nothing about whether
+Mintlify renders the pages; that needs a preview deployment, and the Mintlify
+check on PR #1076 came back SKIPPED. What CI can prove — presence, uniqueness,
+tag consistency, agreement with `_project/hrefs.yaml` — it proves.
+
 ## Working on it
 
 ```bash
@@ -113,36 +175,46 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python scripts/check.py           # what CI runs
 .venv/bin/python scripts/build.py           # reapply _project/ and regenerate
 .venv/bin/python scripts/build.py --check   # fail instead of writing; also CI
-.venv/bin/python scripts/apply_overlay.py openapi.yaml overlays/*.yaml -o build/resolved.yaml
+.venv/bin/python scripts/build.py --apply-hrefs   # adopt moved docs URLs
+.venv/bin/python scripts/build.py --apply-drops   # remove what drops.yaml declares
 ```
 
 `scripts/build.py` is idempotent and reads `openapi.yaml` as its own input. Run
-it after editing anything under `_project/` or `tags-map.yaml`: it rewrites the
-`servers` blocks, the security scheme and the ordered `tags` list from those
-files, regenerates `docs-navigation.json` and `build-report.txt`, and tops
-`overlays/docs-prose.yaml` up with empty stubs for anything new. It is
+it after editing anything under `_project/`, `tags-map.yaml` or the overlay: it
+rewrites the `servers` blocks, the security scheme, the ordered `tags` list and
+every `x-mint.href` from those files, strips the prose and reapplies the
+overlay, and regenerates `docs-navigation.json` and `build-report.txt`. It is
 **add-only against the overlay** — it never overwrites or deletes an action,
-because everything in there is prose that passed the grounding gate.
+because everything in there is prose that passed the grounding gate — and it
+tops the overlay up with empty stubs for anything new.
 
 `scripts/check.py` enforces, and each of these has been confirmed to fail when
 violated:
 
 - `openapi.yaml` is a valid OpenAPI document
-- **no non-empty `description`, `summary` or code sample in `openapi.yaml`** —
-  prose belongs in the overlay, where it gets reviewed
+- **every prose field in `openapi.yaml` is what the overlay produces** — strip
+  the prose, reapply the overlay, and the result has to be the document again.
+  Anything typed in directly fails, because the overlay does not put it back
+- **no `x-server-groups`**, or any other inherited root key declared dead
 - every tag used is declared and present in `tags-map.yaml`
 - every operation carries an `x-airs-provenance` block
+- **every operation has an `x-mint.href`**, all unique, each under its own tag's
+  path, each equal to what `_project/hrefs.yaml` records
 - **one security scheme**, declared once at the root, with no operation-level
   override
 - **every base URL comes from `_project/servers.yaml`** — every block, not just
-  the root, and every URL has to still be a URL
+  the root, matching the plane `_project/planes.yaml` puts that path on, and
+  every URL has to still be a URL
+- **every tag sits on one plane**, unless `planes.yaml` declares it as spanning
+  two and says why
 - every overlay target resolves, and the overlaid result still validates
 - **the grounding gate**: any overlay action that writes prose must carry a
   non-empty `claims` list, and its `text_digest` must match the prose it ships
 
 `scripts/build.py` additionally refuses to run if a path is missing from
-`_project/planes.yaml` or classified there but absent from the spec, if an
-operation carries a tag `tags-map.yaml` does not know, or if anything declared
+`_project/planes.yaml`, classified there but absent from the spec, listed under
+two planes, or on a plane `_project/servers.yaml` does not define; if an
+operation carries a tag `tags-map.yaml` does not know; or if anything declared
 in `_project/drops.yaml` has come back.
 
 A code sample counts as prose here, which is not obvious. A sample asserts a
@@ -164,9 +236,17 @@ rather than from taste.
 
 **The stock OpenAPI style guide is inverted.** It wants a description on
 everything; `operation-description`, `info-description` and `info-contact` are
-turned off and replaced by `airs-no-prose-in-spec`, which asserts the opposite.
-Custom rules also enforce the provenance block and the tag naming conventions.
-Each was confirmed to fire before being relied on.
+turned off, because an empty description is the correct state until an accepted
+claim supports it. In their place `airs-prose-is-grounded` asserts the condition
+that actually matters: prose may be here, but not with an empty `claims` list.
+Custom rules also enforce the provenance block, the `x-mint.href`, and the tag
+naming conventions. Each was confirmed to fire before being relied on.
+
+`airs-prose-is-grounded` replaced `airs-no-prose-in-spec`, which asserted that
+prose in `openapi.yaml` was empty. That was right while the document was
+structure-only and would have failed on the first description written — a rule
+destined to be silenced rather than satisfied. The assertion underneath it
+survived the move and got sharper.
 
 **Inherited defects are baselined, not silenced.** They keep their real
 severity; `.spectral-baseline.json` holds them at their current count. Debt can
@@ -219,7 +299,7 @@ domain and not subordinate to the KB (recorded exemption, Q6, 2026-09-07). The
 reconciliation loop is therefore three-node — KB ↔ spec ↔ docs — and drift from
 *either* side is a defect, with no authoritative side to fall back on.
 
-`x-airs-provenance` is scaffolded on all 173 operations with `claims` empty. It
+`x-airs-provenance` is scaffolded on all 187 operations with `claims` empty. It
 is not only "which claim supports this description"; it is the **join key that
 makes drift detectable**. Without a claim reference on an operation, nothing can
 tell that the KB moved and the spec did not.
@@ -286,6 +366,13 @@ not change.*
 component and schema names, property names, enum values. These are things a
 reader types or a machine parses, and renaming one breaks a caller.
 
+**Not renamed quietly** — `x-mint.href` and, because it derives them, every tag
+name. A published URL is something a reader has bookmarked and another
+repository has linked to; the rule of thumb applies to it in full. It is not
+frozen, because a page sometimes has to move — it is held in
+`_project/hrefs.yaml` so that moving one stops the build and gets coordinated
+instead of shipping.
+
 **Two deliberate exemptions**, both decided 2026-09-15:
 
 - **The whole `servers` subtree.** The base URLs are Prisma AIRS's, not the
@@ -339,6 +426,48 @@ Two constraints on that entry, both learned the hard way:
   it a stream of live credentials from readers who copy the sample and forget to
   change the host. A reserved domain fails closed.
 
+### The four planes
+
+One document, four base URLs, and which one an operation publishes is decided in
+`_project/planes.yaml` rather than written next to the operation.
+
+| Plane | URL | Paths |
+|---|---|---|
+| `gateway` | `https://aigw.portkey.ai/v1` (+ the self-hosted entry) | 52 |
+| `control-plane` | `https://api.apps.paloaltonetworks.com/ai_gw/v2` | 51 |
+| `admin` | `https://api.apps.paloaltonetworks.com/ai_gw/admin/v2` | 14 |
+| `admin-in-path` | `https://api.apps.paloaltonetworks.com/ai_gw` | 4 |
+
+The gateway is the root `servers` block, so its paths carry no override at all.
+Everything else gets a generated one, because OpenAPI gives a path no way to
+refer back to a server declared once at the root — and a path-level block
+*replaces* the root list rather than extending it, which is what stops the
+self-hosted gateway entry from appearing on a management operation.
+
+`admin-in-path` is the same host as `admin`, split out for a reason worth
+knowing: the API serves the org-level guardrails at `/ai_gw/admin/v2/guardrails`
+and the control-plane ones at `/ai_gw/v2/guardrails`, and **a document cannot
+hold two paths spelled the same**. For those four, and only those four, the
+server stops at `/ai_gw` and the `/admin/v2` prefix moves into the path key. The
+rendered URL is identical either way; what changes is which file the prefix is
+written in. Keeping it in `servers.yaml` for the rest of the admin plane is what
+kept fourteen existing paths, their `operationId`s and their published docs URLs
+from moving to accommodate one collision.
+
+Two invariants hold this together, both in `scripts/check.py`:
+
+- **Every block matches the plane its path is on.** Not just "matches one of
+  them" — an admin endpoint carrying the control-plane block is a failure, and
+  so is an admin path carrying no block at all, since that publishes it on the
+  gateway host.
+- **A tag sits on one plane.** The split was decided by capability and
+  `planes.yaml` can only record paths, so a new path under an admin capability
+  can be classified control-plane and look entirely deliberate. Tags carry the
+  capability, so that is what is compared. `Models` is the one declared
+  exception — listing the models available to a caller is a gateway concern,
+  administering one is not — and it is written down in `planes.yaml` under
+  `tags-spanning-planes`. An allowance that stops being needed fails too.
+
 ## Provenance of this repository
 
 Structure was derived from `Portkey-AI/openapi` at commit
@@ -378,14 +507,21 @@ regenerate.
   reachable from this workspace. The left-hand column of the inherit/re-ground
   split is *machine-verifiable in principle* — send a request, compare the
   response — and that verification has not been done.
-- **53 operations have no `operationId`** (listed in `build-report.txt`). An
+- **45 operations have no `operationId`** (listed in `build-report.txt`). An
   inherited gap. Inventing identifiers is not the same as recovering them, so
   they are reported for engineering rather than filled in. This also blocks SDK
   generation: Stainless, Speakeasy and Fern all derive method names from it.
+  They *do* have docs URLs, derived from method and path — an href is not a
+  contract key, and the two are deliberately not joined up.
+- **Nothing has confirmed that the generated pages exist.** `x-mint.href` is
+  checked here for presence, uniqueness and tag consistency, which is everything
+  short of the thing that matters: whether Mintlify renders a page at each of
+  those addresses. That needs a preview deployment, and the Mintlify check on
+  PR #1076 came back SKIPPED. A green build is not evidence.
 - **No code samples.** Mintlify generates one per operation from the schema, and
   it dumps every property: `POST /chat/completions` renders all 24, `seed` and
   `logit_bias` included, because Mintlify does not use `required` to trim the
-  example. Hand-written cURL samples for all 173 operations are Phase 2 work.
+  example. Hand-written cURL samples for all 187 operations are Phase 3 work.
   Until then the generated sample is correct but verbose. cURL only is the
   intended end state — a single `x-codeSamples` entry suppresses the other
   language tabs, and other languages are a separate decision.
@@ -409,12 +545,22 @@ regenerate.
   those go too is a different question — removing a response field is a
   breaking change for anyone reading it, where removing a request parameter is
   not — and nobody has asked it. Wants engineering.
-- **The plane split is 23 decided and 91 inherited.** `_project/planes.yaml`
-  decides which of the two base URLs each path gets, and for 91 paths that call
+- **The plane split is 39 decided and 82 inherited.** `_project/planes.yaml`
+  decides which of the four base URLs each path gets, and for 82 paths that call
   was read off the base's own per-path server overrides and never independently
-  verified. It is recorded per path as `inherited` versus `classification.yaml`,
+  verified. It is recorded per path — `inherited` against a named decision —
   and `_project/drop-list.md` marks the difference. Getting one wrong publishes
   a working endpoint against the wrong host.
+- **The recovered Deployments schemas are unexamined.** Deployments was dropped
+  in Phase 1 on an engineering list and un-dropped in Phase 2 as an admin-plane
+  capability, which meant recovering six operations from the pre-drop revision.
+  The build strips what is obviously stale — `api.portkey.ai` samples, a
+  `Portkey-Key` override — but the request and response schemas are Portkey's
+  and nobody has called `/ai_gw/admin/v2/deployments` to see whether they still
+  describe it. First item in Phase 3.
+- **Agent Integrations and Plugins are named but absent.** Both were named as
+  admin-plane capabilities; neither exists in this document, in the base, or in
+  the drop list. They need an endpoint list before they can be classified.
 - **`info.contact`, `license` and `termsOfService` were dropped.** The base
   pointed all three at Portkey resources.
 - **JSON Schema constraints were retained.** `default`, `maximum`, `minLength`

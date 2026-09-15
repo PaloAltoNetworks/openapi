@@ -10,20 +10,33 @@ against, and openapi.yaml is now the source of truth for structure. What
 remains is the set of decisions that are held in small files rather than in the
 document -- the base URLs in _project/servers.yaml, the one security scheme,
 the tag information architecture in tags-map.yaml, the operations declared
-undropped in _project/drops.yaml.
+undropped in _project/drops.yaml, the published docs URLs in _project/hrefs.yaml.
 
 So this script reads openapi.yaml, applies those decisions to it, and writes it
 back. It is idempotent: running it on an unchanged repository changes nothing.
 That is what keeps "the one place to change a base URL is _project/servers.yaml"
 true -- edit a host there, rebuild, and all 67 blocks follow.
 
-What it does NOT do is author. It never writes a description, and it never
-overwrites one: overlays/docs-prose.yaml is topped up with empty stubs for
+**openapi.yaml is the published artifact, prose included.** It used to be
+structure-only, with overlays/docs-prose.yaml applied downstream by whoever
+rendered it. That arrangement had one reader -- the docs site -- and it was not
+applying the overlay, so the moment prose was written the published URL would
+have served prose-free pages with nothing failing. The overlay is still the only
+place prose is *authored*, and it is still the file the grounding gate reviews;
+the build now strips prose from openapi.yaml and reapplies the overlay on every
+run, so what ships is resolved and what is reviewed is small. A description
+hand-written into openapi.yaml does not survive a build, and check.py fails on
+it in the meantime.
+
+What this script does NOT do is author. It never writes a description, and it
+never overwrites one: overlays/docs-prose.yaml is topped up with empty stubs for
 operations that lack them and is otherwise left alone.
 
 Usage:
     scripts/build.py
-    scripts/build.py --check      # fail if anything would change
+    scripts/build.py --check        # fail if anything would change
+    scripts/build.py --apply-drops  # remove what drops.yaml newly declares
+    scripts/build.py --apply-hrefs  # adopt changed docs URLs (a docs migration)
 """
 
 from __future__ import annotations
@@ -37,10 +50,29 @@ from typing import NamedTuple
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import hrefs  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 SPEC = ROOT / "openapi.yaml"
 
-# Natural-language fields. These belong in overlays/docs-prose.yaml, never here.
+# Root keys that are inherited residue: not OpenAPI, read by nothing here, and
+# carrying stale values. Popped on every build rather than deleted once, so a
+# re-import cannot bring one back.
+#
+# x-server-groups held three api.portkey.ai URLs and two unsubstituted
+# SELF_HOSTED_* placeholders -- the last surviving copy of the old base URLs
+# anywhere in the published corpus, months after servers[] moved off them. It is
+# not a standard field, the real servers blocks are generated from
+# _project/servers.yaml, and nothing consumes it (confirmed with docs,
+# 2026-09-15).
+DROP_ROOT_KEYS = {"x-server-groups"}
+
+# Natural-language fields. These are authored in overlays/docs-prose.yaml and
+# nowhere else. openapi.yaml carries them because it is the published artifact,
+# but it carries them only as the build put them there: strip_prose removes
+# every one of these keys on each run and apply_prose writes them back from the
+# overlay, so a value typed in here does not survive.
 #
 # Code samples are in this set because a code sample is prose. It asserts a base
 # URL, an auth header, a content type and a set of fields worth sending -- all
@@ -116,6 +148,100 @@ def drop_null_defaults(node, pointer: str = "", found: list | None = None) -> li
         for index, value in enumerate(node):
             drop_null_defaults(value, f"{pointer}/{index}", found)
     return found
+
+
+def strip_prose(node, keywords: bool = True) -> int:
+    """Remove every prose field, so the overlay can put them back.
+
+    This ran once, against the inherited base, and produced a structure-only
+    openapi.yaml. It is an applier again, for a different reason: openapi.yaml
+    is now the published artifact and carries prose, so the build has to be able
+    to say where that prose came from. Stripping and reapplying the overlay on
+    every run makes the answer unconditional -- everything a reader reads was
+    authored in overlays/docs-prose.yaml and passed the grounding gate. Prose
+    typed directly into openapi.yaml does not survive.
+
+    `servers` is skipped: those descriptions come from _project/servers.yaml,
+    which check_servers compares block for block, so they are reviewed in the
+    one place that decides them.
+
+    `description` and `summary` are *emptied* rather than deleted, and the
+    distinction is load-bearing twice over. A Response Object requires
+    `description` -- deleting it produces a document that does not validate,
+    which is what the first version of this function did. And emptying in place
+    keeps the key where the author put it, so re-running the build reorders
+    nothing and the diff shows the prose that changed rather than the whole
+    file. The rest of PROSE_KEYS is deleted: nothing requires them, and an empty
+    `externalDocs` is not a valid object.
+    """
+    removed = 0
+    if isinstance(node, list):
+        return sum(strip_prose(v, True) for v in node)
+    if not isinstance(node, dict):
+        return 0
+    if not keywords:
+        return sum(strip_prose(v, True) for v in node.values())
+    for k in [k for k in node if k in PROSE_KEYS]:
+        if k in ("description", "summary") and isinstance(node[k], str):
+            if node[k]:
+                node[k] = ""
+                removed += 1
+            continue
+        del node[k]
+        removed += 1
+    for k, v in node.items():
+        if k in OPAQUE_KEYS or k == "servers":
+            continue
+        removed += strip_prose(v, k not in NAME_MAPS)
+    return removed
+
+
+def apply_hrefs(spec, rewrite: bool = False) -> tuple[int, int, list[str]]:
+    """Stamp the published docs URL onto every operation, from _project/hrefs.yaml.
+
+    Returns (stamped, added, changed). See scripts/hrefs.py for the scheme and
+    for why the recorded value wins over the derived one.
+    """
+    recorded, pinned = hrefs.load()
+    derived = {hrefs.key(m, p): hrefs.derive(m, p, op) for p, m, op in operations(spec)}
+
+    added = [k for k in derived if k not in recorded]
+    changed = sorted(k for k, v in derived.items()
+                     if k in recorded and recorded[k] != v and k not in pinned)
+    stale = sorted(set(recorded) - set(derived))
+
+    if changed and not rewrite:
+        raise SystemExit(
+            "_project/hrefs.yaml: the docs URL of "
+            f"{len(changed)} operation(s) no longer matches the scheme -- "
+            "usually a tag rename. These are published URLs and links point at "
+            "them, so this is a docs migration rather than a spec edit.\n"
+            + "".join(f"    {k}\n        recorded {recorded[k]}\n"
+                      f"        derived  {derived[k]}\n" for k in changed[:10])
+            + "Run `scripts/build.py --apply-hrefs` to adopt the new URLs and "
+              "tell docs, or add the key to `pinned:` to keep the old one.")
+    if stale and not rewrite:
+        raise SystemExit(
+            f"_project/hrefs.yaml records {len(stale)} operation(s) that are no "
+            f"longer in openapi.yaml: {stale[:5]}. Run `scripts/build.py "
+            f"--apply-drops` to remove them along with their prose.")
+
+    # A pinned key keeps its recorded URL even under --apply-hrefs: that is what
+    # pinning is for, and adopting it by accident is the failure it guards.
+    published = {
+        k: recorded[k] if k in pinned and k in recorded
+        else derived[k] if rewrite or k in added
+        else recorded[k]
+        for k in derived
+    }
+    if rewrite or added:
+        hrefs.save(published, {k for k in pinned if k in published})
+
+    for path, method, op in operations(spec):
+        mint = op.setdefault("x-mint", {})
+        mint["href"] = published[hrefs.key(method, path)]
+
+    return len(published), len(added), changed
 
 
 def load_tag_map(path: Path):
@@ -258,6 +384,9 @@ def apply_security(spec) -> tuple[int, list[str]]:
     return removed, sorted(public)
 
 
+GATEWAY_PLANE = "gateway"
+
+
 def load_servers() -> dict[str, list[dict]]:
     """The base URLs, as one `servers` array per plane. Order is significant:
     Mintlify generates its code sample from the first entry and offers the rest
@@ -268,10 +397,47 @@ def load_servers() -> dict[str, list[dict]]:
             raise SystemExit(
                 f"servers.yaml: {plane!r} must be a non-empty list of server "
                 f"objects, got {type(entries).__name__}")
+    if GATEWAY_PLANE not in defs:
+        raise SystemExit(f"servers.yaml: no {GATEWAY_PLANE!r} plane; it is the "
+                         f"root server block and cannot be absent")
     return defs
 
 
-def apply_servers(spec) -> int:
+# A planes.yaml key that is not a plane: the tags allowed to span two. It is
+# named here so an unrecognised key is still an error rather than being skipped
+# along with it -- a plane misspelled in one of the two files is exactly the
+# mistake the cross-check exists to catch.
+SPANNING_KEY = "tags-spanning-planes"
+
+
+def load_spanning_tags() -> set[str]:
+    """Tags whose operations are deliberately split across planes."""
+    doc = yaml.safe_load((ROOT / "_project" / "planes.yaml").read_text()) or {}
+    return set(doc.get(SPANNING_KEY) or [])
+
+
+def load_planes() -> dict[str, str]:
+    """{path: plane}, from _project/planes.yaml.
+
+    Fails on a path in two planes. YAML would accept that silently across two
+    blocks and the last one would win, which is a way to move an endpoint to a
+    different host by adding a line rather than changing one.
+    """
+    doc = yaml.safe_load((ROOT / "_project" / "planes.yaml").read_text()) or {}
+    plane_of: dict[str, str] = {}
+    for plane, paths in doc.items():
+        if plane == SPANNING_KEY:
+            continue
+        for path in paths or {}:
+            if path in plane_of:
+                raise SystemExit(
+                    f"planes.yaml: {path} is in both {plane_of[path]!r} and "
+                    f"{plane!r}; a path is on one plane")
+            plane_of[path] = plane
+    return plane_of
+
+
+def apply_servers(spec) -> dict[str, int]:
     """Rewrite every `servers` block from _project/servers.yaml.
 
     This is the mechanism behind "one place to change the base URL". The base
@@ -286,16 +452,27 @@ def apply_servers(spec) -> int:
     format's, not ours, and it is generated rather than maintained.
 
     A path-level block replaces the root list rather than extending it, so the
-    gateway's self-hosted entry does not appear on control-plane operations.
+    gateway's self-hosted entry does not appear on management operations.
+
+    Returns the number of paths stamped per plane, gateway included -- those
+    are the ones that needed no block at all.
     """
     defs = load_servers()
-    planes = yaml.safe_load((ROOT / "_project" / "planes.yaml").read_text())
-    control = set(planes.get("control-plane") or {})
-    gateway = set(planes.get("gateway") or {})
+    plane_of = load_planes()
 
-    missing = sorted(set(spec.get("paths") or {}) - control - gateway)
+    unknown = {plane: p for p, plane in plane_of.items() if plane not in defs}
+    if unknown:
+        # The two files are one decision split across two places. A plane named
+        # in only one of them means half the decision was written down.
+        raise SystemExit(
+            f"planes.yaml uses {len(unknown)} plane(s) that servers.yaml does "
+            f"not define, so those paths have no base URL: "
+            + "; ".join(f"{plane!r} (e.g. {path})"
+                        for plane, path in sorted(unknown.items())))
+
+    missing = sorted(set(spec.get("paths") or {}) - set(plane_of))
     if missing:
-        # Defaulting would put a control-plane endpoint on the gateway host and
+        # Defaulting would put a management endpoint on the gateway host and
         # look entirely normal while doing it.
         raise SystemExit(
             f"planes.yaml does not classify {len(missing)} path(s): {missing}")
@@ -303,13 +480,13 @@ def apply_servers(spec) -> int:
     # The other direction. A classification for a path that no longer exists is
     # harmless to the build and misleading to everything else -- gen_drop_list.py
     # counts these, so leftovers from a drop quietly inflate the inventory.
-    stale = sorted((control | gateway) - set(spec.get("paths") or {}))
+    stale = sorted(set(plane_of) - set(spec.get("paths") or {}))
     if stale:
         raise SystemExit(
             f"planes.yaml classifies {len(stale)} path(s) that are not in "
             f"openapi.yaml: {stale}")
 
-    stamped = 0
+    stamped = {plane: 0 for plane in defs}
     for path, item in (spec.get("paths") or {}).items():
         if not isinstance(item, dict):
             continue
@@ -317,11 +494,12 @@ def apply_servers(spec) -> int:
         for method in [m for m in item if m in HTTP_METHODS]:
             if isinstance(item[method], dict):
                 item[method].pop("servers", None)
-        if path in control:
-            item["servers"] = copy.deepcopy(defs["control-plane"])
-            stamped += 1
+        plane = plane_of[path]
+        stamped[plane] += 1
+        if plane != GATEWAY_PLANE:
+            item["servers"] = copy.deepcopy(defs[plane])
 
-    spec["servers"] = copy.deepcopy(defs["gateway"])
+    spec["servers"] = copy.deepcopy(defs[GATEWAY_PLANE])
     return stamped
 
 
@@ -404,10 +582,17 @@ def jsonpath_for(path: str, method: str) -> str:
     return f"$.paths['{quoted}'].{method}"
 
 
-def build(dry_run: bool = False, do_drops: bool = False) -> int:
+def build(dry_run: bool = False, do_drops: bool = False,
+          do_hrefs: bool = False) -> int:
     spec = yaml.safe_load(SPEC.read_text())
     before = yaml.safe_dump(spec, sort_keys=False, allow_unicode=True, width=100)
     tagdoc, tag_names, group_of = load_tag_map(ROOT / "tags-map.yaml")
+
+    # Prose comes back at the end, from the overlay and only from the overlay.
+    stripped = strip_prose(spec)
+    for root_key in sorted(DROP_ROOT_KEYS & set(spec)):
+        del spec[root_key]
+        print(f"removed root key {root_key} -- inherited residue, read by nothing")
 
     null_defaults = drop_null_defaults(spec)
 
@@ -420,6 +605,8 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
         print(f"dropped {len(dropped)} item(s):")
         for entry in dropped:
             print(f"    {entry}")
+        for target in prune_overlay(spec):
+            print(f"    overlay action removed: {target}")
     else:
         check_drops(spec, drops)
 
@@ -447,7 +634,8 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
         return 1
 
     security_overrides, public_ops = apply_security(spec)
-    control_paths = apply_servers(spec)
+    per_plane = apply_servers(spec)
+    overridden = sum(n for plane, n in per_plane.items() if plane != GATEWAY_PLANE)
     orphaned = prune_components(spec)
 
     used = set()
@@ -473,7 +661,7 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
             "text_digest": "",
         })
 
-    # --- Mintlify MCP surface ---------------------------------------------
+    # --- Mintlify --------------------------------------------------------
     spec["x-mint"] = {
         "mcp": {
             "enabled": True,
@@ -481,6 +669,13 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
             "description": "",
         }
     }
+    stamped, hrefs_added, _ = apply_hrefs(spec, rewrite=do_hrefs or do_drops)
+
+    # --- prose -------------------------------------------------------------
+    # Last, so everything above it is structural and everything a reader reads
+    # arrives from one reviewed file.
+    added = overlay_stubs(spec, dry_run=dry_run)
+    prose = apply_prose(spec)
 
     spec = reorder(spec)
 
@@ -488,8 +683,7 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
     changed = body != before
 
     if dry_run:
-        stubs = overlay_stubs(spec, dry_run=True)
-        if changed or stubs:
+        if changed or added:
             print("build --check: openapi.yaml or the overlay is not up to date; "
                   "run scripts/build.py", file=sys.stderr)
             return 1
@@ -498,16 +692,14 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
 
     # --- write -------------------------------------------------------------
     SPEC.write_text(
-        "# Structure only -- see overlays/docs-prose.yaml for every field a\n"
-        "# reader reads. Run scripts/build.py to reapply _project/servers.yaml,\n"
-        "# the security scheme and tags-map.yaml after editing any of them.\n"
+        "# The published specification, prose included. Generated: prose is\n"
+        "# authored in overlays/docs-prose.yaml and applied here by\n"
+        "# scripts/build.py, which also reapplies _project/servers.yaml,\n"
+        "# _project/hrefs.yaml, the security scheme and tags-map.yaml. Editing\n"
+        "# this file by hand is not how any of that changes.\n"
         + body
     )
 
-    if do_drops:
-        for target in prune_overlay(spec):
-            print(f"    overlay action removed: {target}")
-    added = overlay_stubs(spec)
     write_navigation(tagdoc, used, group_of)
 
     ops = list(operations(spec))
@@ -518,8 +710,11 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
     print(f"components pruned  {len(orphaned)}")
     print(f"security           1 scheme ({security_overrides} operation overrides "
           f"removed, {len(public_ops)} unauthenticated)")
-    print(f"servers            1 root + {control_paths} control-plane")
+    print(f"servers            1 root + {overridden} path override(s): "
+          + ", ".join(f"{n} {plane}" for plane, n in per_plane.items()))
     print(f"tags               {len(spec['tags'])}")
+    print(f"docs hrefs         {stamped} stamped ({hrefs_added} newly recorded)")
+    print(f"prose fields       {stripped} stripped, {prose} written back from the overlay")
     print(f"overlay stubs added  {added}")
     print(f"null defaults dropped {len(null_defaults)}")
     print(f"operations lacking operationId {len(missing_ids)}")
@@ -531,14 +726,27 @@ def build(dry_run: bool = False, do_drops: bool = False) -> int:
         f"paths                            {len(spec.get('paths', {}))}\n"
         f"schemas                          {len(spec.get('components', {}).get('schemas', {}))}\n"
         f"tags                             {len(spec['tags'])}\n"
-        f"\nservers                          1 root + {control_paths} control-plane\n"
+        f"\ndocs URLs                        {stamped}\n"
+        "  x-mint.href on every operation, from _project/hrefs.yaml. These are\n"
+        "  public URLs: the build re-derives each one and fails if it has moved,\n"
+        "  because a tag rename changes them silently and links point at them.\n"
+        f"\nprose                            {prose} written of {len(ops) * 2 + len(spec['tags']) + 1} fields\n"
+        "  Authored in overlays/docs-prose.yaml under the grounding gate and\n"
+        "  merged into openapi.yaml by this script. Every prose field here is\n"
+        "  stripped and reapplied on each build, so nothing reaches the\n"
+        "  published document without passing that gate.\n"
+        f"\nservers                          1 root + {overridden} path override(s)\n"
         "  Every URL comes from _project/servers.yaml; which plane a path is on\n"
         "  comes from _project/planes.yaml. Edit a host there and rebuild. The\n"
         "  first entry in a plane is the one Mintlify builds its sample from;\n"
-        "  the rest appear in its base-URL dropdown.\n"
-        + "".join(f"    {plane:<14} {e['url']}"
-                  f"{'  -- ' + e['description'] if e.get('description') else ''}\n"
-                  for plane, entries in load_servers().items() for e in entries)
+        "  the rest appear in its base-URL dropdown. The gateway is the root\n"
+        "  block, so its paths carry no override.\n"
+        + "".join(f"    {plane:<14} {per_plane.get(plane, 0):>4} path(s)\n"
+                  + "".join(
+                      f"      {e['url']}"
+                      f"{'  -- ' + e['description'] if e.get('description') else ''}\n"
+                      for e in entries)
+                  for plane, entries in load_servers().items())
         + f"\nsecurity                         1 scheme\n"
         "  One Authorization bearer token, declared once at the root. Six schemes\n"
         "  in five combinations were collapsed into it.\n"
@@ -576,7 +784,7 @@ def group_order(tagdoc, group_id: str) -> int:
 
 def reorder(spec):
     """Keep the document in conventional OpenAPI order for reviewable diffs."""
-    order = ["openapi", "info", "servers", "x-server-groups", "x-mint",
+    order = ["openapi", "info", "servers", "x-mint",
              "security", "tags", "paths", "components"]
     out = {k: spec[k] for k in order if k in spec}
     out.update({k: v for k, v in spec.items() if k not in out})
@@ -614,6 +822,35 @@ def prune_overlay(spec) -> list[str]:
     path.write_text(header + yaml.safe_dump(
         doc, sort_keys=False, allow_unicode=True, width=100))
     return sorted(stale)
+
+
+def apply_prose(spec) -> int:
+    """Merge overlays/docs-prose.yaml into the document, and count what it wrote.
+
+    The overlay is still the authoring surface and still the file the grounding
+    gate reviews. What changed is where the result lands: it used to be applied
+    by whoever rendered the specification, which meant the published URL served
+    whatever openapi.yaml happened to contain -- structure only, and no build
+    error to say so. Applying it here makes the published artifact and the
+    reviewed artifact the same document.
+
+    Strict: a target that no longer resolves is an error, not a silent no-op.
+    `--apply-drops` is what removes an action whose operation has gone.
+    """
+    from apply_overlay import apply as apply_overlay_doc
+
+    written = 0
+    for path in sorted((ROOT / "overlays").glob("*.yaml")):
+        doc = yaml.safe_load(path.read_text()) or {}
+        if doc.get("overlay") != "1.0.0":
+            raise SystemExit(f"{path} is not an Overlay 1.0.0 document")
+        apply_overlay_doc(spec, doc)
+        written += sum(
+            1 for action in doc.get("actions") or []
+            for k in ("summary", "description")
+            if str((action.get("update") or {}).get(k, "")).strip()
+        )
+    return written
 
 
 def overlay_stubs(spec, dry_run: bool = False) -> int:
@@ -683,6 +920,12 @@ def write_navigation(tagdoc, used, group_of) -> None:
 
     No stub pages, no per-endpoint navigation entries, and no method+path join
     key to keep in sync.
+
+    No `overlays` key either, and its absence is the fix rather than an
+    omission. It used to list `overlays/docs-prose.yaml` -- a path in *this*
+    repository, resolved against the docs repository, where it does not exist.
+    The published document is now resolved before it is committed, so the
+    source URL is the whole story and there is nothing left to mis-resolve.
     """
     groups = []
     for group in tagdoc["groups"]:
@@ -697,9 +940,9 @@ def write_navigation(tagdoc, used, group_of) -> None:
                         "group": tag,
                         "openapi": {
                             "source": "https://raw.githubusercontent.com/"
-                                      "PaloAltoNetworks/openapi/main/openapi.yaml",
+                                      "PaloAltoNetworks/openapi/refs/heads/main/"
+                                      "openapi.yaml",
                             "directory": "api-reference",
-                            "overlays": ["overlays/docs-prose.yaml"],
                         },
                         "tag": tag,
                     }
@@ -720,7 +963,12 @@ if __name__ == "__main__":
     parser.add_argument("--apply-drops", action="store_true",
                         help="remove operations drops.yaml newly declares, "
                              "instead of failing because they are still there")
+    parser.add_argument("--apply-hrefs", action="store_true",
+                        help="adopt changed docs URLs in _project/hrefs.yaml "
+                             "instead of failing. These are published URLs: "
+                             "this is a docs migration, so tell docs")
     args = parser.parse_args()
-    if args.check and args.apply_drops:
-        parser.error("--check and --apply-drops are contradictory")
-    sys.exit(build(dry_run=args.check, do_drops=args.apply_drops))
+    if args.check and (args.apply_drops or args.apply_hrefs):
+        parser.error("--check and --apply-* are contradictory")
+    sys.exit(build(dry_run=args.check, do_drops=args.apply_drops,
+                   do_hrefs=args.apply_hrefs))

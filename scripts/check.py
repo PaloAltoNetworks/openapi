@@ -22,11 +22,16 @@ from jsonpath_ng.ext import parse
 from openapi_spec_validator import validate as validate_spec
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import hrefs  # noqa: E402
 from apply_overlay import apply  # noqa: E402
 from build import (  # noqa: E402
+    GATEWAY_PLANE,
     HTTP_METHODS,
     SECURITY_SCHEME,
     SECURITY_SCHEME_NAME,
+    load_planes,
+    load_servers,
+    load_spanning_tags,
     operations,
 )
 
@@ -54,61 +59,136 @@ def check_spec_valid(spec) -> None:
         fail("openapi.yaml validation", str(exc).splitlines()[0])
 
 
-def check_no_prose_in_spec(spec) -> None:
-    """The structure/prose split, enforced.
+def check_prose_came_from_the_overlay(spec) -> None:
+    """Every word a reader reads was authored in overlays/docs-prose.yaml.
 
-    openapi.yaml is engineering's artifact. Prose belongs in the overlay, where
-    it is small enough to review claim by claim. A description that appears here
-    has bypassed that review.
+    openapi.yaml is the published artifact and carries prose, so the rule can no
+    longer be "there is no prose here". It is the stronger one instead: strip
+    every prose field out of the document, apply the overlay to what is left,
+    and the result has to be the document again. Anything typed straight into
+    openapi.yaml fails, because the overlay does not put it back.
+
+    That keeps the grounding gate load-bearing. The gate reviews the overlay;
+    this check is what makes reviewing the overlay equivalent to reviewing what
+    is published.
+
+    A code sample is prose by the same rule. It asserts a base URL, an auth
+    header and a set of fields worth sending, none of which a validator checks,
+    and Mintlify renders a supplied sample *instead of* the generated one -- so
+    one written here quietly overrides the real servers and security blocks.
+    The base shipped 106 of them.
     """
-    offenders: list[str] = []
+    import copy  # noqa: PLC0415
 
-    def walk(node, pointer="", keywords=True):
-        if isinstance(node, list):
-            for i, v in enumerate(node):
-                walk(v, f"{pointer}/{i}", True)
-            return
-        if not isinstance(node, dict):
-            return
-        if not keywords:
-            for k, v in node.items():
-                walk(v, f"{pointer}/{k}", True)
-            return
-        for k, v in node.items():
-            # `servers` is exempt, and check_servers is why. A server entry's
-            # `description` ("Managed", "Self-hosted") is prose by the letter of
-            # the rule, but the whole subtree has to be byte-identical to
-            # _project/servers.yaml or check_servers fails -- so it cannot carry
-            # anything that did not go through review of that file, which is the
-            # property the grounding gate is actually protecting. Recursing here
-            # would only force a second exemption list to be kept in step.
-            if k == "servers":
-                continue
-            if k in ("description", "summary") and isinstance(v, str) and v.strip():
-                offenders.append(f"{pointer}/{k}")
-            # A code sample is prose: it asserts a base URL, an auth header and
-            # a set of fields worth sending, none of which a validator checks.
-            # It also *wins* -- Mintlify renders a supplied sample instead of
-            # the generated one, so one left here quietly overrides the real
-            # servers and security blocks. The base shipped 106 of them.
-            if k in ("x-code-samples", "x-codeSamples"):
-                offenders.append(f"{pointer}/{k}")
-            if k in ("default", "enum", "const", "mapping", "scopes"):
-                continue
-            walk(v, f"{pointer}/{k}", k not in NAME_MAPS)
+    from build import apply_prose, strip_prose  # noqa: PLC0415
 
-    from build import NAME_MAPS  # noqa: PLC0415
+    rebuilt = copy.deepcopy(spec)
+    strip_prose(rebuilt)
+    try:
+        written = apply_prose(rebuilt)
+    except (SystemExit, ValueError) as exc:
+        fail("prose provenance", f"the overlay does not apply: {exc}")
+        return
 
-    walk(spec)
-    if offenders:
+    if rebuilt != spec:
         fail(
-            "prose in openapi.yaml",
-            f"{len(offenders)} non-empty description/summary/code sample; "
-            f"move to overlays/. "
-            f"First: {offenders[0]}",
+            "prose provenance",
+            "openapi.yaml does not equal (openapi.yaml stripped of prose + "
+            f"overlays applied). {_first_prose_difference(spec, rebuilt)}. "
+            "Prose is authored in overlays/docs-prose.yaml; run "
+            "scripts/build.py.",
         )
     else:
-        report("no prose in openapi.yaml", "structure/prose split intact")
+        report("prose provenance",
+               f"{written} written field(s), all from overlays/docs-prose.yaml")
+
+
+def _first_prose_difference(spec, rebuilt, pointer: str = "") -> str:
+    """Where the two documents part company, as a JSON pointer."""
+    if isinstance(spec, dict) and isinstance(rebuilt, dict):
+        for key in list(spec) + [k for k in rebuilt if k not in spec]:
+            if key not in spec:
+                return f"{pointer}/{key} is missing from openapi.yaml"
+            if key not in rebuilt:
+                return f"{pointer}/{key} is not produced by the overlay"
+            if spec[key] != rebuilt[key]:
+                return _first_prose_difference(spec[key], rebuilt[key],
+                                               f"{pointer}/{key}")
+    elif isinstance(spec, list) and isinstance(rebuilt, list) and len(spec) == len(rebuilt):
+        for i, (a, b) in enumerate(zip(spec, rebuilt)):
+            if a != b:
+                return _first_prose_difference(a, b, f"{pointer}/{i}")
+    return f"first difference at {pointer or '(root)'}"
+
+
+def check_dropped_root_keys(spec) -> None:
+    """Inherited root keys that are not coming back.
+
+    `x-server-groups` is the one today: not an OpenAPI field, read by nothing,
+    and carrying three api.portkey.ai URLs plus two unsubstituted SELF_HOSTED_*
+    placeholders. Every other base URL in the corpus moved off api.portkey.ai;
+    this was the last copy, and it was public.
+    """
+    from build import DROP_ROOT_KEYS  # noqa: PLC0415
+
+    present = sorted(DROP_ROOT_KEYS & set(spec))
+    if present:
+        fail("dropped root keys", f"{present} are back in openapi.yaml; "
+                                  f"run scripts/build.py")
+    else:
+        report("dropped root keys", f"{len(DROP_ROOT_KEYS)} declared, none present")
+
+
+def check_hrefs(spec) -> None:
+    """Every operation has a stable, unique docs URL, consistent with its tag.
+
+    Mintlify generates a page per operation and the href is that page's address.
+    Without one the slug is derived from whatever prose the operation happens to
+    carry, so it moves when prose lands and no link can point at it -- which is
+    what left 122 links in the docs corpus pointing at the old site.
+
+    None of this is verifiable locally: a green build says nothing about whether
+    Mintlify renders these pages, and that needs a real preview deployment. What
+    is checkable here is everything short of that, so it is checked here.
+    """
+    recorded, pinned = hrefs.load()
+    seen: dict[str, str] = {}
+    missing, mismatched, inconsistent, duplicate = [], [], [], []
+
+    for path, method, op in operations(spec):
+        where = hrefs.key(method, path)
+        href = (op.get("x-mint") or {}).get("href")
+        if not href:
+            missing.append(where)
+            continue
+        if href != recorded.get(where):
+            mismatched.append(where)
+        if href in seen:
+            duplicate.append(f"{where} and {seen[href]} both publish {href}")
+        seen[href] = where
+        # A pinned href is one the scheme no longer derives -- a tag was
+        # renamed and the URL was deliberately held still so inbound links keep
+        # resolving. Being inconsistent with the tag is the whole point of it,
+        # so requiring consistency here would make pinning impossible.
+        if where in pinned:
+            continue
+        wanted = [f"{hrefs.PREFIX}/{hrefs.tag_path(t)}/" for t in op.get("tags") or []]
+        if not any(href.startswith(w) for w in wanted):
+            inconsistent.append(f"{where}: {href} is not under {wanted}")
+
+    for label, problems in (("operations with no x-mint.href", missing),
+                            ("not the URL recorded in _project/hrefs.yaml", mismatched),
+                            ("URL collisions", duplicate),
+                            ("URL does not match the operation's tag", inconsistent)):
+        if problems:
+            fail("docs hrefs", f"{len(problems)} {label}: {problems[:3]}")
+            return
+
+    detail = (f"{len(seen)} operations, all unique, all tag-consistent, "
+              f"all from _project/hrefs.yaml")
+    if pinned:
+        detail += f"; {len(pinned)} pinned across a tag rename"
+    report("docs hrefs", detail)
 
 
 def check_tags(spec) -> None:
@@ -270,6 +350,62 @@ def check_security(spec) -> None:
         print(f"          unauthenticated: {op}   <- inherited, wants confirming")
 
 
+def check_planes(spec) -> None:
+    """A tag's operations all sit on the same plane.
+
+    The admin split was decided by capability -- "Integrations, MCP
+    Integrations, Secret References, Org Guardrails and Deployments are
+    administered on /ai_gw/admin/v2" -- but _project/planes.yaml can only
+    record paths. Nothing in that file knows that /integrations/{slug}/models
+    belongs with /integrations, so a path added later under an admin capability
+    can be classified control-plane and read as a deliberate exception.
+
+    Tags are what carries the capability, so that is what this compares. The
+    two guardrail surfaces are two tags precisely because they are two
+    surfaces; Guardrails is control-plane and Org Guardrails is admin, and this
+    check is what stops that distinction from quietly collapsing.
+
+    A tag genuinely on two planes is declared in planes.yaml under
+    `tags-spanning-planes`, with the reasoning. `Models` is one: listing the
+    models available to a caller is a gateway concern and administering one is
+    not.
+    """
+    plane_of = load_planes()
+    allowed = load_spanning_tags()
+    planes_of_tag: dict[str, dict[str, list[str]]] = {}
+    for path, method, op in operations(spec):
+        for tag in op.get("tags") or []:
+            planes_of_tag.setdefault(tag, {}).setdefault(
+                plane_of.get(path, "unclassified"), []).append(path)
+
+    split = {tag: planes for tag, planes in planes_of_tag.items()
+             if len(planes) > 1 and tag not in allowed}
+    stale = sorted(t for t in allowed if len(planes_of_tag.get(t) or {}) < 2)
+    if stale:
+        # An allowance that is not being used any more is a licence nobody
+        # reviewed. It should come out of planes.yaml when the tag stops
+        # spanning, not sit there ready to excuse the next accident.
+        fail("planes", f"tags-spanning-planes lists {stale}, which no longer "
+                       f"span two planes")
+    if split:
+        fail("planes", f"{len(split)} tag(s) span more than one plane")
+        for tag, planes in sorted(split.items()):
+            print(f"          {tag}")
+            for plane, paths in sorted(planes.items()):
+                print(f"            {plane}: {', '.join(sorted(set(paths)))}")
+        return
+
+    if stale:
+        return
+
+    counts: dict[str, int] = {}
+    for tag, planes in planes_of_tag.items():
+        plane = next(iter(planes)) if len(planes) == 1 else "declared as spanning"
+        counts[plane] = counts.get(plane, 0) + 1
+    report("planes", "every tag sits on one plane -- "
+                     + ", ".join(f"{n} {plane}" for plane, n in sorted(counts.items())))
+
+
 def check_servers(spec) -> None:
     """Every base URL comes from _project/servers.yaml and nowhere else.
 
@@ -282,8 +418,10 @@ def check_servers(spec) -> None:
     Four things fail here. An operation-level override, because the build
     writes none and one appearing means something else is editing the document.
     A root block that is not exactly the gateway list, or a path-level block
-    that is not exactly the control-plane list -- either is how a stale copy of
-    an old host survives a base URL change. And any URL that does not resolve to
+    that is not exactly the list for the plane _project/planes.yaml puts that
+    path on -- either is how a stale copy of an old host survives a base URL
+    change, and with four planes it is also how an admin endpoint ends up
+    published on the control-plane host. And any URL that does not resolve to
     a real one once its variable defaults are substituted; the base published
     three bare placeholders as if they were addresses.
 
@@ -292,8 +430,8 @@ def check_servers(spec) -> None:
     letter of the rule, but it cannot be hand-edited into the document without
     failing here, because it has to match _project/servers.yaml exactly.
     """
-    defs = yaml.safe_load((ROOT / "_project" / "servers.yaml").read_text())
-    expected = defs["control-plane"]
+    defs = load_servers()
+    plane_of = load_planes()
 
     def resolve(entry) -> str:
         url = str(entry.get("url", ""))
@@ -307,10 +445,20 @@ def check_servers(spec) -> None:
     for path, item in (spec.get("paths") or {}).items():
         if not isinstance(item, dict):
             continue
+        plane = plane_of.get(path)
+        if plane is None:
+            problems.append(f"{path}: not classified in _project/planes.yaml")
+        elif plane == GATEWAY_PLANE and "servers" in item:
+            problems.append(f"{path}: gateway paths take the root server block, "
+                            f"but this one carries an override")
+        elif plane != GATEWAY_PLANE and "servers" not in item:
+            problems.append(f"{path}: on the {plane!r} plane and carries no "
+                            f"servers block, so it publishes the gateway host")
         if "servers" in item:
             blocks.append((path, item["servers"]))
-            if item["servers"] != expected:
-                problems.append(f"{path}: servers block is not the control-plane "
+            expected = defs.get(plane or "")
+            if expected is not None and item["servers"] != expected:
+                problems.append(f"{path}: servers block is not the {plane!r} "
                                 f"definition from _project/servers.yaml")
         for method, op in item.items():
             if method in HTTP_METHODS and isinstance(op, dict) and "servers" in op:
@@ -320,7 +468,7 @@ def check_servers(spec) -> None:
     if not blocks[0][1]:
         fail("servers", "no root server declared")
         return
-    if blocks[0][1] != defs["gateway"]:
+    if blocks[0][1] != defs[GATEWAY_PLANE]:
         problems.append("root servers block is not the gateway list from "
                         "_project/servers.yaml")
 
@@ -350,10 +498,13 @@ def main() -> int:
     spec = yaml.safe_load(SPEC.read_text())
 
     check_spec_valid(spec)
-    check_no_prose_in_spec(spec)
+    check_prose_came_from_the_overlay(spec)
+    check_dropped_root_keys(spec)
     check_tags(spec)
     check_provenance(spec)
+    check_hrefs(spec)
     check_security(spec)
+    check_planes(spec)
     check_servers(spec)
     check_overlays(spec)
 
