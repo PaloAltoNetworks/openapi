@@ -1147,7 +1147,7 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
-- target: $.paths['/api-keys/{type}/{sub-type}'].post
+- target: $.paths['/api-keys/{sub-type}'].post
   update:
     summary: ''
     description: ''

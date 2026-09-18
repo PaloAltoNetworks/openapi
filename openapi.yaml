@@ -4863,19 +4863,11 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/logs/get-logs-by-log-id
-  /api-keys/{type}/{sub-type}:
+  /api-keys/{sub-type}:
     post:
       tags:
       - API Keys
       parameters:
-      - name: type
-        in: path
-        schema:
-          type: string
-          enum:
-          - organisation
-          - workspace
-        required: true
       - name: sub-type
         in: path
         schema:
@@ -4917,7 +4909,7 @@ paths:
         origin_kind: human
         text_digest: ''
       x-mint:
-        href: /aigw/api-reference/api-keys/post-api-keys-by-type-by-sub-type
+        href: /aigw/api-reference/api-keys/post-api-keys-by-sub-type
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed

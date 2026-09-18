@@ -159,7 +159,7 @@ hrefs:
   DELETE /mcp-servers/{mcpServerId}/connections: /aigw/api-reference/mcp-servers/connections/mcp-server-connections-delete
   POST /logs: /aigw/api-reference/logs/post-logs
   GET /logs/{logId}: /aigw/api-reference/logs/get-logs-by-log-id
-  POST /api-keys/{type}/{sub-type}: /aigw/api-reference/api-keys/post-api-keys-by-type-by-sub-type
+  POST /api-keys/{sub-type}: /aigw/api-reference/api-keys/post-api-keys-by-sub-type
   GET /api-keys: /aigw/api-reference/api-keys/get-api-keys
   PUT /api-keys/{id}: /aigw/api-reference/api-keys/put-api-keys-by-id
   GET /api-keys/{id}: /aigw/api-reference/api-keys/get-api-keys-by-id
