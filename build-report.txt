@@ -88,7 +88,7 @@ operations lacking operationId   45
     GET /providers
     GET /providers/{slug}
     POST /api-keys/{id}/rotate
-    POST /api-keys/{type}/{sub-type}
+    POST /api-keys/{sub-type}
     POST /integrations
     POST /logs
     POST /providers

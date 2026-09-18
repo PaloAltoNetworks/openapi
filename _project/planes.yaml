@@ -62,7 +62,7 @@ control-plane:
   "/api-keys": inherited
   "/api-keys/{id}": inherited
   "/api-keys/{id}/rotate": inherited
-  "/api-keys/{type}/{sub-type}": inherited
+  "/api-keys/{sub-type}": inherited
   "/configs": inherited
   "/configs/{slug}": inherited
   "/configs/{slug}/versions": inherited
