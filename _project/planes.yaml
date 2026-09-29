@@ -21,6 +21,9 @@
 # `how` records where the call came from:
 #   classification.yaml  -- a human decided, see that file for the reasoning
 #   inherited            -- read off the base's server override, unverified
+#   portkey-openapi#160  -- added after the base linkage closed, from
+#                           Portkey-AI/openapi#160, which serves it on
+#                           the data plane; unverified against the API
 #   vrushank.2026-09-15  -- the Phase 2 admin split, decided by capability
 #                           (Integrations, MCP Integrations, Secret References,
 #                           Org Guardrails, Deployments) and written out here
@@ -135,6 +138,7 @@ gateway:
   "/batches/{batch_id}/output": inherited
   "/chat/completions": inherited
   "/completions": inherited
+  "/decisions": portkey-openapi#160
   "/embeddings": inherited
   "/files": inherited
   "/files/{file_id}": inherited

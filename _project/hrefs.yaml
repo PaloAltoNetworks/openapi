@@ -48,6 +48,7 @@ hrefs:
   POST /images/variations: /aigw/api-reference/images/create-image-variation
   POST /embeddings: /aigw/api-reference/embeddings/create-embedding
   POST /rerank: /aigw/api-reference/rerank/create-rerank
+  POST /decisions: /aigw/api-reference/decisions/create-decisions
   POST /ocr: /aigw/api-reference/ocr/create-ocr
   POST /audio/speech: /aigw/api-reference/audio/create-speech
   POST /audio/transcriptions: /aigw/api-reference/audio/create-transcription
