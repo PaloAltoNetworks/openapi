@@ -67,6 +67,8 @@ tags:
   - from: Rerank
     to: Rerank
     group: inference
+  - to: Decisions
+    group: inference
   - from: OCR
     to: OCR
     group: inference

@@ -31,6 +31,8 @@ tags:
   description: ''
 - name: Completions
   description: ''
+- name: Decisions
+  description: ''
 - name: Embeddings
   description: ''
 - name: Files
@@ -1087,6 +1089,38 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/rerank/create-rerank
+  /decisions:
+    post:
+      operationId: createDecisions
+      tags:
+      - Decisions
+      summary: ''
+      description: ''
+      parameters:
+      - $ref: '#/components/parameters/PortkeyTraceId'
+      - $ref: '#/components/parameters/PortkeySpanId'
+      - $ref: '#/components/parameters/PortkeyParentSpanId'
+      - $ref: '#/components/parameters/PortkeySpanName'
+      - $ref: '#/components/parameters/PortkeyMetadata'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDecisionsRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDecisionsResponse'
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/decisions/create-decisions
   /ocr:
     post:
       operationId: createOcr
@@ -10093,6 +10127,162 @@ components:
       - object
       - results
       - model
+    DecisionsQuestion:
+      type: object
+      description: ''
+      properties:
+        type:
+          description: ''
+          type: string
+          enum:
+          - noul
+          - choice
+          - score
+        instructions:
+          description: ''
+          oneOf:
+          - type: string
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
+          x-oaiExpandable: true
+        criteria:
+          description: ''
+          nullable: true
+          oneOf:
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
+          x-oaiExpandable: true
+      required:
+      - type
+      - instructions
+    CreateDecisionsRequest:
+      type: object
+      description: ''
+      properties:
+        model:
+          description: ''
+          type: string
+        state:
+          description: ''
+          oneOf:
+          - type: string
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
+          x-oaiExpandable: true
+        questions:
+          description: ''
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/DecisionsQuestion'
+      required:
+      - state
+      - model
+      - questions
+    DecisionsAnswer:
+      description: ''
+      oneOf:
+      - type: object
+        title: noul
+        description: ''
+        properties:
+          type:
+            type: string
+            enum:
+            - noul
+          noul:
+            type: number
+            description: ''
+        required:
+        - type
+        - noul
+      - type: object
+        title: choice
+        description: ''
+        properties:
+          type:
+            type: string
+            enum:
+            - choice
+          choice:
+            type: string
+            description: ''
+          probabilities:
+            type: object
+            description: ''
+            additionalProperties:
+              type: number
+          confidence:
+            type: number
+            description: ''
+        required:
+        - type
+        - choice
+        - probabilities
+        - confidence
+      - type: object
+        title: score
+        description: ''
+        properties:
+          type:
+            type: string
+            enum:
+            - score
+          score:
+            type: number
+            description: ''
+          legend:
+            type: object
+            description: ''
+            additionalProperties:
+              type: string
+          probabilities:
+            type: object
+            description: ''
+            additionalProperties:
+              type: number
+          confidence:
+            type: number
+            description: ''
+        required:
+        - type
+        - score
+        - probabilities
+        - confidence
+      x-oaiExpandable: true
+    CreateDecisionsResponse:
+      type: object
+      description: ''
+      properties:
+        model:
+          type: string
+          description: ''
+        answers:
+          type: object
+          description: ''
+          additionalProperties:
+            $ref: '#/components/schemas/DecisionsAnswer'
+        usage:
+          type: object
+          description: ''
+          properties:
+            input_tokens:
+              type: integer
+              description: ''
+            output_tokens:
+              type: integer
+              description: ''
+        provider:
+          type: string
+          description: ''
+      required:
+      - model
+      - answers
     CreateOcrRequest:
       type: object
       properties:

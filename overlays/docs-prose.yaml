@@ -1633,3 +1633,14 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
+- target: $.tags[?(@.name=='Decisions')]
+  update:
+    description: ''
+- target: $.paths['/decisions'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
