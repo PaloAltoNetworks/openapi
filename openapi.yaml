@@ -243,16 +243,14 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/create-guardrail
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: listGuardrails
       tags:
       - Guardrails
       parameters:
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
-          format: uuid
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: page_size
         in: query
         schema:
@@ -307,6 +305,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -344,6 +343,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -387,6 +387,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -469,6 +470,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/bulk-sync-guardrail-mcp-servers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: listGuardrailMcpServers
       tags:
@@ -508,6 +511,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/list-guardrail-mcp-servers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -573,6 +578,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/upsert-guardrail-mcp-server
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -1625,6 +1632,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -1650,6 +1658,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3245,6 +3254,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/configs/list-configs
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     post:
       tags:
       - Configs
@@ -3290,6 +3301,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/configs/create-config
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3304,6 +3317,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3329,6 +3343,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3393,6 +3408,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -3447,6 +3463,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3539,6 +3556,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/feedback/create-feedback
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3552,6 +3571,7 @@ paths:
         schema:
           type: string
           format: uuid
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       tags:
       - Feedback
       requestBody:
@@ -3903,10 +3923,7 @@ paths:
         name: page_size
         schema:
           type: integer
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3985,6 +4002,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/providers/post-providers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3993,10 +4012,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4021,10 +4037,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4077,10 +4090,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4447,15 +4457,14 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-create
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: McpServers_list
       tags:
       - MCP Servers
       parameters:
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: current_page
         in: query
         schema:
@@ -4522,6 +4531,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-retrieve
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     put:
       operationId: McpServers_update
       tags:
@@ -4546,6 +4557,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     delete:
       operationId: McpServers_delete
       tags:
@@ -4565,6 +4578,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-delete
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4594,6 +4609,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-test
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4631,6 +4648,7 @@ paths:
           - prompt
           - resource
           - resource_template
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4671,6 +4689,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-bulk-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4703,6 +4723,7 @@ paths:
         in: query
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4742,6 +4763,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-bulk-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4761,10 +4784,7 @@ paths:
         in: query
         schema:
           type: string
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: current_page
         in: query
         schema:
@@ -4803,10 +4823,7 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4910,6 +4927,7 @@ paths:
           - user
           - service
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         content:
           application/json:
@@ -4960,10 +4978,7 @@ paths:
         in: query
         schema:
           type: integer
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5002,6 +5017,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5031,6 +5047,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5060,6 +5077,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5098,6 +5116,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5156,6 +5175,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/usage-limit-policies/create-usage-limits-policy
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       tags:
       - Usage Limit Policies
@@ -5231,6 +5252,7 @@ paths:
         schema:
           type: boolean
           default: false
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5262,6 +5284,7 @@ paths:
       operationId: updateUsageLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -5303,6 +5326,7 @@ paths:
       operationId: deleteUsageLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5363,6 +5387,7 @@ paths:
           minimum: 1
           maximum: 100
       - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5399,6 +5424,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       - $ref: '#/components/parameters/UsageLimitsPolicyEntityId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5461,6 +5487,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/rate-limit-policies/create-rate-limits-policy
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       tags:
       - Rate Limit Policies
@@ -5548,6 +5576,7 @@ paths:
           - active
           - archived
           default: active
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5579,6 +5608,7 @@ paths:
       operationId: updateRateLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -5620,6 +5650,7 @@ paths:
       operationId: deleteRateLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5679,6 +5710,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5757,6 +5789,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5841,6 +5874,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5937,6 +5971,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6021,6 +6056,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6099,6 +6135,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6183,6 +6220,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6261,6 +6299,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6339,6 +6378,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6424,6 +6464,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6504,6 +6545,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6595,6 +6637,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6688,6 +6731,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6761,6 +6805,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6839,6 +6884,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6916,6 +6962,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6994,6 +7041,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7069,6 +7117,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7139,6 +7188,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7216,6 +7266,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7302,6 +7353,7 @@ paths:
           - 'true'
           - 'false'
           default: 'true'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7377,6 +7429,7 @@ paths:
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7451,6 +7504,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -8130,9 +8184,10 @@ components:
     WorkspaceIdQuery:
       name: workspace_id
       in: query
-      required: false
+      required: true
       schema:
         type: string
+        format: uuid
   schemas:
     ModelPricingConfig:
       type: object
