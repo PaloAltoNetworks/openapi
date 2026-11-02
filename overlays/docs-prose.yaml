@@ -1711,3 +1711,46 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
+- target: $.tags[?(@.name=='Access Policies')]
+  update:
+    description: ''
+- target: $.paths['/policies/access'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/policies/access'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/policies/access/{accessPolicyId}'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/policies/access/{accessPolicyId}'].put
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/policies/access/{accessPolicyId}'].delete
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''

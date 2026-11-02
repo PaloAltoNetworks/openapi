@@ -89,6 +89,8 @@ tags:
   description: ''
 - name: API Keys
   description: ''
+- name: Access Policies
+  description: ''
 - name: Deployments
   description: ''
 - name: Egress Allowlist
@@ -8479,6 +8481,266 @@ paths:
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
+  /policies/access:
+    post:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: createAccessPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccessPolicyRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  object:
+                    type: string
+                    enum:
+                    - access
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '409':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/create-access-policy
+    get:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: listAccessPolicies
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      - name: effect
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          enum:
+          - allow
+          - deny
+      - name: enabled
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: boolean
+      - name: user_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 36
+      - name: agent_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 36
+      - name: server_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+      - name: search
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+      - name: created_by
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+      - name: start_time
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: end_time
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/CurrentPage'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessPolicyListItem'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/list-access-policies
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /policies/access/{accessPolicyId}:
+    get:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: getAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicy'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/get-access-policy
+    put:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: updateAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccessPolicyRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '409':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/update-access-policy
+    delete:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: deleteAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/delete-access-policy
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
 components:
   securitySchemes:
     Authorization:
@@ -8719,6 +8981,14 @@ components:
       schema:
         type: boolean
       description: ''
+    AccessPolicyId:
+      name: accessPolicyId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+        format: uuid
   schemas:
     ModelPricingConfig:
       type: object
@@ -19855,3 +20125,278 @@ components:
           type: string
           nullable: true
           maxLength: 500
+    AccessPolicyListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+        allow_all_users:
+          type: boolean
+          description: ''
+        allow_all_agents:
+          type: boolean
+          description: ''
+        target_server_count:
+          type: integer
+          description: ''
+        target_provider_count:
+          type: integer
+          description: ''
+        version:
+          type: integer
+        status:
+          type: string
+          enum:
+          - active
+        workspace_id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        object:
+          type: string
+          enum:
+          - access
+    CreateAccessPolicyRequest:
+      type: object
+      required:
+      - name
+      - subjects
+      - targets
+      properties:
+        workspace_id:
+          type: string
+          description: ''
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: ''
+        description:
+          type: string
+          nullable: true
+          maxLength: 256
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+          description: ''
+        subjects:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicySubject'
+        targets:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        enabled:
+          type: boolean
+          default: true
+    AccessPolicyTarget:
+      oneOf:
+      - $ref: '#/components/schemas/AccessPolicyMcpServerTarget'
+      - $ref: '#/components/schemas/AccessPolicyProviderTarget'
+      discriminator:
+        propertyName: type
+        mapping:
+          mcp_server: '#/components/schemas/AccessPolicyMcpServerTarget'
+          provider: '#/components/schemas/AccessPolicyProviderTarget'
+    AccessPolicyProviderTarget:
+      type: object
+      required:
+      - type
+      - provider_id
+      properties:
+        type:
+          type: string
+          enum:
+          - provider
+        provider_id:
+          type: string
+          description: ''
+        models:
+          description: ''
+          oneOf:
+          - type: string
+            enum:
+            - ALL
+          - type: array
+            minItems: 1
+            items:
+              type: string
+              minLength: 1
+    AccessPolicyMcpServerTarget:
+      type: object
+      required:
+      - type
+      - server_id
+      - tools
+      properties:
+        type:
+          type: string
+          enum:
+          - mcp_server
+        server_id:
+          type: string
+          description: ''
+        tools:
+          description: ''
+          oneOf:
+          - type: string
+            enum:
+            - ALL
+          - type: array
+            minItems: 1
+            items:
+              type: string
+              minLength: 1
+    AccessPolicySubject:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - group
+          - agent
+        id:
+          type: string
+          description: ''
+    UpdateAccessPolicyRequest:
+      type: object
+      required:
+      - version
+      - subjects
+      - targets
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          description: ''
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          nullable: true
+          maxLength: 256
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+          description: ''
+        subjects:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicySubject'
+        targets:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        enabled:
+          type: boolean
+    AccessPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPolicySubjectDetails'
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        version:
+          type: integer
+          description: ''
+        status:
+          type: string
+          enum:
+          - active
+        workspace_id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        object:
+          type: string
+          enum:
+          - access
+    AccessPolicySubjectDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - group
+          - agent
+        id:
+          type: string
+          description: ''
+        name:
+          type: string
+          nullable: true
+          description: ''
+        email:
+          type: string
+          nullable: true
+          description: ''

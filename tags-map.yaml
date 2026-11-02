@@ -160,6 +160,10 @@ tags:
   - from: Api-Keys
     to: API Keys
     group: administration
+  # From Portkey-AI/openapi 2bc08ce, after the base linkage closed. No `from`:
+  # it was never in the base.
+  - to: Access Policies
+    group: administration
   - from: Rate Limits Policies
     to: Rate Limit Policies
     group: administration

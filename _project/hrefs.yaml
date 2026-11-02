@@ -220,5 +220,10 @@ hrefs:
   GET /egress-allowlist/{egressAllowlistId}: /aigw/api-reference/egress-allowlist/get-egress-allowlist-entry
   PUT /egress-allowlist/{egressAllowlistId}: /aigw/api-reference/egress-allowlist/update-egress-allowlist-entry
   DELETE /egress-allowlist/{egressAllowlistId}: /aigw/api-reference/egress-allowlist/delete-egress-allowlist-entry
+  POST /policies/access: /aigw/api-reference/access-policies/create-access-policy
+  GET /policies/access: /aigw/api-reference/access-policies/list-access-policies
+  GET /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/get-access-policy
+  PUT /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/update-access-policy
+  DELETE /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/delete-access-policy
 pinned:
 - POST /threads/{thread_id}/messages

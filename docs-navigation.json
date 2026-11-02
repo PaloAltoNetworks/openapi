@@ -466,6 +466,20 @@
           ]
         },
         {
+          "group": "Access Policies",
+          "openapi": {
+            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
+            "directory": "api-reference"
+          },
+          "pages": [
+            "POST /policies/access",
+            "GET /policies/access",
+            "GET /policies/access/{accessPolicyId}",
+            "PUT /policies/access/{accessPolicyId}",
+            "DELETE /policies/access/{accessPolicyId}"
+          ]
+        },
+        {
           "group": "Deployments",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",

@@ -90,6 +90,9 @@ control-plane:
   "/mcp-servers/{mcpServerId}/user-access": inherited
   "/model-configs/pricing/{provider}/{model}": classification.yaml
   "/models/{model}": classification.yaml
+  # Ported from Portkey-AI/openapi 2bc08ce and 700ece6 (Vrushank, 2026-11-02).
+  "/policies/access": vrushank.2026-11-02
+  "/policies/access/{accessPolicyId}": vrushank.2026-11-02
   "/policies/rate-limits": classification.yaml
   "/policies/rate-limits/{rateLimitsPolicyId}": classification.yaml
   "/policies/usage-limits": classification.yaml
