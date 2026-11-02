@@ -124,6 +124,10 @@ admin:
   "/deployments/{deploymentId}": vrushank.2026-09-15
   "/deployments/{deploymentId}/ping": vrushank.2026-09-15
 
+  # Ported from Portkey-AI/openapi 8f91369. An admin API (Vrushank, 2026-11-02).
+  "/egress-allowlist": vrushank.2026-11-02
+  "/egress-allowlist/{egressAllowlistId}": vrushank.2026-11-02
+
 # The org-level guardrails, which the API serves at the same suffix as the
 # control-plane ones. The `/admin/v2` in these keys is the server prefix, moved
 # here because a document cannot hold two paths spelled `/guardrails`.

@@ -179,6 +179,11 @@ tags:
   - from: Usage Limits Policies
     to: Usage Limit Policies
     group: administration
+  # From Portkey-AI/openapi 8f91369, after the base linkage closed, where it
+  # is "Egress-Allowlist". No `from`: it was never in the base. Renamed to the
+  # Title Case, space-separated convention above.
+  - to: Egress Allowlist
+    group: administration
 
   # --- Observability -----------------------------------------------------
   - from: Analytics > Graphs

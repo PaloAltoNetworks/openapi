@@ -481,6 +481,20 @@
           ]
         },
         {
+          "group": "Egress Allowlist",
+          "openapi": {
+            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
+            "directory": "api-reference"
+          },
+          "pages": [
+            "GET /egress-allowlist",
+            "POST /egress-allowlist",
+            "GET /egress-allowlist/{egressAllowlistId}",
+            "PUT /egress-allowlist/{egressAllowlistId}",
+            "DELETE /egress-allowlist/{egressAllowlistId}"
+          ]
+        },
+        {
           "group": "Org Guardrails",
           "openapi": {
             "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",

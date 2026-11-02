@@ -1668,3 +1668,46 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
+- target: $.tags[?(@.name=='Egress Allowlist')]
+  update:
+    description: ''
+- target: $.paths['/egress-allowlist'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/egress-allowlist'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/egress-allowlist/{egressAllowlistId}'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/egress-allowlist/{egressAllowlistId}'].put
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/egress-allowlist/{egressAllowlistId}'].delete
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
