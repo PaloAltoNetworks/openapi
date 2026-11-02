@@ -3624,6 +3624,11 @@ paths:
           - organisation
           - all
           default: all
+      - in: query
+        name: tags
+        schema:
+          type: string
+        description: ''
       responses:
         '200':
           description: ''
@@ -14856,6 +14861,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/OpenAIConfiguration'
             title: OpenAI
+          - title: Anthropic
+            allOf:
+            - $ref: '#/components/schemas/AnthropicConfiguration'
           - $ref: '#/components/schemas/AzureOpenAIConfiguration'
             title: Azure OpenAI
           - $ref: '#/components/schemas/BedrockConfiguration'
@@ -14874,6 +14882,12 @@ components:
             title: Cortex
           - $ref: '#/components/schemas/CustomHostConfiguration'
             title: Custom Base URL
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          description: ''
         create_default_provider:
           type: boolean
           default: true
@@ -14901,6 +14915,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/OpenAIConfiguration'
             title: OpenAI
+          - title: Anthropic
+            allOf:
+            - $ref: '#/components/schemas/AnthropicConfiguration'
           - $ref: '#/components/schemas/AzureOpenAIConfiguration'
             title: Azure OpenAI
           - $ref: '#/components/schemas/BedrockConfiguration'
@@ -14919,6 +14936,12 @@ components:
             title: Cortex
           - $ref: '#/components/schemas/CustomHostConfiguration'
             title: Custom Base URL
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          description: ''
         secret_mappings:
           type: array
           items:
@@ -14937,6 +14960,9 @@ components:
             oneOf:
             - $ref: '#/components/schemas/OpenAIConfiguration'
               title: OpenAI
+            - title: Anthropic
+              allOf:
+              - $ref: '#/components/schemas/AnthropicConfiguration'
             - $ref: '#/components/schemas/AzureOpenAIConfiguration'
               title: Azure OpenAI
             - $ref: '#/components/schemas/BedrockConfiguration'
@@ -15094,10 +15120,49 @@ components:
     OpenAIConfiguration:
       type: object
       properties:
+        provider_auth_type:
+          type: string
+          enum:
+          - apiKey
+          - oauthClientCredentials
+          - wif
+          default: apiKey
+          description: ''
         openai_organization:
           type: string
         openai_project:
           type: string
+        oauth_token_endpoint:
+          type: string
+          description: ''
+        oauth_client_id:
+          type: string
+          description: ''
+        oauth_client_secret:
+          type: string
+          description: ''
+        oauth_scope:
+          type: string
+          description: ''
+        wif_identity_source:
+          type: string
+          enum:
+          - configuredIdp
+          default: configuredIdp
+          description: ''
+        oauth_audience:
+          type: string
+          description: ''
+        openai_identity_provider_id:
+          type: string
+          description: ''
+        openai_service_account_id:
+          type: string
+          description: ''
+        is_key_required:
+          type: boolean
+          default: true
+          description: ''
     AzureOpenAIConfiguration:
       type: object
       required:
@@ -19149,3 +19214,54 @@ components:
                   type: string
         tags:
           $ref: '#/components/schemas/DeploymentTags'
+    AnthropicConfiguration:
+      type: object
+      description: ''
+      properties:
+        provider_auth_type:
+          type: string
+          enum:
+          - apiKey
+          - wif
+          default: apiKey
+          description: ''
+        anthropic_inspect_stream_for_overloaded_error:
+          type: boolean
+          description: ''
+        oauth_token_endpoint:
+          type: string
+          description: ''
+        oauth_client_id:
+          type: string
+          description: ''
+        oauth_client_secret:
+          type: string
+          description: ''
+        oauth_scope:
+          type: string
+          description: ''
+        wif_identity_source:
+          type: string
+          enum:
+          - configuredIdp
+          default: configuredIdp
+          description: ''
+        oauth_audience:
+          type: string
+          description: ''
+        anthropic_federation_rule_id:
+          type: string
+          description: ''
+        anthropic_organization_id:
+          type: string
+          description: ''
+        anthropic_service_account_id:
+          type: string
+          description: ''
+        anthropic_workspace_id:
+          type: string
+          description: ''
+        is_key_required:
+          type: boolean
+          default: true
+          description: ''
