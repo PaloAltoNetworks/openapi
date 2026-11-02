@@ -212,4 +212,7 @@ hrefs:
   PUT /deployments/{deploymentId}: /aigw/api-reference/deployments/update-deployment
   DELETE /deployments/{deploymentId}: /aigw/api-reference/deployments/delete-deployment
   GET /deployments/{deploymentId}/ping: /aigw/api-reference/deployments/ping-deployment
+  GET /analytics/groups/a2a: /aigw/api-reference/analytics/groups/get-analytics-groups-a2a
+  GET /analytics/groups/mcp: /aigw/api-reference/analytics/groups/get-analytics-groups-mcp
+  GET /analytics/groups/workspaces: /aigw/api-reference/analytics/groups/get-analytics-groups-workspaces
 pinned: []

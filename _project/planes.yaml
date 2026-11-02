@@ -28,6 +28,10 @@
 #                           (Integrations, MCP Integrations, Secret References,
 #                           Org Guardrails, Deployments) and written out here
 #                           as the paths those capabilities cover
+#   vrushank.2026-11-02  -- ported from Portkey-AI/openapi after the base
+#                           linkage closed (upstream commits up to adfd74b);
+#                           the plane was decided by Vrushank, not read off
+#                           Portkey's server overrides
 
 # Tags whose operations are deliberately not all on one plane. `check.py` fails
 # on any other tag that spans two, because the split was decided by capability
@@ -60,6 +64,9 @@ control-plane:
   "/analytics/groups/ai-models": inherited
   "/analytics/groups/metadata/{metadataKey}": inherited
   "/analytics/groups/provider": inherited
+  "/analytics/groups/a2a": vrushank.2026-11-02
+  "/analytics/groups/mcp": vrushank.2026-11-02
+  "/analytics/groups/workspaces": vrushank.2026-11-02
   "/analytics/groups/users": inherited
   "/analytics/summary/cache": inherited
   "/api-keys": inherited

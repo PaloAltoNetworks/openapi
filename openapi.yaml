@@ -5694,6 +5694,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5712,6 +5714,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -5773,6 +5776,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5791,6 +5796,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -5858,6 +5864,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5876,6 +5884,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -5955,6 +5964,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5973,6 +5984,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6040,6 +6052,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6058,6 +6072,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6119,6 +6134,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6137,6 +6154,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6204,6 +6222,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6222,6 +6242,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6283,6 +6304,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6301,6 +6324,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6362,6 +6386,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6380,6 +6406,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6463,9 +6490,12 @@ paths:
       - $ref: '#/components/parameters/VirtualKeys'
       - $ref: '#/components/parameters/Configs'
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6529,6 +6559,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6547,6 +6579,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6621,6 +6654,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6639,6 +6674,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6715,6 +6751,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6733,6 +6771,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6789,6 +6828,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6807,6 +6848,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6868,6 +6910,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6886,6 +6930,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -6946,6 +6991,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6964,6 +7011,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7025,6 +7073,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7043,6 +7093,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7101,6 +7152,8 @@ paths:
       - Analytics > Summary
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7119,6 +7172,7 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7170,6 +7224,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7190,6 +7246,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7248,6 +7305,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7268,6 +7327,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7324,6 +7384,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7344,6 +7406,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/OrderBy'
       - $ref: '#/components/parameters/OrderByType'
       - name: columns
@@ -7411,6 +7474,8 @@ paths:
           type: string
         required: true
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7431,6 +7496,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
@@ -7971,6 +8037,252 @@ paths:
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
+  /analytics/groups/a2a:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-a2a
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /analytics/groups/mcp:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-mcp
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /analytics/groups/workspaces:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  is_quota_exceeded:
+                    type: boolean
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        workspace_slug:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        cost:
+                          type: number
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-workspaces
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
 components:
   securitySchemes:
     Authorization:
@@ -8193,6 +8505,24 @@ components:
       schema:
         type: string
         format: uuid
+    DeploymentId:
+      in: query
+      name: deployment_id
+      schema:
+        type: string
+      description: ''
+    ExcludeWorkspaceSlugs:
+      in: query
+      name: exclude_workspace_slugs
+      schema:
+        type: string
+      description: ''
+    IncludeAllWorkspaces:
+      in: query
+      name: include_all_workspaces
+      schema:
+        type: boolean
+      description: ''
   schemas:
     ModelPricingConfig:
       type: object

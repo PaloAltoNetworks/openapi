@@ -568,7 +568,10 @@
             "GET /analytics/groups/users",
             "GET /analytics/groups/ai-models",
             "GET /analytics/groups/provider",
-            "GET /analytics/groups/metadata/{metadataKey}"
+            "GET /analytics/groups/metadata/{metadataKey}",
+            "GET /analytics/groups/a2a",
+            "GET /analytics/groups/mcp",
+            "GET /analytics/groups/workspaces"
           ]
         },
         {
