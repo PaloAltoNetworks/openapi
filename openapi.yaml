@@ -2148,7 +2148,7 @@ paths:
       x-mint:
         href: /aigw/api-reference/assistants/list-messages
     post:
-      operationId: createMessage
+      operationId: createThreadMessage
       tags:
       - Assistants
       parameters:

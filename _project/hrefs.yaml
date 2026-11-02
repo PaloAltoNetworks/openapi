@@ -215,4 +215,8 @@ hrefs:
   GET /analytics/groups/a2a: /aigw/api-reference/analytics/groups/get-analytics-groups-a2a
   GET /analytics/groups/mcp: /aigw/api-reference/analytics/groups/get-analytics-groups-mcp
   GET /analytics/groups/workspaces: /aigw/api-reference/analytics/groups/get-analytics-groups-workspaces
-pinned: []
+pinned:
+  # Vrushank, 2026-11-02: operationId renamed createMessage -> createThreadMessage
+  # (Portkey-AI/openapi 8938f71) so POST /messages can take createMessage. The
+  # page was already published; the URL stays where links point at it.
+  - POST /threads/{thread_id}/messages
