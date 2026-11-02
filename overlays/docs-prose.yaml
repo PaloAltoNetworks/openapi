@@ -1754,3 +1754,22 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
+- target: $.tags[?(@.name=='Messages')]
+  update:
+    description: ''
+- target: $.paths['/messages'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/messages/count_tokens'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''

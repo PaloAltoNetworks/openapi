@@ -225,5 +225,7 @@ hrefs:
   GET /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/get-access-policy
   PUT /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/update-access-policy
   DELETE /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/delete-access-policy
+  POST /messages: /aigw/api-reference/messages/create-message
+  POST /messages/count_tokens: /aigw/api-reference/messages/count-message-tokens
 pinned:
 - POST /threads/{thread_id}/messages

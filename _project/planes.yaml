@@ -154,6 +154,9 @@ gateway:
   "/completions": inherited
   "/decisions": portkey-openapi#160
   "/embeddings": inherited
+  # Anthropic Messages API, ported from Portkey-AI/openapi 9283142 and 6ac6e5d.
+  "/messages": vrushank.2026-11-02
+  "/messages/count_tokens": vrushank.2026-11-02
   "/files": inherited
   "/files/{file_id}": inherited
   "/files/{file_id}/content": inherited

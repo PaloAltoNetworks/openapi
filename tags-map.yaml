@@ -69,6 +69,11 @@ tags:
     group: inference
   - to: Decisions
     group: inference
+  # The Anthropic Messages API, from Portkey-AI/openapi 9283142, after the base
+  # linkage closed. No `from`: it was never in the base. Not to be confused
+  # with the thread messages under Assistants.
+  - to: Messages
+    group: inference
   - from: OCR
     to: OCR
     group: inference
