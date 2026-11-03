@@ -568,7 +568,28 @@ wanted.
   `GET /model-configs/pricing/{provider}/{model}`, which the base declared with
   `security: []`. Preserved rather than quietly reversed: making it require auth
   is as much an unverified claim as leaving it public. `scripts/check.py` prints
-  it on every run. Wants engineering.
+  it on every run. Since 2026-11-02 it also requires `workspace_id`, which sits
+  oddly with taking no credentials: either it needs auth after all or it should
+  not need a workspace. Wants engineering.
+- **`workspace_id` is required on 80 operations, decided but not verified.**
+  Vrushank, 2026-11-02: `WorkspaceIdQuery` is mandatory and a uuid wherever it
+  appears, including every analytics operation and all of `/api-keys`, and the
+  analytics `include_all_workspaces` and `exclude_workspace_slugs` filters must
+  keep working beside it. oasdiff grades the 76 that existed before as 86
+  breaking changes; the four ported since are new. The version
+  stays `3.0.0` because no SDK has been generated from the document. Nobody has
+  yet sent a request to confirm it. Three things a live call against the
+  control plane (SCM token, `tsg_id` scope) would settle:
+  - a request with no `workspace_id` is rejected
+  - `include_all_workspaces=true` widens beyond the one required workspace,
+    rather than being refused or ignored
+  - `exclude_workspace_slugs` removes a workspace from those results
+
+  One tension to settle with it: PR #3 took the scope out of the API key create
+  path because the scope comes from the calling token, the same reasoning that
+  removed `organisation_id`. If a workspace-scoped token already carries its
+  workspace, `workspace_id` may only be needed, and required, for org-level
+  tokens.
 - **`organisation_id` is gone as a parameter but survives as a response
   field.** Engineering's instruction was scoped to parameters, and it was
   followed to that scope. Fifteen component schemas still carry an
