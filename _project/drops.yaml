@@ -14,8 +14,8 @@
 
 # Vrushank, 2026-09-15, marked [DROPPED] on the Phase 1 drop list.
 #
-# Control-plane capabilities that Prisma AIRS does not expose. Ten of the
-# eleven are control plane throughout. `Prompts` is the exception: it spans
+# Control-plane capabilities that Prisma AIRS does not expose. Eight of the
+# nine are control plane throughout. `Prompts` is the exception: it spans
 # both planes, and dropping only the control-plane side would ship an API
 # where a prompt can be executed but never created, listed or versioned, so
 # the two gateway paths under it go as well.
@@ -34,15 +34,6 @@ tags:
   - User Invites
   - Users
   - Virtual Keys
-  - Workspaces > Members
-
-# Engineering, 2026-09-15. Their list named seven capabilities as dropped;
-# six were already gone above. `Workspaces` is the one that was still
-# shipping. Their list also named "SCIM Workspace Mappings" separately, but
-# the base did not tag it separately: /scim/workspaces{,/{id}} carries the
-# `Workspaces` tag too, so this one line removes both surfaces -- five
-# /admin/workspaces operations and three /scim/workspaces ones.
-  - Workspaces
 
 # Individual operations to drop where the whole tag stays. Empty today: every
 # current removal is a clean tag boundary. Entries are "METHOD /path".

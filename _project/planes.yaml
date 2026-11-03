@@ -17,6 +17,7 @@
 #   admin           /ai_gw/admin/v2
 #   admin-in-path   also /ai_gw/admin/v2, but the prefix is in the path key
 #                   rather than the server URL -- see servers.yaml for why
+#   workspace       the Workspace Service, api.sase.paloaltonetworks.com
 #
 # `how` records where the call came from:
 #   classification.yaml  -- a human decided, see that file for the reasoning
@@ -32,6 +33,8 @@
 #                           linkage closed (upstream commits up to adfd74b);
 #                           the plane was decided by Vrushank, not read off
 #                           Portkey's server overrides
+#   workspace-service-1.0.0 -- engineering's Workspace Service API spec
+#                           (2026-11-03); its own host, not an AI Gateway plane
 
 # Tags whose operations are deliberately not all on one plane. `check.py` fails
 # on any other tag that spans two, because the split was decided by capability
@@ -197,3 +200,7 @@ gateway:
   "/vector_stores/{vector_store_id}/file_batches/{batch_id}/files": classification.yaml
   "/vector_stores/{vector_store_id}/files": classification.yaml
   "/vector_stores/{vector_store_id}/files/{file_id}": classification.yaml
+
+workspace:
+  "/workspaces": workspace-service-1.0.0
+  "/workspaces/{id}": workspace-service-1.0.0

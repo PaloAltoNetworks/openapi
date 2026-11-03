@@ -227,5 +227,9 @@ hrefs:
   DELETE /policies/access/{accessPolicyId}: /aigw/api-reference/access-policies/delete-access-policy
   POST /messages: /aigw/api-reference/messages/create-message
   POST /messages/count_tokens: /aigw/api-reference/messages/count-message-tokens
+  GET /workspaces: /aigw/api-reference/workspaces/list-workspaces
+  POST /workspaces: /aigw/api-reference/workspaces/create-workspace
+  GET /workspaces/{id}: /aigw/api-reference/workspaces/get-workspace
+  PUT /workspaces/{id}: /aigw/api-reference/workspaces/update-workspace
 pinned:
 - POST /threads/{thread_id}/messages

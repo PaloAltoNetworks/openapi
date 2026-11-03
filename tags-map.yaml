@@ -13,7 +13,7 @@
 # entries mapping to one `to` is how a merge is documented. A tag introduced
 # here rather than inherited has no `from` at all.
 #
-# Only shipped tags are listed. The eleven groups dropped in Phase 1 were
+# Only shipped tags are listed. The groups dropped in Phase 1 were
 # removed from this file when the base linkage was retired; the record of what
 # is not shipped, and why, is `_project/drops.yaml`.
 #
@@ -192,6 +192,11 @@ tags:
   # is "Egress-Allowlist". No `from`: it was never in the base. Renamed to the
   # Title Case, space-separated convention above.
   - to: Egress Allowlist
+    group: administration
+  # The Prisma AIRS Workspace Service (engineering's spec, 2026-11-03), on its
+  # own host. No `from`: it was never in the base. This is where a reader
+  # finds the UUID every `workspace_id` parameter asks for.
+  - to: Workspaces
     group: administration
 
   # --- Observability -----------------------------------------------------
