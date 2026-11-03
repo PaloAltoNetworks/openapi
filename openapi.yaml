@@ -103,6 +103,8 @@ tags:
   description: ''
 - name: Usage Limit Policies
   description: ''
+- name: Workspaces
+  description: ''
 - name: Analytics > Graphs
   description: ''
 - name: Analytics > Groups
@@ -8807,6 +8809,132 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/messages/count-message-tokens
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      tags: &id001
+      - Workspaces
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceLimit'
+      - $ref: '#/components/parameters/WorkspaceOffset'
+      - name: name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: exact_name
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWorkspacesResponse'
+        '400':
+          $ref: '#/components/responses/WorkspaceBadRequest'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/workspaces/list-workspaces
+    post:
+      operationId: createWorkspace
+      tags: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceRequest'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/WorkspaceBadRequest'
+        '409':
+          $ref: '#/components/responses/WorkspaceConflict'
+        '500':
+          $ref: '#/components/responses/WorkspaceInternalServerError'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/workspaces/create-workspace
+    servers:
+    - url: https://api.sase.paloaltonetworks.com/airs/workspace/v1
+      description: Managed
+  /workspaces/{id}:
+    get:
+      operationId: getWorkspace
+      tags: *id001
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdPath'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '404':
+          $ref: '#/components/responses/WorkspaceNotFound'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/workspaces/get-workspace
+    put:
+      operationId: updateWorkspace
+      tags: *id001
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkspaceRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/WorkspaceBadRequest'
+        '404':
+          $ref: '#/components/responses/WorkspaceNotFound'
+        '409':
+          $ref: '#/components/responses/WorkspaceConflict'
+      summary: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/workspaces/update-workspace
+    servers:
+    - url: https://api.sase.paloaltonetworks.com/airs/workspace/v1
+      description: Managed
 components:
   securitySchemes:
     Authorization:
@@ -9052,6 +9180,30 @@ components:
       in: path
       required: true
       description: ''
+      schema:
+        type: string
+        format: uuid
+    WorkspaceLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    WorkspaceOffset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    WorkspaceIdPath:
+      name: id
+      in: path
+      required: true
       schema:
         type: string
         format: uuid
@@ -10158,7 +10310,7 @@ components:
           default: standard
         response_format:
           type: string
-          enum: &id001
+          enum: &id002
           - url
           - b64_json
           default: url
@@ -10461,7 +10613,7 @@ components:
           nullable: true
         size:
           type: string
-          enum: &id002
+          enum: &id003
           - 256x256
           - 512x512
           - 1024x1024
@@ -10469,7 +10621,7 @@ components:
           nullable: true
         response_format:
           type: string
-          enum: *id001
+          enum: *id002
           default: url
           nullable: true
         user:
@@ -10500,12 +10652,12 @@ components:
           nullable: true
         response_format:
           type: string
-          enum: *id001
+          enum: *id002
           default: url
           nullable: true
         size:
           type: string
-          enum: *id002
+          enum: *id003
           default: 1024x1024
           nullable: true
         user:
@@ -20863,3 +21015,153 @@ components:
               type: string
         thinking:
           $ref: '#/components/schemas/AnthropicThinkingConfig'
+    Workspace:
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - scope_name
+      - is_default
+      - status
+      - tsg_id
+      - created_at
+      - updated_at
+      - created_by
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        scope_name:
+          type: string
+        is_default:
+          type: boolean
+        status:
+          $ref: '#/components/schemas/WorkspaceStatus'
+        tsg_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+    WorkspaceStatus:
+      type: string
+      enum:
+      - pending
+      - active
+      - broken
+      - failed
+      - deleting
+    CreateWorkspaceRequest:
+      type: object
+      required:
+      - name
+      - scope_name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 500
+        scope_name:
+          type: string
+          minLength: 1
+          maxLength: 64
+    UpdateWorkspaceRequest:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+    ListWorkspacesResponse:
+      type: object
+      required:
+      - workspaces
+      - total_count
+      - limit
+      - offset
+      properties:
+        workspaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+        total_count:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+    WorkspaceError:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              $ref: '#/components/schemas/WorkspaceErrorCode'
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+    WorkspaceErrorCode:
+      type: string
+      enum:
+      - VALIDATION_ERROR
+      - DEFAULT_WORKSPACE
+      - NOT_FOUND
+      - CONFLICT
+      - INTERNAL_ERROR
+  responses:
+    WorkspaceBadRequest:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkspaceError'
+    WorkspaceConflict:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkspaceError'
+    WorkspaceInternalServerError:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkspaceError'
+    WorkspaceNotFound:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkspaceError'

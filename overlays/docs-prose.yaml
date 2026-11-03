@@ -1773,3 +1773,38 @@ actions:
       claims: []
       origin_kind: human
       text_digest: ''
+- target: $.tags[?(@.name=='Workspaces')]
+  update:
+    description: ''
+- target: $.paths['/workspaces'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/workspaces'].post
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/workspaces/{id}'].get
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''
+- target: $.paths['/workspaces/{id}'].put
+  update:
+    summary: ''
+    description: ''
+    x-airs-provenance:
+      claims: []
+      origin_kind: human
+      text_digest: ''

@@ -97,3 +97,14 @@ admin:
 admin-in-path:
   - url: https://api.apps.paloaltonetworks.com/ai_gw
     description: Managed
+
+# Workspace Service. A different host and a different service from the AI
+# Gateway planes: workspaces are a Prisma AIRS core resource, bound to an SCM
+# scope, and every workspace-level call on /ai_gw/v2 names one by the `id` this
+# service returns (`workspace_id`, a UUID). Same SCM bearer token.
+#
+# Vrushank, 2026-11-03, from engineering's Workspace Service API 1.0.0
+# specification. Not yet live-verified.
+workspace:
+  - url: https://api.sase.paloaltonetworks.com/airs/workspace/v1
+    description: Managed

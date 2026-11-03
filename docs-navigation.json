@@ -565,6 +565,19 @@
             "GET /policies/usage-limits/{policyUsageLimitsId}/entities",
             "PUT /policies/usage-limits/{policyUsageLimitsId}/entities/{entityId}/reset"
           ]
+        },
+        {
+          "group": "Workspaces",
+          "openapi": {
+            "source": "https://raw.githubusercontent.com/PaloAltoNetworks/openapi/refs/heads/main/openapi.yaml",
+            "directory": "api-reference"
+          },
+          "pages": [
+            "GET /workspaces",
+            "POST /workspaces",
+            "GET /workspaces/{id}",
+            "PUT /workspaces/{id}"
+          ]
         }
       ]
     },

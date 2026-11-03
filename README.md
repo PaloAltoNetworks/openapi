@@ -52,7 +52,7 @@ empty, and it would have cost the whole gate the day one was written.
 The four decision files under `_project/` are the same idea applied to
 structure. Each
 holds a decision that would otherwise be spread across the document — sixty-odd
-`servers` blocks, eleven tag groups' worth of operations, 203 page URLs — where
+`servers` blocks, nine tag groups' worth of operations, 207 page URLs — where
 it can be read, reviewed and changed in one place. `scripts/build.py` applies
 them back onto `openapi.yaml` and CI fails if the document and the decisions
 disagree.
@@ -62,21 +62,26 @@ disagree.
 | | |
 |---|---|
 | OpenAPI | 3.0.0 |
-| Paths / operations | 131 / 203 |
-| Components | 521, of which 479 schemas |
-| Tags | 46, across 6 navigation groups |
-| Servers | 5 hosts across 4 planes — managed and self-hosted gateway, control plane, admin, admin-in-path |
+| Paths / operations | 133 / 207 |
+| Components | 535, of which 486 schemas |
+| Tags | 47, across 6 navigation groups |
+| Servers | 6 hosts across 5 planes — managed and self-hosted gateway, control plane, admin, admin-in-path, Workspace Service |
 | Security | 1 scheme: `Authorization: Bearer` |
-| Docs URLs | 203 — one `x-mint.href` per operation, all unique |
+| Docs URLs | 207 — one `x-mint.href` per operation, all unique |
 | Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
 
-Eleven capability groups the base carried are **not shipped** — Audit Logs,
-Collections, Labels, Log Exports, Prompts, Prompt Partials, User Invites, Users,
-Virtual Keys, Workspaces and Workspaces > Members. That is 63 operations and 34
-paths, declared by tag in `_project/drops.yaml`.
+Nine capability groups the base carried are **not shipped** — Audit Logs,
+Collections, Labels, Log Exports, Prompts, Prompt Partials, User Invites, Users
+and Virtual Keys. That is 50 operations and 28 paths, declared by tag in
+`_project/drops.yaml`.
 
-Deployments was a twelfth until Phase 2, when it turned out to be exposed on the
+**Workspaces** is the Prisma AIRS Workspace Service (`/workspaces`,
+`/workspaces/{id}`) on its own host, `api.sase.paloaltonetworks.com/airs/workspace/v1`,
+from engineering's Workspace Service API 1.0.0 specification. It is where a
+caller finds the UUID that every `workspace_id` parameter asks for.
+
+Deployments was a tenth until Phase 2, when it turned out to be exposed on the
 admin plane after all. Un-dropping is recovery rather than a flag flip: the base
 was retired at the end of Phase 1, so removing the line brought nothing back and
 the six operations were recovered from the pre-drop revision. What came back is
@@ -310,7 +315,7 @@ domain and not subordinate to the KB (recorded exemption, Q6, 2026-09-07). The
 reconciliation loop is therefore three-node — KB ↔ spec ↔ docs — and drift from
 *either* side is a defect, with no authoritative side to fall back on.
 
-`x-airs-provenance` is scaffolded on all 203 operations with `claims` empty. It
+`x-airs-provenance` is scaffolded on all 207 operations with `claims` empty. It
 is not only "which claim supports this description"; it is the **join key that
 makes drift detectable**. Without a claim reference on an operation, nothing can
 tell that the KB moved and the spec did not.
@@ -550,11 +555,10 @@ wanted.
   Until then the generated sample is correct but verbose. cURL only is the
   intended end state — a single `x-codeSamples` entry suppresses the other
   language tabs, and other languages are a separate decision.
-- **`required` is unfilled on five request bodies** — `POST /configs`,
-  `POST /admin/workspaces`, and the `PUT`s for configs, providers and
-  workspaces. `required` is a claim about the API contract and nothing here
-  establishes it; getting it wrong means a reader omits a field the API rejects.
-  For the three `PUT`s, requiring nothing may already be correct, since a
+- **`required` is unfilled on three request bodies** — `POST /configs`
+  and the `PUT`s for configs and providers. `required` is a claim about the API
+  contract and nothing here establishes it; getting it wrong means a reader omits a field the API rejects.
+  For the two `PUT`s, requiring nothing may already be correct, since a
   partial update where every field is optional is a normal design. Wants
   engineering.
 - **117 lint findings are baselined**, all inherited or carried in with ported
