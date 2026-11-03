@@ -28,6 +28,10 @@
 #                           (Integrations, MCP Integrations, Secret References,
 #                           Org Guardrails, Deployments) and written out here
 #                           as the paths those capabilities cover
+#   vrushank.2026-11-02  -- ported from Portkey-AI/openapi after the base
+#                           linkage closed (upstream commits up to adfd74b);
+#                           the plane was decided by Vrushank, not read off
+#                           Portkey's server overrides
 
 # Tags whose operations are deliberately not all on one plane. `check.py` fails
 # on any other tag that spans two, because the split was decided by capability
@@ -60,6 +64,9 @@ control-plane:
   "/analytics/groups/ai-models": inherited
   "/analytics/groups/metadata/{metadataKey}": inherited
   "/analytics/groups/provider": inherited
+  "/analytics/groups/a2a": vrushank.2026-11-02
+  "/analytics/groups/mcp": vrushank.2026-11-02
+  "/analytics/groups/workspaces": vrushank.2026-11-02
   "/analytics/groups/users": inherited
   "/analytics/summary/cache": inherited
   "/api-keys": inherited
@@ -83,6 +90,9 @@ control-plane:
   "/mcp-servers/{mcpServerId}/user-access": inherited
   "/model-configs/pricing/{provider}/{model}": classification.yaml
   "/models/{model}": classification.yaml
+  # Ported from Portkey-AI/openapi 2bc08ce and 700ece6 (Vrushank, 2026-11-02).
+  "/policies/access": vrushank.2026-11-02
+  "/policies/access/{accessPolicyId}": vrushank.2026-11-02
   "/policies/rate-limits": classification.yaml
   "/policies/rate-limits/{rateLimitsPolicyId}": classification.yaml
   "/policies/usage-limits": classification.yaml
@@ -117,6 +127,10 @@ admin:
   "/deployments/{deploymentId}": vrushank.2026-09-15
   "/deployments/{deploymentId}/ping": vrushank.2026-09-15
 
+  # Ported from Portkey-AI/openapi 8f91369. An admin API (Vrushank, 2026-11-02).
+  "/egress-allowlist": vrushank.2026-11-02
+  "/egress-allowlist/{egressAllowlistId}": vrushank.2026-11-02
+
 # The org-level guardrails, which the API serves at the same suffix as the
 # control-plane ones. The `/admin/v2` in these keys is the server prefix, moved
 # here because a document cannot hold two paths spelled `/guardrails`.
@@ -140,6 +154,9 @@ gateway:
   "/completions": inherited
   "/decisions": portkey-openapi#160
   "/embeddings": inherited
+  # Anthropic Messages API, ported from Portkey-AI/openapi 9283142 and 6ac6e5d.
+  "/messages": vrushank.2026-11-02
+  "/messages/count_tokens": vrushank.2026-11-02
   "/files": inherited
   "/files/{file_id}": inherited
   "/files/{file_id}/content": inherited

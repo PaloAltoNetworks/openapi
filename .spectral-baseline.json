@@ -3,7 +3,7 @@
   "counts": {
     "array-items": 4,
     "no-$ref-siblings": 64,
-    "operation-operationId": 45,
+    "operation-operationId": 48,
     "operation-success-response": 1
   }
 }

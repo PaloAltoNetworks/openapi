@@ -41,6 +41,8 @@ tags:
   description: ''
 - name: Images
   description: ''
+- name: Messages
+  description: ''
 - name: Model Pricing
   description: ''
 - name: Models
@@ -89,7 +91,11 @@ tags:
   description: ''
 - name: API Keys
   description: ''
+- name: Access Policies
+  description: ''
 - name: Deployments
+  description: ''
+- name: Egress Allowlist
   description: ''
 - name: Org Guardrails
   description: ''
@@ -243,16 +249,14 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/create-guardrail
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: listGuardrails
       tags:
       - Guardrails
       parameters:
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
-          format: uuid
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: page_size
         in: query
         schema:
@@ -307,6 +311,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -344,6 +349,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -387,6 +393,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -469,6 +476,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/bulk-sync-guardrail-mcp-servers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: listGuardrailMcpServers
       tags:
@@ -508,6 +517,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/list-guardrail-mcp-servers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -573,6 +584,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/guardrails/upsert-guardrail-mcp-server
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -1625,6 +1638,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -1650,6 +1664,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -2139,7 +2154,7 @@ paths:
       x-mint:
         href: /aigw/api-reference/assistants/list-messages
     post:
-      operationId: createMessage
+      operationId: createThreadMessage
       tags:
       - Assistants
       parameters:
@@ -3245,6 +3260,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/configs/list-configs
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     post:
       tags:
       - Configs
@@ -3290,6 +3307,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/configs/create-config
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3304,6 +3323,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3329,6 +3349,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3393,6 +3414,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -3447,6 +3469,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3539,6 +3562,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/feedback/create-feedback
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3552,6 +3577,7 @@ paths:
         schema:
           type: string
           format: uuid
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       tags:
       - Feedback
       requestBody:
@@ -3604,6 +3630,11 @@ paths:
           - organisation
           - all
           default: all
+      - in: query
+        name: tags
+        schema:
+          type: string
+        description: ''
       responses:
         '200':
           description: ''
@@ -3903,10 +3934,7 @@ paths:
         name: page_size
         schema:
           type: integer
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -3985,6 +4013,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/providers/post-providers
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -3993,10 +4023,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4021,10 +4048,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4077,10 +4101,7 @@ paths:
       tags:
       - Providers
       parameters:
-      - in: query
-        name: workspace_id
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - in: path
         name: slug
         schema:
@@ -4447,15 +4468,14 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-create
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       operationId: McpServers_list
       tags:
       - MCP Servers
       parameters:
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: current_page
         in: query
         schema:
@@ -4522,6 +4542,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-retrieve
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     put:
       operationId: McpServers_update
       tags:
@@ -4546,6 +4568,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     delete:
       operationId: McpServers_delete
       tags:
@@ -4565,6 +4589,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-delete
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4594,6 +4620,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/mcp-servers-test
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4631,6 +4659,7 @@ paths:
           - prompt
           - resource
           - resource_template
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4671,6 +4700,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/capabilities/mcp-server-capabilities-bulk-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4703,6 +4734,7 @@ paths:
         in: query
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4742,6 +4774,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/mcp-servers/user-access/mcp-server-user-access-bulk-update
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
       description: Managed
@@ -4761,10 +4795,7 @@ paths:
         in: query
         schema:
           type: string
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       - name: current_page
         in: query
         schema:
@@ -4803,10 +4834,7 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -4910,6 +4938,7 @@ paths:
           - user
           - service
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         content:
           application/json:
@@ -4960,10 +4989,7 @@ paths:
         in: query
         schema:
           type: integer
-      - name: workspace_id
-        in: query
-        schema:
-          type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5002,6 +5028,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5031,6 +5058,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5060,6 +5088,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5098,6 +5127,7 @@ paths:
           type: string
           format: uuid
         required: true
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5156,6 +5186,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/usage-limit-policies/create-usage-limits-policy
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       tags:
       - Usage Limit Policies
@@ -5231,6 +5263,7 @@ paths:
         schema:
           type: boolean
           default: false
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5262,6 +5295,7 @@ paths:
       operationId: updateUsageLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -5303,6 +5337,7 @@ paths:
       operationId: deleteUsageLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5363,6 +5398,7 @@ paths:
           minimum: 1
           maximum: 100
       - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5399,6 +5435,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/PolicyUsageLimitsId'
       - $ref: '#/components/parameters/UsageLimitsPolicyEntityId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5461,6 +5498,8 @@ paths:
         text_digest: ''
       x-mint:
         href: /aigw/api-reference/rate-limit-policies/create-rate-limits-policy
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
     get:
       tags:
       - Rate Limit Policies
@@ -5548,6 +5587,7 @@ paths:
           - active
           - archived
           default: active
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5579,6 +5619,7 @@ paths:
       operationId: updateRateLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       requestBody:
         required: true
         content:
@@ -5620,6 +5661,7 @@ paths:
       operationId: deleteRateLimitsPolicy
       parameters:
       - $ref: '#/components/parameters/RateLimitsPolicyId'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5658,6 +5700,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5676,9 +5720,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5736,6 +5782,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5754,9 +5802,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5820,6 +5870,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5838,9 +5890,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -5916,6 +5970,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -5934,9 +5990,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6000,6 +6058,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6018,9 +6078,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6078,6 +6140,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6096,9 +6160,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6162,6 +6228,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6180,9 +6248,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6240,6 +6310,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6258,9 +6330,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6318,6 +6392,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6336,9 +6412,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6418,12 +6496,16 @@ paths:
       - $ref: '#/components/parameters/VirtualKeys'
       - $ref: '#/components/parameters/Configs'
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6483,6 +6565,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6501,9 +6585,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6574,6 +6660,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6592,9 +6680,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6667,6 +6757,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6685,9 +6777,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6740,6 +6834,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6758,9 +6854,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6818,6 +6916,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6836,9 +6936,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6895,6 +6997,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6913,9 +7017,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -6973,6 +7079,8 @@ paths:
       - Analytics > Graphs
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -6991,9 +7099,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7048,6 +7158,8 @@ paths:
       - Analytics > Summary
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7066,9 +7178,11 @@ paths:
       - $ref: '#/components/parameters/ApiKeyIds'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7116,6 +7230,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7136,9 +7252,11 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7193,6 +7311,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7213,9 +7333,11 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7268,6 +7390,8 @@ paths:
       - Analytics > Groups
       parameters:
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7288,6 +7412,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/OrderBy'
       - $ref: '#/components/parameters/OrderByType'
       - name: columns
@@ -7302,6 +7427,7 @@ paths:
           - 'true'
           - 'false'
           default: 'true'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7354,6 +7480,8 @@ paths:
           type: string
         required: true
       - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/IncludeAllWorkspaces'
+      - $ref: '#/components/parameters/ExcludeWorkspaceSlugs'
       - $ref: '#/components/parameters/TimeOfGenerationMin'
       - $ref: '#/components/parameters/TimeOfGenerationMax'
       - $ref: '#/components/parameters/TotalUnitsMin'
@@ -7374,9 +7502,11 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Metadata'
       - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
       - $ref: '#/components/parameters/TraceId'
       - $ref: '#/components/parameters/SpanId'
       - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7451,6 +7581,7 @@ paths:
         required: true
         schema:
           type: string
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
       responses:
         '200':
           description: ''
@@ -7912,6 +8043,770 @@ paths:
     servers:
     - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
       description: Managed
+  /analytics/groups/a2a:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-a2a
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /analytics/groups/mcp:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-mcp
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /analytics/groups/workspaces:
+    get:
+      tags:
+      - Analytics > Groups
+      summary: ''
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceSlug'
+      - $ref: '#/components/parameters/TimeOfGenerationMin'
+      - $ref: '#/components/parameters/TimeOfGenerationMax'
+      - $ref: '#/components/parameters/TotalUnitsMin'
+      - $ref: '#/components/parameters/TotalUnitsMax'
+      - $ref: '#/components/parameters/CostMin'
+      - $ref: '#/components/parameters/CostMax'
+      - $ref: '#/components/parameters/PromptTokenMin'
+      - $ref: '#/components/parameters/PromptTokenMax'
+      - $ref: '#/components/parameters/CompletionTokenMin'
+      - $ref: '#/components/parameters/CompletionTokenMax'
+      - $ref: '#/components/parameters/StatusCode'
+      - $ref: '#/components/parameters/WeightedFeedbackMin'
+      - $ref: '#/components/parameters/WeightedFeedbackMax'
+      - $ref: '#/components/parameters/VirtualKeys'
+      - $ref: '#/components/parameters/Configs'
+      - $ref: '#/components/parameters/ApiKeyIds'
+      - $ref: '#/components/parameters/CurrentPage'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Metadata'
+      - $ref: '#/components/parameters/AiOrgModel'
+      - $ref: '#/components/parameters/DeploymentId'
+      - $ref: '#/components/parameters/TraceId'
+      - $ref: '#/components/parameters/SpanId'
+      - $ref: '#/components/parameters/PromptSlug'
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                    description: ''
+                  is_quota_exceeded:
+                    type: boolean
+                    description: ''
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        workspace_slug:
+                          type: string
+                          description: ''
+                        requests:
+                          type: integer
+                          description: ''
+                        cost:
+                          type: number
+                          description: ''
+                        object:
+                          type: string
+                          description: ''
+                          enum:
+                          - analytics-group
+                required:
+                - object
+                - data
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/analytics/groups/get-analytics-groups-workspaces
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /egress-allowlist:
+    get:
+      operationId: listEgressAllowlist
+      summary: ''
+      tags:
+      - Egress Allowlist
+      parameters:
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description: ''
+      - in: query
+        name: current_page
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+        description: ''
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        description: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EgressAllowlistEntry'
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/egress-allowlist/list-egress-allowlist
+    post:
+      operationId: createEgressAllowlistEntry
+      summary: ''
+      tags:
+      - Egress Allowlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEgressAllowlistRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  domain:
+                    type: string
+                    description: ''
+                  object:
+                    type: string
+                    enum:
+                    - egress-allowlist
+        '400':
+          description: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/egress-allowlist/create-egress-allowlist-entry
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+      description: Managed
+  /egress-allowlist/{egressAllowlistId}:
+    get:
+      operationId: getEgressAllowlistEntry
+      summary: ''
+      tags:
+      - Egress Allowlist
+      parameters:
+      - in: path
+        name: egressAllowlistId
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EgressAllowlistEntry'
+        '404':
+          description: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/egress-allowlist/get-egress-allowlist-entry
+    put:
+      operationId: updateEgressAllowlistEntry
+      summary: ''
+      tags:
+      - Egress Allowlist
+      parameters:
+      - in: path
+        name: egressAllowlistId
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEgressAllowlistRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '404':
+          description: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/egress-allowlist/update-egress-allowlist-entry
+    delete:
+      operationId: deleteEgressAllowlistEntry
+      summary: ''
+      tags:
+      - Egress Allowlist
+      parameters:
+      - in: path
+        name: egressAllowlistId
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: ''
+      description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/egress-allowlist/delete-egress-allowlist-entry
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/admin/v2
+      description: Managed
+  /policies/access:
+    post:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: createAccessPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccessPolicyRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  object:
+                    type: string
+                    enum:
+                    - access
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '409':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/create-access-policy
+    get:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: listAccessPolicies
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceIdQuery'
+      - name: effect
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          enum:
+          - allow
+          - deny
+      - name: enabled
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: boolean
+      - name: user_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 36
+      - name: agent_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 36
+      - name: server_id
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+      - name: search
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+      - name: created_by
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+      - name: start_time
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: end_time
+        in: query
+        description: ''
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/CurrentPage'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    enum:
+                    - list
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessPolicyListItem'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/list-access-policies
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /policies/access/{accessPolicyId}:
+    get:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: getAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicy'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/get-access-policy
+    put:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: updateAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccessPolicyRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '409':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/update-access-policy
+    delete:
+      tags:
+      - Access Policies
+      summary: ''
+      description: ''
+      operationId: deleteAccessPolicy
+      parameters:
+      - $ref: '#/components/parameters/AccessPolicyId'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '500':
+          description: ''
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/access-policies/delete-access-policy
+    servers:
+    - url: https://api.apps.paloaltonetworks.com/ai_gw/v2
+      description: Managed
+  /messages:
+    post:
+      operationId: createMessage
+      tags:
+      - Messages
+      summary: ''
+      description: ''
+      parameters:
+      - $ref: '#/components/parameters/PortkeyTraceId'
+      - $ref: '#/components/parameters/PortkeySpanId'
+      - $ref: '#/components/parameters/PortkeyParentSpanId'
+      - $ref: '#/components/parameters/PortkeySpanName'
+      - $ref: '#/components/parameters/PortkeyMetadata'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnthropicMessageRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/messages/create-message
+  /messages/count_tokens:
+    post:
+      operationId: countMessageTokens
+      tags:
+      - Messages
+      summary: ''
+      description: ''
+      parameters:
+      - $ref: '#/components/parameters/PortkeyTraceId'
+      - $ref: '#/components/parameters/PortkeySpanId'
+      - $ref: '#/components/parameters/PortkeyParentSpanId'
+      - $ref: '#/components/parameters/PortkeySpanName'
+      - $ref: '#/components/parameters/PortkeyMetadata'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountMessageTokensRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountMessageTokensResponse'
+      x-airs-provenance:
+        claims: []
+        origin_kind: human
+        text_digest: ''
+      x-mint:
+        href: /aigw/api-reference/messages/count-message-tokens
 components:
   securitySchemes:
     Authorization:
@@ -8130,9 +9025,36 @@ components:
     WorkspaceIdQuery:
       name: workspace_id
       in: query
-      required: false
+      required: true
       schema:
         type: string
+        format: uuid
+    DeploymentId:
+      in: query
+      name: deployment_id
+      schema:
+        type: string
+      description: ''
+    ExcludeWorkspaceSlugs:
+      in: query
+      name: exclude_workspace_slugs
+      schema:
+        type: string
+      description: ''
+    IncludeAllWorkspaces:
+      in: query
+      name: include_all_workspaces
+      schema:
+        type: boolean
+      description: ''
+    AccessPolicyId:
+      name: accessPolicyId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+        format: uuid
   schemas:
     ModelPricingConfig:
       type: object
@@ -14801,6 +15723,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/OpenAIConfiguration'
             title: OpenAI
+          - title: Anthropic
+            allOf:
+            - $ref: '#/components/schemas/AnthropicConfiguration'
           - $ref: '#/components/schemas/AzureOpenAIConfiguration'
             title: Azure OpenAI
           - $ref: '#/components/schemas/BedrockConfiguration'
@@ -14819,6 +15744,12 @@ components:
             title: Cortex
           - $ref: '#/components/schemas/CustomHostConfiguration'
             title: Custom Base URL
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          description: ''
         create_default_provider:
           type: boolean
           default: true
@@ -14846,6 +15777,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/OpenAIConfiguration'
             title: OpenAI
+          - title: Anthropic
+            allOf:
+            - $ref: '#/components/schemas/AnthropicConfiguration'
           - $ref: '#/components/schemas/AzureOpenAIConfiguration'
             title: Azure OpenAI
           - $ref: '#/components/schemas/BedrockConfiguration'
@@ -14864,6 +15798,12 @@ components:
             title: Cortex
           - $ref: '#/components/schemas/CustomHostConfiguration'
             title: Custom Base URL
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          description: ''
         secret_mappings:
           type: array
           items:
@@ -14882,6 +15822,9 @@ components:
             oneOf:
             - $ref: '#/components/schemas/OpenAIConfiguration'
               title: OpenAI
+            - title: Anthropic
+              allOf:
+              - $ref: '#/components/schemas/AnthropicConfiguration'
             - $ref: '#/components/schemas/AzureOpenAIConfiguration'
               title: Azure OpenAI
             - $ref: '#/components/schemas/BedrockConfiguration'
@@ -15039,10 +15982,49 @@ components:
     OpenAIConfiguration:
       type: object
       properties:
+        provider_auth_type:
+          type: string
+          enum:
+          - apiKey
+          - oauthClientCredentials
+          - wif
+          default: apiKey
+          description: ''
         openai_organization:
           type: string
         openai_project:
           type: string
+        oauth_token_endpoint:
+          type: string
+          description: ''
+        oauth_client_id:
+          type: string
+          description: ''
+        oauth_client_secret:
+          type: string
+          description: ''
+        oauth_scope:
+          type: string
+          description: ''
+        wif_identity_source:
+          type: string
+          enum:
+          - configuredIdp
+          default: configuredIdp
+          description: ''
+        oauth_audience:
+          type: string
+          description: ''
+        openai_identity_provider_id:
+          type: string
+          description: ''
+        openai_service_account_id:
+          type: string
+          description: ''
+        is_key_required:
+          type: boolean
+          default: true
+          description: ''
     AzureOpenAIConfiguration:
       type: object
       required:
@@ -19094,3 +20076,790 @@ components:
                   type: string
         tags:
           $ref: '#/components/schemas/DeploymentTags'
+    AnthropicConfiguration:
+      type: object
+      description: ''
+      properties:
+        provider_auth_type:
+          type: string
+          enum:
+          - apiKey
+          - wif
+          default: apiKey
+          description: ''
+        anthropic_inspect_stream_for_overloaded_error:
+          type: boolean
+          description: ''
+        oauth_token_endpoint:
+          type: string
+          description: ''
+        oauth_client_id:
+          type: string
+          description: ''
+        oauth_client_secret:
+          type: string
+          description: ''
+        oauth_scope:
+          type: string
+          description: ''
+        wif_identity_source:
+          type: string
+          enum:
+          - configuredIdp
+          default: configuredIdp
+          description: ''
+        oauth_audience:
+          type: string
+          description: ''
+        anthropic_federation_rule_id:
+          type: string
+          description: ''
+        anthropic_organization_id:
+          type: string
+          description: ''
+        anthropic_service_account_id:
+          type: string
+          description: ''
+        anthropic_workspace_id:
+          type: string
+          description: ''
+        is_key_required:
+          type: boolean
+          default: true
+          description: ''
+    CreateEgressAllowlistRequest:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          $ref: '#/components/schemas/EgressAllowlistDomain'
+        description:
+          type: string
+          nullable: true
+          maxLength: 500
+    EgressAllowlistDomain:
+      type: string
+      minLength: 1
+      maxLength: 255
+      description: ''
+    EgressAllowlistEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        domain:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+          - active
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        object:
+          type: string
+          enum:
+          - egress-allowlist
+    UpdateEgressAllowlistRequest:
+      type: object
+      description: ''
+      minProperties: 1
+      anyOf:
+      - required:
+        - domain
+      - required:
+        - description
+      properties:
+        domain:
+          $ref: '#/components/schemas/EgressAllowlistDomain'
+        description:
+          type: string
+          nullable: true
+          maxLength: 500
+    AccessPolicyListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+        allow_all_users:
+          type: boolean
+          description: ''
+        allow_all_agents:
+          type: boolean
+          description: ''
+        target_server_count:
+          type: integer
+          description: ''
+        target_provider_count:
+          type: integer
+          description: ''
+        version:
+          type: integer
+        status:
+          type: string
+          enum:
+          - active
+        workspace_id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        object:
+          type: string
+          enum:
+          - access
+    CreateAccessPolicyRequest:
+      type: object
+      required:
+      - name
+      - subjects
+      - targets
+      properties:
+        workspace_id:
+          type: string
+          description: ''
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: ''
+        description:
+          type: string
+          nullable: true
+          maxLength: 256
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+          description: ''
+        subjects:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicySubject'
+        targets:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        enabled:
+          type: boolean
+          default: true
+    AccessPolicyTarget:
+      oneOf:
+      - $ref: '#/components/schemas/AccessPolicyMcpServerTarget'
+      - $ref: '#/components/schemas/AccessPolicyProviderTarget'
+      discriminator:
+        propertyName: type
+        mapping:
+          mcp_server: '#/components/schemas/AccessPolicyMcpServerTarget'
+          provider: '#/components/schemas/AccessPolicyProviderTarget'
+    AccessPolicyProviderTarget:
+      type: object
+      required:
+      - type
+      - provider_id
+      properties:
+        type:
+          type: string
+          enum:
+          - provider
+        provider_id:
+          type: string
+          description: ''
+        models:
+          description: ''
+          oneOf:
+          - type: string
+            enum:
+            - ALL
+          - type: array
+            minItems: 1
+            items:
+              type: string
+              minLength: 1
+    AccessPolicyMcpServerTarget:
+      type: object
+      required:
+      - type
+      - server_id
+      - tools
+      properties:
+        type:
+          type: string
+          enum:
+          - mcp_server
+        server_id:
+          type: string
+          description: ''
+        tools:
+          description: ''
+          oneOf:
+          - type: string
+            enum:
+            - ALL
+          - type: array
+            minItems: 1
+            items:
+              type: string
+              minLength: 1
+    AccessPolicySubject:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - group
+          - agent
+        id:
+          type: string
+          description: ''
+    UpdateAccessPolicyRequest:
+      type: object
+      required:
+      - version
+      - subjects
+      - targets
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          description: ''
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          nullable: true
+          maxLength: 256
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+          description: ''
+        subjects:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicySubject'
+        targets:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        enabled:
+          type: boolean
+    AccessPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        effect:
+          type: string
+          enum:
+          - allow
+          - deny
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPolicySubjectDetails'
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPolicyTarget'
+        version:
+          type: integer
+          description: ''
+        status:
+          type: string
+          enum:
+          - active
+        workspace_id:
+          type: string
+          format: uuid
+        organisation_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_updated_at:
+          type: string
+          format: date-time
+        object:
+          type: string
+          enum:
+          - access
+    AccessPolicySubjectDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - group
+          - agent
+        id:
+          type: string
+          description: ''
+        name:
+          type: string
+          nullable: true
+          description: ''
+        email:
+          type: string
+          nullable: true
+          description: ''
+    CreateMessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+          - message
+        role:
+          type: string
+          enum:
+          - assistant
+        model:
+          type: string
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnthropicContentBlock'
+        stop_reason:
+          type: string
+          enum:
+          - end_turn
+          - max_tokens
+          - stop_sequence
+          - tool_use
+          - pause_turn
+        stop_sequence:
+          type: string
+          nullable: true
+        usage:
+          $ref: '#/components/schemas/AnthropicUsage'
+    AnthropicUsage:
+      type: object
+      properties:
+        input_tokens:
+          type: integer
+        output_tokens:
+          type: integer
+        cache_creation_input_tokens:
+          type: integer
+        cache_read_input_tokens:
+          type: integer
+    AnthropicContentBlock:
+      oneOf:
+      - $ref: '#/components/schemas/AnthropicTextContent'
+      - $ref: '#/components/schemas/AnthropicImageContent'
+      - $ref: '#/components/schemas/AnthropicDocumentContent'
+      - $ref: '#/components/schemas/AnthropicToolUseContent'
+      - $ref: '#/components/schemas/AnthropicToolResultContent'
+      - $ref: '#/components/schemas/AnthropicThinkingContent'
+      - $ref: '#/components/schemas/AnthropicRedactedThinkingContent'
+    AnthropicRedactedThinkingContent:
+      type: object
+      required:
+      - type
+      - data
+      properties:
+        type:
+          type: string
+          enum:
+          - redacted_thinking
+        data:
+          type: string
+    AnthropicThinkingContent:
+      type: object
+      required:
+      - type
+      - thinking
+      - signature
+      properties:
+        type:
+          type: string
+          enum:
+          - thinking
+        thinking:
+          type: string
+        signature:
+          type: string
+    AnthropicToolResultContent:
+      type: object
+      required:
+      - type
+      - tool_use_id
+      properties:
+        type:
+          type: string
+          enum:
+          - tool_result
+        tool_use_id:
+          type: string
+        content:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              oneOf:
+              - $ref: '#/components/schemas/AnthropicTextContent'
+              - $ref: '#/components/schemas/AnthropicImageContent'
+        is_error:
+          type: boolean
+    AnthropicImageContent:
+      type: object
+      required:
+      - type
+      - source
+      properties:
+        type:
+          type: string
+          enum:
+          - image
+        source:
+          $ref: '#/components/schemas/AnthropicImageSource'
+    AnthropicImageSource:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - base64
+          - url
+        media_type:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/gif
+          - image/webp
+          description: ''
+        data:
+          type: string
+          description: ''
+        url:
+          type: string
+          description: ''
+    AnthropicTextContent:
+      type: object
+      required:
+      - type
+      - text
+      properties:
+        type:
+          type: string
+          enum:
+          - text
+        text:
+          type: string
+    AnthropicToolUseContent:
+      type: object
+      required:
+      - type
+      - id
+      - name
+      - input
+      properties:
+        type:
+          type: string
+          enum:
+          - tool_use
+        id:
+          type: string
+        name:
+          type: string
+        input:
+          type: object
+    AnthropicDocumentContent:
+      type: object
+      required:
+      - type
+      - source
+      properties:
+        type:
+          type: string
+          enum:
+          - document
+        source:
+          $ref: '#/components/schemas/AnthropicDocumentSource'
+        title:
+          type: string
+        context:
+          type: string
+        citations:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+    AnthropicDocumentSource:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - base64
+          - url
+          - text
+          - content
+        media_type:
+          type: string
+          enum:
+          - application/pdf
+          - text/plain
+          description: ''
+        data:
+          type: string
+          description: ''
+        url:
+          type: string
+          description: ''
+        text:
+          type: string
+          description: ''
+    CreateAnthropicMessageRequest:
+      type: object
+      required:
+      - model
+      - messages
+      - max_tokens
+      description: ''
+      properties:
+        model:
+          type: string
+          description: ''
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnthropicMessage'
+          description: ''
+        max_tokens:
+          type: integer
+          description: ''
+        system:
+          $ref: '#/components/schemas/AnthropicSystemContent'
+        stream:
+          type: boolean
+          default: false
+          description: ''
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: ''
+        top_p:
+          type: number
+          description: ''
+        top_k:
+          type: integer
+          description: ''
+        stop_sequences:
+          type: array
+          items:
+            type: string
+          description: ''
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnthropicTool'
+          description: ''
+        tool_choice:
+          type: object
+          description: ''
+          properties:
+            type:
+              type: string
+              enum:
+              - auto
+              - any
+              - tool
+              - none
+            name:
+              type: string
+              description: ''
+        thinking:
+          $ref: '#/components/schemas/AnthropicThinkingConfig'
+        metadata:
+          type: object
+          properties:
+            user_id:
+              type: string
+    AnthropicThinkingConfig:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - adaptive
+        budget_tokens:
+          type: integer
+          description: ''
+    AnthropicTool:
+      type: object
+      required:
+      - name
+      - input_schema
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        input_schema:
+          type: object
+          description: ''
+        cache_control:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - ephemeral
+    AnthropicSystemContent:
+      oneOf:
+      - type: string
+        description: ''
+      - type: array
+        items:
+          type: object
+          required:
+          - type
+          - text
+          properties:
+            type:
+              type: string
+              enum:
+              - text
+            text:
+              type: string
+            cache_control:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - ephemeral
+    AnthropicMessage:
+      type: object
+      required:
+      - role
+      - content
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+        content:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              $ref: '#/components/schemas/AnthropicContentBlock'
+    CountMessageTokensResponse:
+      type: object
+      properties:
+        input_tokens:
+          type: integer
+          description: ''
+    CountMessageTokensRequest:
+      type: object
+      required:
+      - model
+      - messages
+      description: ''
+      properties:
+        model:
+          type: string
+          description: ''
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnthropicMessage'
+        system:
+          $ref: '#/components/schemas/AnthropicSystemContent'
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnthropicTool'
+        tool_choice:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - auto
+              - any
+              - tool
+              - none
+            name:
+              type: string
+        thinking:
+          $ref: '#/components/schemas/AnthropicThinkingConfig'

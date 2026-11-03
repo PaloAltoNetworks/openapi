@@ -52,7 +52,7 @@ empty, and it would have cost the whole gate the day one was written.
 The four decision files under `_project/` are the same idea applied to
 structure. Each
 holds a decision that would otherwise be spread across the document — sixty-odd
-`servers` blocks, eleven tag groups' worth of operations, 187 page URLs — where
+`servers` blocks, eleven tag groups' worth of operations, 203 page URLs — where
 it can be read, reviewed and changed in one place. `scripts/build.py` applies
 them back onto `openapi.yaml` and CI fails if the document and the decisions
 disagree.
@@ -62,12 +62,12 @@ disagree.
 | | |
 |---|---|
 | OpenAPI | 3.0.0 |
-| Paths / operations | 121 / 187 |
-| Components | 480, of which 442 schemas |
-| Tags | 42, across 6 navigation groups |
+| Paths / operations | 131 / 203 |
+| Components | 521, of which 479 schemas |
+| Tags | 46, across 6 navigation groups |
 | Servers | 5 hosts across 4 planes — managed and self-hosted gateway, control plane, admin, admin-in-path |
 | Security | 1 scheme: `Authorization: Bearer` |
-| Docs URLs | 187 — one `x-mint.href` per operation, all unique |
+| Docs URLs | 203 — one `x-mint.href` per operation, all unique |
 | Prose fields stripped | 4,221 |
 | Written descriptions | 0 — blocked on KB access |
 
@@ -157,7 +157,7 @@ changing either is a migration rather than a spec edit.**
 ```
 
 `{tag-path}` is the tag kebab-cased, with `>` becoming a path separator, and
-`{operation-slug}` is the `operationId` kebab-cased. The **45 operations with no
+`{operation-slug}` is the `operationId` kebab-cased. The **48 operations with no
 `operationId` get a slug from their method and path** — `by-id` for a `{id}`
 segment — and *not* an `operationId`. The distinction is why this could be done
 while Phase 2 waits: an `operationId` is a contract key that SDK generators turn
@@ -266,11 +266,11 @@ shrink, never grow. What is in there today:
 | Count | Rule | What it is |
 |---|---|---|
 | 64 | `no-$ref-siblings` | `title`, `nullable`, `type` and `x-oaiExpandable` beside a `$ref`, which OpenAPI 3.0 silently ignores |
-| 45 | `operation-operationId` | The known gap |
+| 48 | `operation-operationId` | The known gap. 45 inherited; 3 more with the analytics groups ported on 2026-11-02, which have none upstream either |
 | 4 | `array-items` | Arrays with no `items` |
 | 1 | `operation-success-response` | `GET /realtime` declares no 2xx |
 
-114 findings across 4 rules, down from 193 across 6 before the drops.
+117 findings across 4 rules, down from 193 across 6 before the drops.
 `oas3-unused-component` went from 26 to **0**: the drop pruned every component
 nothing reaches, including 52 the base was already carrying unreferenced.
 
@@ -310,7 +310,7 @@ domain and not subordinate to the KB (recorded exemption, Q6, 2026-09-07). The
 reconciliation loop is therefore three-node — KB ↔ spec ↔ docs — and drift from
 *either* side is a defect, with no authoritative side to fall back on.
 
-`x-airs-provenance` is scaffolded on all 187 operations with `claims` empty. It
+`x-airs-provenance` is scaffolded on all 203 operations with `claims` empty. It
 is not only "which claim supports this description"; it is the **join key that
 makes drift detectable**. Without a claim reference on an operation, nothing can
 tell that the KB moved and the spec did not.
@@ -503,6 +503,17 @@ about files that still decide things: does `openapi.yaml` agree with
 `tags-map.yaml`? The base is gone; the decisions taken against it are still
 enforced.
 
+Closed means nothing *follows* Portkey automatically, not that nothing may be
+taken from it. Changes are ported one at a time, as decisions, structure only:
+`POST /decisions` from Portkey-AI/openapi#160 (2026-09-29), and on 2026-11-02
+everything upstream merged up to `adfd74b` — the Anthropic integration and its
+WIF/OAuth auth, integration tags, the deployment and workspace analytics
+filters, three analytics groups, Egress Allowlist (admin), Access Policies
+(control plane), the Anthropic Messages API (gateway), and the
+`createThreadMessage` rename. Each carries its source commit in its commit
+message and, in `_project/planes.yaml`, in its `how`. What came over is
+Portkey's shape, as unverified against the Prisma AIRS API as the rest.
+
 The strip itself was recorded in `PROSE-INVENTORY.csv` — a pointer, length and
 SHA-256 digest per field, never the text. It was frozen at the end of Phase 1,
 because it could only be derived by diffing against the base, and removed on
@@ -521,7 +532,7 @@ wanted.
   reachable from this workspace. The left-hand column of the inherit/re-ground
   split is *machine-verifiable in principle* — send a request, compare the
   response — and that verification has not been done.
-- **45 operations have no `operationId`** (listed in `build-report.txt`). An
+- **48 operations have no `operationId`** (listed in `build-report.txt`). An
   inherited gap. Inventing identifiers is not the same as recovering them, so
   they are reported for engineering rather than filled in. This also blocks SDK
   generation: Stainless, Speakeasy and Fern all derive method names from it.
@@ -535,7 +546,7 @@ wanted.
 - **No code samples.** Mintlify generates one per operation from the schema, and
   it dumps every property: `POST /chat/completions` renders all 24, `seed` and
   `logit_bias` included, because Mintlify does not use `required` to trim the
-  example. Hand-written cURL samples for all 187 operations are Phase 3 work.
+  example. Hand-written cURL samples for all 203 operations are Phase 3 work.
   Until then the generated sample is correct but verbose. cURL only is the
   intended end state — a single `x-codeSamples` entry suppresses the other
   language tabs, and other languages are a separate decision.
@@ -546,12 +557,39 @@ wanted.
   For the three `PUT`s, requiring nothing may already be correct, since a
   partial update where every field is optional is a normal design. Wants
   engineering.
-- **114 lint findings are baselined**, all inherited. See the linting section.
+- **117 lint findings are baselined**, all inherited or carried in with ported
+  structure. See the linting section.
+- **Lint fails on `path-params`**, and has since PR #3 (2026-09-18).
+  `POST /api-keys/{sub-type}` and `/api-keys/{id}` are the same template to
+  OpenAPI, which forbids that. It is not baselined, because it is a defect in
+  the URL design rather than inherited debt: either the create path changes or
+  the two are merged into one path item. Wants an API decision.
 - **One operation is documented as needing no credentials** —
   `GET /model-configs/pricing/{provider}/{model}`, which the base declared with
   `security: []`. Preserved rather than quietly reversed: making it require auth
   is as much an unverified claim as leaving it public. `scripts/check.py` prints
-  it on every run. Wants engineering.
+  it on every run. Since 2026-11-02 it also requires `workspace_id`, which sits
+  oddly with taking no credentials: either it needs auth after all or it should
+  not need a workspace. Wants engineering.
+- **`workspace_id` is required on 80 operations, decided but not verified.**
+  Vrushank, 2026-11-02: `WorkspaceIdQuery` is mandatory and a uuid wherever it
+  appears, including every analytics operation and all of `/api-keys`, and the
+  analytics `include_all_workspaces` and `exclude_workspace_slugs` filters must
+  keep working beside it. oasdiff grades the 76 that existed before as 86
+  breaking changes; the four ported since are new. The version
+  stays `3.0.0` because no SDK has been generated from the document. Nobody has
+  yet sent a request to confirm it. Three things a live call against the
+  control plane (SCM token, `tsg_id` scope) would settle:
+  - a request with no `workspace_id` is rejected
+  - `include_all_workspaces=true` widens beyond the one required workspace,
+    rather than being refused or ignored
+  - `exclude_workspace_slugs` removes a workspace from those results
+
+  One tension to settle with it: PR #3 took the scope out of the API key create
+  path because the scope comes from the calling token, the same reasoning that
+  removed `organisation_id`. If a workspace-scoped token already carries its
+  workspace, `workspace_id` may only be needed, and required, for org-level
+  tokens.
 - **`organisation_id` is gone as a parameter but survives as a response
   field.** Engineering's instruction was scoped to parameters, and it was
   followed to that scope. Fifteen component schemas still carry an
