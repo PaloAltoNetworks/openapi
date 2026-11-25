@@ -1,0 +1,146 @@
+name: Request a KB changelog check
+
+# When a pull request merges to main, build a request for the KB ingest pipeline
+# (POST /v1/write/ingest_source): the operations the PR changed, as JSON
+# pointers, the merge commit, and a note asking whether the changelog needs an
+# entry for them. This is only the trigger: what the KB does with the request,
+# including deciding whether an entry is missing, lives in the KB.
+#
+# The KB is not reachable from GitHub, so this workflow sends nothing. It
+# uploads the request as the `kb-changelog-check` artifact, and the KB side
+# pulls it, checks it against its own configuration, and submits it. The
+# request names operations and a commit, never content: the KB reads
+# openapi.yaml itself from source.panw-openapi-aigw.
+#
+# The changelog is changelog/enterprise.mdx in Portkey-AI/docs-core
+# (https://portkey.ai/docs/changelog/enterprise).
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Number of a merged pull request to build the request for again'
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: kb-changelog-check-${{ github.event.pull_request.number || github.event.inputs.pr }}
+
+jobs:
+  trigger:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number || github.event.inputs.pr }}
+      KB_SOURCE_ID: source.panw-openapi-aigw
+      CHANGELOG: changelog/enterprise.mdx in Portkey-AI/docs-core, https://portkey.ai/docs/changelog/enterprise
+      MAX_PAGES: '40'
+    steps:
+      - name: Find the merge commit
+        id: pr
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/pulls/$PR" > /tmp/pr.json
+          if [ "$(jq -r .merged /tmp/pr.json)" != "true" ]; then
+            echo "PR #$PR is not merged." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "sha=$(jq -r .merge_commit_sha /tmp/pr.json)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+          fetch-depth: 0      # emit_change_event.py diffs against the parent
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # The merge commit's first parent is main before the merge, for a merge
+      # commit, a squash and a rebase alike, so this is exactly the PR's change.
+      - name: Find the changed operations
+        run: |
+          python scripts/emit_change_event.py \
+            --base "${{ steps.pr.outputs.sha }}^1" \
+            --head "${{ steps.pr.outputs.sha }}" \
+            --ref refs/heads/main \
+            -o build/spec-changed.json
+
+      - name: Build the ingest request
+        id: build
+        env:
+          SHA: ${{ steps.pr.outputs.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+
+          env = os.environ
+          pr = json.load(open('/tmp/pr.json'))
+          ops = json.load(open('build/spec-changed.json'))['operations']
+          limit = int(env['MAX_PAGES'])
+
+          def pointer(op):
+              path = op['path'].replace('~', '~0').replace('/', '~1')
+              return f"/paths/{path}/{op['method']}"
+
+          # A removed operation is not in openapi.yaml at the merge commit, so
+          # it cannot be read: it is named in the note instead.
+          present = [op for op in ops if op['change'] != 'removed']
+          removed = [op for op in ops if op['change'] == 'removed']
+          out = open(env['GITHUB_OUTPUT'], 'a')
+          summary = open(env['GITHUB_STEP_SUMMARY'], 'a')
+
+          if not present:
+              why = 'only removed operations' if removed else 'no operation'
+              summary.write(f"PR #{env['PR']} changed {why} in openapi.yaml; nothing to send.\n")
+              out.write('send=false\n')
+              raise SystemExit
+
+          def describe(op):
+              return f"{op['method'].upper()} {op['path']} ({op['change']}{', breaking' if op.get('breaking') else ''})"
+
+          note = (
+              f"Changelog check for {env['REPO']} PR #{env['PR']} ({pr['html_url']}), "
+              f"\"{pr['title']}\", merged as {env['SHA']}. It changed {len(present)} operation(s): "
+              + '; '.join(describe(op) for op in present[:limit])
+          )
+          if len(present) > limit:
+              note += f"; and {len(present) - limit} more, not sent"
+          if removed:
+              note += '. It removed: ' + '; '.join(describe(op) for op in removed)
+          note += (
+              f". Decide whether the changelog ({env['CHANGELOG']}) needs an entry for these changes, "
+              "and flag a meaningful change it does not reflect."
+          )
+
+          request = {
+              'source_id': env['KB_SOURCE_ID'],
+              'commit': env['SHA'],
+              'note': note,
+              'idempotency_key': f"changelog-check:{env['REPO']}:pr-{env['PR']}:{env['SHA']}",
+              'pages': [{'locator': pointer(op)} for op in present[:limit]],
+          }
+          json.dump(request, open('build/ingest-request.json', 'w'), indent=2)
+          print(json.dumps(request, indent=2))
+          out.write('send=true\n')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: steps.build.outputs.send == 'true'
+        with:
+          name: kb-changelog-check
+          path: |
+            build/ingest-request.json
+            build/spec-changed.json
+          retention-days: 30
